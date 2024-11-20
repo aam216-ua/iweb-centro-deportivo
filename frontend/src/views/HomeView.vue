@@ -1,5 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { AArrowDown } from "lucide-vue-next"
+</script>
 
 <template>
-  <main></main>
+  <main>
+    <AArrowDown />
+  </main>
 </template>
