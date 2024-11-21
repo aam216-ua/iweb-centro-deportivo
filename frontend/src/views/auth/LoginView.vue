@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -11,14 +10,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { loginSchema } from "@/schemas/auth.schema"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
+import { loginSchema } from "@/schemas/auth.schema"
+import { useAuthStore } from "@/stores/auth.store"
 import { vAutoAnimate } from "@formkit/auto-animate/vue"
+import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { h } from "vue"
+import { useRouter } from "vue-router"
 import * as z from "zod"
-import { useAuthStore } from "@/stores/auth.store"
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -57,9 +58,8 @@ const onSubmit = form.handleSubmit(async (values) => {
           <FormItem v-auto-animate>
             <FormLabel>Correo Electrónico</FormLabel>
             <FormControl>
-              <Input type="email" placeholder="tu@ejemplo.com" v-bind="componentField" />
+              <Input type="email" v-bind="componentField" />
             </FormControl>
-            <FormDescription> Ingresa el email con el que te registraste </FormDescription>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
         </FormField>
@@ -76,13 +76,14 @@ const onSubmit = form.handleSubmit(async (values) => {
               </router-link>
             </div>
             <FormControl>
-              <Input type="password" placeholder="Tu contraseña" v-bind="componentField" />
+              <Input type="password" v-bind="componentField" />
             </FormControl>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
         </FormField>
 
         <Button type="submit" class="w-full" :disabled="authStore.loading">
+          <Loader2 v-if="authStore.loading" class="mr-2 h-4 w-4 animate-spin" />
           {{ authStore.loading ? "Iniciando sesión..." : "Ingresar" }}
         </Button>
 

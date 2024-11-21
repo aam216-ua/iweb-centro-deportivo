@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router"
-import Toaster from "@/components/ui/toast/Toaster.vue"
+import { Toaster } from "@/components/ui/toast"
+import DefaultLayout from "@/layouts/DefaultLayout.vue"
+import type { LayoutNames } from "@/layouts/types"
+import { computed } from "vue"
+import { useRoute } from "vue-router"
+
+const route = useRoute()
+const layout = computed(() => {
+  return (route.meta.layout as LayoutNames) || "default"
+})
+
+const layouts = {
+  default: DefaultLayout,
+}
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
   <Toaster />
+  <component :is="layouts[layout]">
+    <RouterView />
+  </component>
 </template>

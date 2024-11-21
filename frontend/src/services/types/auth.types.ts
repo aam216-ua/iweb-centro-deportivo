@@ -3,6 +3,14 @@ export interface LoginCredentials {
   password: string
 }
 
+export interface RegisterUserData {
+  email: string
+  nombre: string
+  apellido: string
+  password: string
+  confirmPassword: string
+}
+
 export interface User {
   id: number
   email: string
