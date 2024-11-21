@@ -15,9 +15,9 @@ import { toast } from "@/components/ui/toast"
 import { loginSchema } from "@/schemas/auth.schema"
 import { useAuthStore } from "@/stores/auth.store"
 import { vAutoAnimate } from "@formkit/auto-animate/vue"
-import { Loader2 } from "lucide-vue-next"
+import { Eye, EyeOff, Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
-import { h } from "vue"
+import { h, ref } from "vue"
 import { useRouter } from "vue-router"
 import * as z from "zod"
 
@@ -28,6 +28,7 @@ const form = useForm({
   validationSchema: loginSchema,
 })
 
+const showPassword = ref(false)
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     await authStore.login(values.email, values.password)
@@ -76,7 +77,18 @@ const onSubmit = form.handleSubmit(async (values) => {
               </router-link>
             </div>
             <FormControl>
-              <Input type="password" v-bind="componentField" />
+              <div class="relative">
+                <Input :type="showPassword ? 'text' : 'password'" v-bind="componentField" />
+                <Button
+                  class="absolute right-1.5 top-1.5 h-7 w-7"
+                  variant="outline"
+                  size="icon"
+                  @click.prevent="showPassword = !showPassword"
+                >
+                  <Eye v-if="!showPassword" class="text-muted-foreground" />
+                  <EyeOff v-else class="text-muted-foreground" />
+                </Button>
+              </div>
             </FormControl>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
