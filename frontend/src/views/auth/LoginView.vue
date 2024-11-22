@@ -76,20 +76,21 @@ const onSubmit = form.handleSubmit(async (values) => {
                 ¿Olvidaste tu contraseña?
               </router-link>
             </div>
-            <FormControl>
-              <div class="relative">
+            <div class="relative">
+              <FormControl>
                 <Input :type="showPassword ? 'text' : 'password'" v-bind="componentField" />
-                <Button
-                  class="absolute right-1.5 top-1.5 h-7 w-7"
-                  variant="outline"
-                  size="icon"
-                  @click.prevent="showPassword = !showPassword"
-                >
-                  <Eye v-if="!showPassword" class="text-muted-foreground" />
-                  <EyeOff v-else class="text-muted-foreground" />
-                </Button>
-              </div>
-            </FormControl>
+              </FormControl>
+              <Button
+                class="absolute right-1.5 top-1.5 h-7 w-7"
+                variant="outline"
+                type="button"
+                size="icon"
+                @click.prevent="showPassword = !showPassword"
+              >
+                <Eye v-if="!showPassword" class="text-muted-foreground" />
+                <EyeOff v-else class="text-muted-foreground" />
+              </Button>
+            </div>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
         </FormField>
