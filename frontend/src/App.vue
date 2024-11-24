@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Toaster } from "@/components/ui/toast"
+import { Toaster } from "@/components/ui/sonner"
 import DefaultLayout from "@/layouts/DefaultLayout.vue"
 import type { LayoutNames } from "@/layouts/types"
 import { computed } from "vue"
@@ -16,7 +16,7 @@ const layouts = {
 </script>
 
 <template>
-  <Toaster />
+  <Toaster theme="dark" richColors />
   <component :is="layouts[layout]">
     <RouterView />
   </component>

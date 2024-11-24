@@ -12,13 +12,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/toast"
 import { loginSchema } from "@/schemas/auth.schema"
 import { useAuthStore } from "@/stores/auth.store"
 import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { ref } from "vue"
 import { useRouter } from "vue-router"
+import { toast } from "vue-sonner"
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -29,17 +29,10 @@ const showPassword = ref(false)
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     await authStore.login(values.email, values.password)
-    toast({
-      title: "¡Bienvenido!",
-      description: "Has iniciado sesión correctamente.",
-    })
+    toast.message("¡Bienvenido!", { description: "Has iniciado sesión correctamente." })
     router.push("/")
   } catch (error) {
-    toast({
-      title: "Error",
-      description: "Credenciales inválidas",
-      variant: "destructive",
-    })
+    toast.error("Credenciales inválidas")
   }
 })
 </script>

@@ -11,13 +11,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/toast"
 import { registerSchema } from "@/schemas/auth.schema"
 import { authService } from "@/services/auth.service"
 import { Eye, EyeOff, Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { ref } from "vue"
 import { useRouter } from "vue-router"
+import { toast } from "vue-sonner"
 
 const router = useRouter()
 const loading = ref(false)
@@ -32,17 +32,10 @@ const onSubmit = form.handleSubmit(async (values) => {
   try {
     loading.value = true
     await authService.register(values)
-    toast({
-      title: "¡Cuenta creada!",
-      description: "Tu cuenta ha sido creada exitosamente.",
-    })
+    toast.success("Tu cuenta ha sido creada exitosamente.")
     router.push("/login")
   } catch (error) {
-    toast({
-      title: "Error",
-      description: "No se pudo crear la cuenta. Intenta nuevamente.",
-      variant: "destructive",
-    })
+    toast.error("No se pudo crear la cuenta. Intenta nuevamente.")
   } finally {
     loading.value = false
   }
