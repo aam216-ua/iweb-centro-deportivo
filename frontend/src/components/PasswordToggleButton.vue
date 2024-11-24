@@ -22,6 +22,7 @@ const toggleVisibility = () => {
     variant="outline"
     type="button"
     size="icon"
+    tabindex="-1"
     @click.prevent="toggleVisibility"
   >
     <Eye v-if="!modelValue" class="text-muted-foreground" />

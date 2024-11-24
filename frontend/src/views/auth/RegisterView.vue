@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PasswordToggleButton from "@/components/PasswordToggleButton.vue"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -97,18 +98,13 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormLabel>Contraseña</FormLabel>
             <div class="relative">
               <FormControl>
-                <Input :type="showPassword ? 'text' : 'password'" v-bind="componentField" />
+                <Input
+                  class="pr-10"
+                  :type="showPassword ? 'text' : 'password'"
+                  v-bind="componentField"
+                />
               </FormControl>
-              <Button
-                class="absolute right-1.5 top-1.5 h-7 w-7"
-                variant="outline"
-                type="button"
-                size="icon"
-                @click.prevent="showPassword = !showPassword"
-              >
-                <Eye v-if="!showPassword" class="text-muted-foreground" />
-                <EyeOff v-else class="text-muted-foreground" />
-              </Button>
+              <PasswordToggleButton v-model="showPassword" />
             </div>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
@@ -126,18 +122,13 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormLabel>Confirmar Contraseña</FormLabel>
             <div class="relative">
               <FormControl>
-                <Input :type="showConfirmPassword ? 'text' : 'password'" v-bind="componentField" />
+                <Input
+                  class="pr-10"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  v-bind="componentField"
+                />
               </FormControl>
-              <Button
-                class="absolute right-1.5 top-1.5 h-7 w-7"
-                variant="outline"
-                type="button"
-                size="icon"
-                @click.prevent="showConfirmPassword = !showConfirmPassword"
-              >
-                <Eye v-if="!showConfirmPassword" class="text-muted-foreground" />
-                <EyeOff v-else class="text-muted-foreground" />
-              </Button>
+              <PasswordToggleButton v-model="showConfirmPassword" />
             </div>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>

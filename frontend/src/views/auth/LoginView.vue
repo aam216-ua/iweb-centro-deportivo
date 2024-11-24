@@ -60,6 +60,7 @@ const onSubmit = form.handleSubmit(async (values) => {
               <FormLabel>Contraseña</FormLabel>
               <router-link
                 to="/recover"
+                tabindex="-1"
                 class="text-sm text-muted-foreground underline-offset-4 hover:underline"
               >
                 ¿Olvidaste tu contraseña?
@@ -67,7 +68,11 @@ const onSubmit = form.handleSubmit(async (values) => {
             </div>
             <div class="relative">
               <FormControl>
-                <Input :type="showPassword ? 'text' : 'password'" v-bind="componentField" />
+                <Input
+                  class="pr-10"
+                  :type="showPassword ? 'text' : 'password'"
+                  v-bind="componentField"
+                />
               </FormControl>
               <PasswordToggleButton v-model="showPassword" />
             </div>

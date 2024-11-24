@@ -17,6 +17,7 @@ export const registerSchema = toTypedSchema(
       password: z
         .string()
         .min(8)
+        .max(64)
         .regex(/[A-Z]/)
         .regex(/[a-z]/)
         .regex(/[0-9]/)
