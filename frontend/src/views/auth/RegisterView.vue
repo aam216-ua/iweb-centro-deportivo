@@ -67,9 +67,9 @@ const onSubmit = form.handleSubmit(async (values) => {
             </FormItem>
           </FormField>
 
-          <FormField v-slot="{ componentField, errorMessage }" name="apellido">
+          <FormField v-slot="{ componentField, errorMessage }" name="apellidos">
             <FormItem v-auto-animate>
-              <FormLabel>Apellido</FormLabel>
+              <FormLabel>Apellidos</FormLabel>
               <FormControl>
                 <Input v-bind="componentField" />
               </FormControl>
