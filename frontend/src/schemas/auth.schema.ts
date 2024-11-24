@@ -4,15 +4,15 @@ import { toTypedSchema } from "@vee-validate/zod"
 export const loginSchema = toTypedSchema(
   z.object({
     email: z.string().email(),
-    password: z.string(),
+    password: z.string().trim(),
   }),
 )
 
 export const registerSchema = toTypedSchema(
   z
     .object({
-      nombre: z.string().min(2).max(50),
-      apellidos: z.string().min(2).max(50),
+      nombre: z.string().trim().min(2).max(50),
+      apellidos: z.string().trim().min(2).max(50),
       email: z.string().email(),
       password: z
         .string()
@@ -20,9 +20,10 @@ export const registerSchema = toTypedSchema(
         .regex(/[A-Z]/)
         .regex(/[a-z]/)
         .regex(/[0-9]/)
-        .regex(/[!@#$%^&*]/),
+        .regex(/[!@#$%^&*]/)
+        .regex(/^[A-Za-z0-9!@#$%^&*]+$/),
       confirmPassword: z.string(),
-      telefono: z.string(),
+      telefono: z.string().trim(),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: "Las contraseñas no coinciden",
