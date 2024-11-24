@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { loginSchema } from "@/schemas/auth.schema"
 import { useAuthStore } from "@/stores/auth.store"
-import { vAutoAnimate } from "@formkit/auto-animate/vue"
 import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { ref } from "vue"
@@ -54,7 +53,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     <CardContent>
       <form @submit="onSubmit" class="grid gap-4">
         <FormField v-slot="{ componentField, errorMessage }" name="email">
-          <FormItem v-auto-animate>
+          <FormItem>
             <FormLabel>Correo Electrónico</FormLabel>
             <FormControl>
               <Input type="email" v-bind="componentField" />
@@ -63,7 +62,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           </FormItem>
         </FormField>
         <FormField v-slot="{ componentField, errorMessage }" name="password">
-          <FormItem v-auto-animate>
+          <FormItem>
             <div class="flex items-center justify-between">
               <FormLabel>Contraseña</FormLabel>
               <router-link

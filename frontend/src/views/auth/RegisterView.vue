@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
 import { registerSchema } from "@/schemas/auth.schema"
 import { authService } from "@/services/auth.service"
-import { vAutoAnimate } from "@formkit/auto-animate/vue"
 import { Eye, EyeOff, Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { ref } from "vue"
@@ -60,7 +59,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       <form @submit="onSubmit" class="grid gap-4">
         <div class="grid grid-cols-2 gap-4">
           <FormField v-slot="{ componentField, errorMessage }" name="nombre">
-            <FormItem v-auto-animate>
+            <FormItem>
               <FormLabel>Nombre</FormLabel>
               <FormControl>
                 <Input v-bind="componentField" />
@@ -70,7 +69,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           </FormField>
 
           <FormField v-slot="{ componentField, errorMessage }" name="apellidos">
-            <FormItem v-auto-animate>
+            <FormItem>
               <FormLabel>Apellidos</FormLabel>
               <FormControl>
                 <Input v-bind="componentField" />
@@ -80,8 +79,18 @@ const onSubmit = form.handleSubmit(async (values) => {
           </FormField>
         </div>
 
+        <FormField v-slot="{ componentField, errorMessage }" name="telefono">
+          <FormItem>
+            <FormLabel>Teléfono</FormLabel>
+            <FormControl>
+              <Input v-bind="componentField" />
+            </FormControl>
+            <FormMessage>{{ errorMessage }}</FormMessage>
+          </FormItem>
+        </FormField>
+
         <FormField v-slot="{ componentField, errorMessage }" name="email">
-          <FormItem v-auto-animate>
+          <FormItem>
             <FormLabel>Correo Electrónico</FormLabel>
             <FormControl>
               <Input type="email" v-bind="componentField" />
@@ -91,7 +100,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </FormField>
 
         <FormField v-slot="{ componentField, errorMessage }" name="password">
-          <FormItem v-auto-animate>
+          <FormItem>
             <FormLabel>Contraseña</FormLabel>
             <div class="relative">
               <FormControl>
@@ -112,7 +121,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           </FormItem>
         </FormField>
 
-        <ul class="list-disc list-inside text-sm text-muted-foreground">
+        <ul class="list-disc list-inside text-xs text-muted-foreground">
           <li>Debe contener alguna mayúscula [A-Z]</li>
           <li>Debe contener alguna minúscula [a-z]</li>
           <li>Debe contener algún dígito [0-9]</li>
@@ -120,7 +129,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </ul>
 
         <FormField v-slot="{ componentField, errorMessage }" name="confirmPassword">
-          <FormItem v-auto-animate>
+          <FormItem>
             <FormLabel>Confirmar Contraseña</FormLabel>
             <div class="relative">
               <FormControl>

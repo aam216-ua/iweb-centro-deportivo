@@ -9,6 +9,7 @@ export interface RegisterUserData {
   apellidos: string
   password: string
   confirmPassword: string
+  telefono: string
 }
 
 export interface User {
