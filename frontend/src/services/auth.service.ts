@@ -32,8 +32,10 @@ export const authService = {
         user: {
           id: 1,
           email: credentials.email,
-          name: "Test User",
-          roles: ["USER"],
+          nombre: "Test User",
+          apellidos: "User",
+          telefono: "000",
+          saldo: 0,
         },
       }
     }

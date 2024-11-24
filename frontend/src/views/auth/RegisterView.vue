@@ -15,13 +15,15 @@ import { toast } from "@/components/ui/toast"
 import { registerSchema } from "@/schemas/auth.schema"
 import { authService } from "@/services/auth.service"
 import { vAutoAnimate } from "@formkit/auto-animate/vue"
-import { Loader2 } from "lucide-vue-next"
+import { Eye, EyeOff, Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { ref } from "vue"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
 const loading = ref(false)
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 const form = useForm({
   validationSchema: registerSchema,
@@ -91,19 +93,50 @@ const onSubmit = form.handleSubmit(async (values) => {
         <FormField v-slot="{ componentField, errorMessage }" name="password">
           <FormItem v-auto-animate>
             <FormLabel>Contraseña</FormLabel>
-            <FormControl>
-              <Input type="password" v-bind="componentField" />
-            </FormControl>
+            <div class="relative">
+              <FormControl>
+                <Input :type="showPassword ? 'text' : 'password'" v-bind="componentField" />
+              </FormControl>
+              <Button
+                class="absolute right-1.5 top-1.5 h-7 w-7"
+                variant="outline"
+                type="button"
+                size="icon"
+                @click.prevent="showPassword = !showPassword"
+              >
+                <Eye v-if="!showPassword" class="text-muted-foreground" />
+                <EyeOff v-else class="text-muted-foreground" />
+              </Button>
+            </div>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
         </FormField>
 
+        <ul class="list-disc list-inside text-sm text-muted-foreground">
+          <li>Debe contener alguna mayúscula [A-Z]</li>
+          <li>Debe contener alguna minúscula [a-z]</li>
+          <li>Debe contener algún dígito [0-9]</li>
+          <li>Debe contener algún símbolo [!@#$%^&*]</li>
+        </ul>
+
         <FormField v-slot="{ componentField, errorMessage }" name="confirmPassword">
           <FormItem v-auto-animate>
             <FormLabel>Confirmar Contraseña</FormLabel>
-            <FormControl>
-              <Input type="password" v-bind="componentField" />
-            </FormControl>
+            <div class="relative">
+              <FormControl>
+                <Input :type="showConfirmPassword ? 'text' : 'password'" v-bind="componentField" />
+              </FormControl>
+              <Button
+                class="absolute right-1.5 top-1.5 h-7 w-7"
+                variant="outline"
+                type="button"
+                size="icon"
+                @click.prevent="showConfirmPassword = !showConfirmPassword"
+              >
+                <Eye v-if="!showConfirmPassword" class="text-muted-foreground" />
+                <EyeOff v-else class="text-muted-foreground" />
+              </Button>
+            </div>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
         </FormField>

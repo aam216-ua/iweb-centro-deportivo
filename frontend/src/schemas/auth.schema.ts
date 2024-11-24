@@ -17,10 +17,10 @@ export const registerSchema = toTypedSchema(
       password: z
         .string()
         .min(8)
-        .regex(/[A-Z]/, "El campo contraseña debe contener al menos una mayúscula")
-        .regex(/[a-z]/, "El campo contraseña debe contener al menos una minúscula")
-        .regex(/[0-9]/, "El campo contraseña debe contener al menos un número")
-        .regex(/[^A-Za-z0-9]/, "El campo contraseña debe contener al menos un carácter especial"),
+        .regex(/[A-Z]/)
+        .regex(/[a-z]/)
+        .regex(/[0-9]/)
+        .regex(/[!@#$%^&*]/),
       confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {

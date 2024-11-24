@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PasswordToggleButton from "@/components/PasswordToggleButton.vue"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -15,19 +16,16 @@ import { toast } from "@/components/ui/toast"
 import { loginSchema } from "@/schemas/auth.schema"
 import { useAuthStore } from "@/stores/auth.store"
 import { vAutoAnimate } from "@formkit/auto-animate/vue"
-import { Eye, EyeOff, Loader2 } from "lucide-vue-next"
+import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
-import { h, ref } from "vue"
+import { ref } from "vue"
 import { useRouter } from "vue-router"
-import * as z from "zod"
 
 const router = useRouter()
 const authStore = useAuthStore()
-
 const form = useForm({
   validationSchema: loginSchema,
 })
-
 const showPassword = ref(false)
 const onSubmit = form.handleSubmit(async (values) => {
   try {
@@ -64,7 +62,6 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
         </FormField>
-
         <FormField v-slot="{ componentField, errorMessage }" name="password">
           <FormItem v-auto-animate>
             <div class="flex items-center justify-between">
@@ -80,26 +77,15 @@ const onSubmit = form.handleSubmit(async (values) => {
               <FormControl>
                 <Input :type="showPassword ? 'text' : 'password'" v-bind="componentField" />
               </FormControl>
-              <Button
-                class="absolute right-1.5 top-1.5 h-7 w-7"
-                variant="outline"
-                type="button"
-                size="icon"
-                @click.prevent="showPassword = !showPassword"
-              >
-                <Eye v-if="!showPassword" class="text-muted-foreground" />
-                <EyeOff v-else class="text-muted-foreground" />
-              </Button>
+              <PasswordToggleButton v-model="showPassword" />
             </div>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
         </FormField>
-
         <Button type="submit" class="w-full" :disabled="authStore.loading">
           <Loader2 v-if="authStore.loading" class="mr-2 h-4 w-4 animate-spin" />
           {{ authStore.loading ? "Iniciando sesión..." : "Ingresar" }}
         </Button>
-
         <div class="mt-4 text-center text-sm text-muted-foreground">
           ¿No tienes una cuenta?
           <router-link to="/register" class="text-primary underline-offset-4 hover:underline">

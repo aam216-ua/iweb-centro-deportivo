@@ -12,7 +12,7 @@ export interface RegisterUserData {
 }
 
 export interface User {
-  id: integer
+  id: number
   email: string
   nombre: string
   apellidos: string

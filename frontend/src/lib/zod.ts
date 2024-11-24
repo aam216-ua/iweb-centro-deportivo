@@ -3,31 +3,33 @@ import { z } from "zod"
 const spanishErrorMap: z.ZodErrorMap = (issue, ctx) => {
   let message: string
 
+  const typeMapping: Record<string, string> = {
+    string: "texto",
+    number: "número",
+    date: "fecha",
+    boolean: "booleano",
+    array: "lista",
+    object: "objeto",
+    bigint: "número grande",
+    symbol: "símbolo",
+    function: "función",
+    undefined: "indefinido",
+    null: "nulo",
+    void: "vacío",
+    never: "nunca",
+    any: "cualquier",
+    unknown: "desconocido",
+    map: "mapa",
+    set: "conjunto",
+  }
+
   switch (issue.code) {
     case z.ZodIssueCode.invalid_type:
       if (issue.received === "undefined" || issue.received === "null") {
         message = "El campo es requerido"
       } else {
-        const expectedType =
-          {
-            string: "texto",
-            number: "número",
-            date: "fecha",
-            boolean: "booleano",
-            array: "lista",
-            object: "objeto",
-          }[issue.expected] || issue.expected
-
-        const receivedType =
-          {
-            string: "texto",
-            number: "número",
-            date: "fecha",
-            boolean: "booleano",
-            array: "lista",
-            object: "objeto",
-          }[issue.received] || issue.received
-
+        const expectedType = typeMapping[issue.expected] || issue.expected
+        const receivedType = typeMapping[issue.received] || issue.received
         message = `Se esperaba ${expectedType}, pero se recibió ${receivedType}`
       }
       break
@@ -50,7 +52,7 @@ const spanishErrorMap: z.ZodErrorMap = (issue, ctx) => {
       }
       break
 
-    case z.ZodIssueCode.invalid_number:
+    case z.ZodIssueCode.not_finite:
       message = "El número no es válido"
       break
 
@@ -116,7 +118,7 @@ const spanishErrorMap: z.ZodErrorMap = (issue, ctx) => {
     case z.ZodIssueCode.invalid_union_discriminator:
       message = `Valor inválido, opciones válidas: ${issue.options.join(", ")}`
       break
-    case z.ZodIssueCode.invalid_literal_value:
+    case z.ZodIssueCode.invalid_literal:
       message = "Valor literal inválido"
       break
     default:
