@@ -151,6 +151,7 @@ const authStore = useAuthStore()
     </main>
 
     <!-- Footer -->
+    <!--
     <footer class="border-t mt-auto">
       <div class="container flex h-16 items-center justify-between text-sm text-muted-foreground">
         <p>&copy; {{ new Date().getFullYear() }} Todos los derechos reservados.</p>
@@ -160,5 +161,6 @@ const authStore = useAuthStore()
         </nav>
       </div>
     </footer>
+    -->
   </div>
 </template>
