@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PasswordToggleButton from "@/components/PasswordToggleButton.vue"
+import PhoneInput from "@/components/PhoneInput.vue"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -12,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import log from "@/lib/log"
 import { registerSchema } from "@/schemas/auth.schema"
 import { authService } from "@/services/auth.service"
 import { Eye, EyeOff, Loader2 } from "lucide-vue-next"
@@ -24,6 +26,7 @@ const router = useRouter()
 const loading = ref(false)
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const countryCode = ref("ES")
 
 const form = useForm({
   validationSchema: registerSchema,
@@ -77,7 +80,7 @@ const onSubmit = form.handleSubmit(async (values) => {
           <FormItem>
             <FormLabel>Teléfono</FormLabel>
             <FormControl>
-              <Input v-bind="componentField" />
+              <PhoneInput v-bind="componentField" />
             </FormControl>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
@@ -111,6 +114,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </FormField>
 
         <ul class="list-disc list-inside text-xs text-muted-foreground">
+          <li>Debe contener entre 8 y 64 caracteres</li>
           <li>Debe contener alguna mayúscula [A-Z]</li>
           <li>Debe contener alguna minúscula [a-z]</li>
           <li>Debe contener algún dígito [0-9]</li>

@@ -33,6 +33,8 @@ export default [
             "Table",
             "Sonner",
             "Toaster",
+            "Command",
+            "Popover",
             "Sheet",
           ],
         },
