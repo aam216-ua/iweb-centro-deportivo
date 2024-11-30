@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import FlagComponent from "@/components/FlagComponent.vue"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -9,94 +8,280 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import { Input } from "@/components/ui/input"
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useFocus } from "@vueuse/core"
-import PhoneInput from "base-vue-phone-input"
+import { createReusableTemplate, useMediaQuery } from "@vueuse/core"
 import { ChevronsUpDown } from "lucide-vue-next"
 import { ref } from "vue"
 
-const props = defineProps<{
-  modelValue?: string
-}>()
-
-const emit = defineEmits<{
-  "update:modelValue": [value: string]
-}>()
-
-const open = ref(false)
-const phoneInput = ref(null)
-const { focused } = useFocus(phoneInput)
-const currentPrefix = ref("+34")
-
-const handleInput = (e: Event, updateInputValue: (value: string) => void) => {
-  const target = e.target as HTMLInputElement
-  updateInputValue(target.value)
-  emit("update:modelValue", `${currentPrefix.value} ${target.value}`)
+interface CountryCode {
+  country: string
+  code: string
 }
 
-const handleCountrySelect = (
-  option: { dialCode: string; iso2: string },
-  updateInputValue: (value: string) => void,
-) => {
-  updateInputValue(option.iso2)
-  currentPrefix.value = option.dialCode
-  open.value = false
-  focused.value = true
+const countryCodes: CountryCode[] = [
+  { country: "Afganistán", code: "+93" },
+  { country: "Albania", code: "+355" },
+  { country: "Alemania", code: "+49" },
+  { country: "Andorra", code: "+376" },
+  { country: "Angola", code: "+244" },
+  { country: "Antigua y Barbuda", code: "+1-268" },
+  { country: "Arabia Saudita", code: "+966" },
+  { country: "Argelia", code: "+213" },
+  { country: "Argentina", code: "+54" },
+  { country: "Armenia", code: "+374" },
+  { country: "Australia", code: "+61" },
+  { country: "Austria", code: "+43" },
+  { country: "Azerbaiyán", code: "+994" },
+  { country: "Bahamas", code: "+1-242" },
+  { country: "Bahrein", code: "+973" },
+  { country: "Bangladesh", code: "+880" },
+  { country: "Barbados", code: "+1-246" },
+  { country: "Bélgica", code: "+32" },
+  { country: "Belice", code: "+501" },
+  { country: "Benín", code: "+229" },
+  { country: "Bielorrusia", code: "+375" },
+  { country: "Bolivia", code: "+591" },
+  { country: "Bosnia y Herzegovina", code: "+387" },
+  { country: "Botsuana", code: "+267" },
+  { country: "Brasil", code: "+55" },
+  { country: "Brunéi", code: "+673" },
+  { country: "Bulgaria", code: "+359" },
+  { country: "Burkina Faso", code: "+226" },
+  { country: "Burundi", code: "+257" },
+  { country: "Bután", code: "+975" },
+  { country: "Cabo Verde", code: "+238" },
+  { country: "Camboya", code: "+855" },
+  { country: "Camerún", code: "+237" },
+  { country: "Canadá", code: "+1" },
+  { country: "Chad", code: "+235" },
+  { country: "Chile", code: "+56" },
+  { country: "China", code: "+86" },
+  { country: "Chipre", code: "+357" },
+  { country: "Colombia", code: "+57" },
+  { country: "Comoras", code: "+269" },
+  { country: "Congo", code: "+242" },
+  { country: "Corea del Norte", code: "+850" },
+  { country: "Corea del Sur", code: "+82" },
+  { country: "Costa Rica", code: "+506" },
+  { country: "Costa de Marfil", code: "+225" },
+  { country: "Croacia", code: "+385" },
+  { country: "Cuba", code: "+53" },
+  { country: "Dinamarca", code: "+45" },
+  { country: "Dominica", code: "+1-767" },
+  { country: "Ecuador", code: "+593" },
+  { country: "Egipto", code: "+20" },
+  { country: "El Salvador", code: "+503" },
+  { country: "Emiratos Árabes Unidos", code: "+971" },
+  { country: "Eritrea", code: "+291" },
+  { country: "Eslovaquia", code: "+421" },
+  { country: "Eslovenia", code: "+386" },
+  { country: "España", code: "+34" },
+  { country: "Estados Unidos", code: "+1" },
+  { country: "Estonia", code: "+372" },
+  { country: "Etiopía", code: "+251" },
+  { country: "Filipinas", code: "+63" },
+  { country: "Finlandia", code: "+358" },
+  { country: "Fiyi", code: "+679" },
+  { country: "Francia", code: "+33" },
+  { country: "Gabón", code: "+241" },
+  { country: "Gambia", code: "+220" },
+  { country: "Georgia", code: "+995" },
+  { country: "Ghana", code: "+233" },
+  { country: "Granada", code: "+1-473" },
+  { country: "Grecia", code: "+30" },
+  { country: "Guatemala", code: "+502" },
+  { country: "Guinea", code: "+224" },
+  { country: "Guinea-Bisáu", code: "+245" },
+  { country: "Guinea Ecuatorial", code: "+240" },
+  { country: "Guyana", code: "+592" },
+  { country: "Haití", code: "+509" },
+  { country: "Honduras", code: "+504" },
+  { country: "Hungría", code: "+36" },
+  { country: "India", code: "+91" },
+  { country: "Indonesia", code: "+62" },
+  { country: "Irak", code: "+964" },
+  { country: "Irán", code: "+98" },
+  { country: "Irlanda", code: "+353" },
+  { country: "Islandia", code: "+354" },
+  { country: "Islas Marshall", code: "+692" },
+  { country: "Islas Salomón", code: "+677" },
+  { country: "Israel", code: "+972" },
+  { country: "Italia", code: "+39" },
+  { country: "Jamaica", code: "+1-876" },
+  { country: "Japón", code: "+81" },
+  { country: "Jordania", code: "+962" },
+  { country: "Kazajistán", code: "+7" },
+  { country: "Kenia", code: "+254" },
+  { country: "Kirguistán", code: "+996" },
+  { country: "Kiribati", code: "+686" },
+  { country: "Kuwait", code: "+965" },
+  { country: "Laos", code: "+856" },
+  { country: "Lesoto", code: "+266" },
+  { country: "Letonia", code: "+371" },
+  { country: "Líbano", code: "+961" },
+  { country: "Liberia", code: "+231" },
+  { country: "Libia", code: "+218" },
+  { country: "Liechtenstein", code: "+423" },
+  { country: "Lituania", code: "+370" },
+  { country: "Luxemburgo", code: "+352" },
+  { country: "Macedonia del Norte", code: "+389" },
+  { country: "Madagascar", code: "+261" },
+  { country: "Malasia", code: "+60" },
+  { country: "Malaui", code: "+265" },
+  { country: "Maldivas", code: "+960" },
+  { country: "Malí", code: "+223" },
+  { country: "Malta", code: "+356" },
+  { country: "Marruecos", code: "+212" },
+  { country: "Mauricio", code: "+230" },
+  { country: "Mauritania", code: "+222" },
+  { country: "México", code: "+52" },
+  { country: "Micronesia", code: "+691" },
+  { country: "Moldavia", code: "+373" },
+  { country: "Mónaco", code: "+377" },
+  { country: "Mongolia", code: "+976" },
+  { country: "Montenegro", code: "+382" },
+  { country: "Mozambique", code: "+258" },
+  { country: "Myanmar", code: "+95" },
+  { country: "Namibia", code: "+264" },
+  { country: "Nauru", code: "+674" },
+  { country: "Nepal", code: "+977" },
+  { country: "Nicaragua", code: "+505" },
+  { country: "Níger", code: "+227" },
+  { country: "Nigeria", code: "+234" },
+  { country: "Noruega", code: "+47" },
+  { country: "Nueva Zelanda", code: "+64" },
+  { country: "Omán", code: "+968" },
+  { country: "Países Bajos", code: "+31" },
+  { country: "Pakistán", code: "+92" },
+  { country: "Palaos", code: "+680" },
+  { country: "Panamá", code: "+507" },
+  { country: "Papúa Nueva Guinea", code: "+675" },
+  { country: "Paraguay", code: "+595" },
+  { country: "Perú", code: "+51" },
+  { country: "Polonia", code: "+48" },
+  { country: "Portugal", code: "+351" },
+  { country: "Qatar", code: "+974" },
+  { country: "Reino Unido", code: "+44" },
+  { country: "República Centroafricana", code: "+236" },
+  { country: "República Checa", code: "+420" },
+  { country: "República Democrática del Congo", code: "+243" },
+  { country: "República Dominicana", code: "+1-809" },
+  { country: "Ruanda", code: "+250" },
+  { country: "Rumanía", code: "+40" },
+  { country: "Rusia", code: "+7" },
+  { country: "Samoa", code: "+685" },
+  { country: "San Marino", code: "+378" },
+  { country: "Santa Lucía", code: "+1-758" },
+  { country: "Santo Tomé y Príncipe", code: "+239" },
+  { country: "Senegal", code: "+221" },
+  { country: "Serbia", code: "+381" },
+  { country: "Seychelles", code: "+248" },
+  { country: "Sierra Leona", code: "+232" },
+  { country: "Singapur", code: "+65" },
+  { country: "Siria", code: "+963" },
+  { country: "Somalia", code: "+252" },
+  { country: "Sri Lanka", code: "+94" },
+  { country: "Suazilandia", code: "+268" },
+  { country: "Sudáfrica", code: "+27" },
+  { country: "Sudán", code: "+249" },
+  { country: "Suecia", code: "+46" },
+  { country: "Suiza", code: "+41" },
+  { country: "Surinam", code: "+597" },
+  { country: "Tailandia", code: "+66" },
+  { country: "Tanzania", code: "+255" },
+  { country: "Tayikistán", code: "+992" },
+  { country: "Timor Oriental", code: "+670" },
+  { country: "Togo", code: "+228" },
+  { country: "Tonga", code: "+676" },
+  { country: "Trinidad y Tobago", code: "+1-868" },
+  { country: "Túnez", code: "+216" },
+  { country: "Turkmenistán", code: "+993" },
+  { country: "Turquía", code: "+90" },
+  { country: "Tuvalu", code: "+688" },
+  { country: "Ucrania", code: "+380" },
+  { country: "Uganda", code: "+256" },
+  { country: "Uruguay", code: "+598" },
+  { country: "Uzbekistán", code: "+998" },
+  { country: "Vanuatu", code: "+678" },
+  { country: "Venezuela", code: "+58" },
+  { country: "Vietnam", code: "+84" },
+  { country: "Yemen", code: "+967" },
+  { country: "Yibuti", code: "+253" },
+  { country: "Zambia", code: "+260" },
+  { country: "Zimbabue", code: "+263" },
+]
+
+const [UseTemplate, CountryCodeList] = createReusableTemplate()
+const isDesktop = useMediaQuery("(min-width: 768px)")
+
+const isOpen = ref(false)
+const selectedCountryCode = ref<CountryCode>(countryCodes[56])
+
+function onCountryCodeSelect(countryCode: CountryCode) {
+  selectedCountryCode.value = countryCode
+  isOpen.value = false
 }
 </script>
 
 <template>
-  <PhoneInput
-    noUseBrowserLocale
-    fetchCountry
-    class="flex"
-    country-locale="es-ES"
-    :ignored-countries="['AC']"
-  >
-    <template #selector="{ inputValue, updateInputValue, countries }">
-      <Popover v-model:open="open">
-        <PopoverTrigger>
-          <Button
-            variant="outline"
-            type="button"
-            tabindex="-1"
-            class="flex gap-1 rounded-e-none border-r-0 rounded-s-lg px-3 h-10"
-          >
-            <FlagComponent :country="inputValue" />
-            <ChevronsUpDown class="-mr-2 h-4 w-4 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent class="w-[300px] p-0">
-          <Command>
-            <CommandInput placeholder="Buscar país..." />
-            <CommandEmpty>No se encuentra el país.</CommandEmpty>
-            <CommandList>
-              <CommandGroup>
-                <CommandItem
-                  v-for="option in countries"
-                  :key="option.iso2"
-                  :value="option.name"
-                  class="gap-2"
-                  @select="() => handleCountrySelect(option, updateInputValue)"
-                >
-                  <span class="flex-1 text-sm">{{ option.name }}</span>
-                  <span class="text-foreground/50 text-sm">{{ option.dialCode }}</span>
-                </CommandItem>
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </template>
-    <template #input="{ inputValue, updateInputValue }">
-      <Input
-        ref="phoneInput"
-        class="rounded-e-lg rounded-s-none"
-        type="text"
-        :model-value="inputValue"
-        @input="(e: Event) => handleInput(e, updateInputValue)"
-      />
-    </template>
-  </PhoneInput>
+  <div>
+    <UseTemplate>
+      <Command>
+        <CommandInput placeholder="Filtrar país..." />
+        <CommandList>
+          <CommandEmpty>Sin resultados.</CommandEmpty>
+          <CommandGroup>
+            <CommandItem
+              v-for="countryCode of countryCodes"
+              :key="countryCode.code"
+              :value="countryCode.country.toLowerCase()"
+              @select="onCountryCodeSelect(countryCode)"
+            >
+              {{ countryCode.code }}
+              {{ countryCode.country }}
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </UseTemplate>
+
+    <Popover v-if="isDesktop" v-model:open="isOpen">
+      <PopoverTrigger as-child>
+        <Button
+          variant="outline"
+          type="button"
+          tabindex="-1"
+          class="w-fit h-10 rounded-e-none justify-start"
+        >
+          <div class="flex flex-row items-center gap-1">
+            <div>{{ selectedCountryCode.code }}</div>
+            <ChevronsUpDown />
+          </div>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent class="w-[200px] p-0" align="start">
+        <CountryCodeList />
+      </PopoverContent>
+    </Popover>
+
+    <Drawer v-else :open="isOpen" @update:open="(newOpenValue) => (isOpen = newOpenValue)">
+      <DrawerTrigger as-child>
+        <Button
+          variant="outline"
+          type="button"
+          tabindex="-1"
+          class="w-fit h-10 rounded-e-none justify-start"
+        >
+          <div>{{ selectedCountryCode.code }}</div>
+          <ChevronsUpDown />
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <div class="mt-4 border-t">
+          <CountryCodeList />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  </div>
 </template>

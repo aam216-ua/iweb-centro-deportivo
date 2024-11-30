@@ -26,7 +26,6 @@ const router = useRouter()
 const loading = ref(false)
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
-const countryCode = ref("ES")
 
 const form = useForm({
   validationSchema: registerSchema,
@@ -80,7 +79,10 @@ const onSubmit = form.handleSubmit(async (values) => {
           <FormItem>
             <FormLabel>Teléfono</FormLabel>
             <FormControl>
-              <PhoneInput v-bind="componentField" />
+              <div class="flex flex-row gap-0">
+                <PhoneInput />
+                <Input class="rounded-l-none border-l-0" v-bind="componentField" />
+              </div>
             </FormControl>
             <FormMessage>{{ errorMessage }}</FormMessage>
           </FormItem>
@@ -145,7 +147,11 @@ const onSubmit = form.handleSubmit(async (values) => {
 
         <div class="mt-4 text-center text-sm text-muted-foreground">
           ¿Ya tienes una cuenta?
-          <router-link to="/login" class="text-primary underline-offset-4 hover:underline">
+          <router-link
+            to="/login"
+            tabindex="-1"
+            class="text-primary underline-offset-4 hover:underline"
+          >
             Iniciar sesión
           </router-link>
         </div>
