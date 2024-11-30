@@ -81,7 +81,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormControl>
               <div class="flex flex-row gap-0">
                 <PhoneInput />
-                <Input class="rounded-l-none border-l-0" v-bind="componentField" />
+                <Input type="number" class="rounded-l-none border-l-0" v-bind="componentField" />
               </div>
             </FormControl>
             <FormMessage>{{ errorMessage }}</FormMessage>
