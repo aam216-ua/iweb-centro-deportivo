@@ -26,6 +26,7 @@ const router = useRouter()
 const loading = ref(false)
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const phonePrefix = ref("+34")
 
 const form = useForm({
   validationSchema: registerSchema,
@@ -34,6 +35,8 @@ const form = useForm({
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     loading.value = true
+    values.telefono = `${phonePrefix.value} ${values.telefono}`
+    console.log(values)
     await authService.register(values)
     toast.success("Tu cuenta ha sido creada exitosamente.")
     router.push("/login")
@@ -80,7 +83,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormLabel>Teléfono</FormLabel>
             <FormControl>
               <div class="flex flex-row gap-0">
-                <PhoneInput />
+                <PhoneInput v-model="phonePrefix" />
                 <Input type="number" class="rounded-l-none border-l-0" v-bind="componentField" />
               </div>
             </FormControl>

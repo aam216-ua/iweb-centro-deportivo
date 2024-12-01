@@ -14,6 +14,14 @@ import { createReusableTemplate, useMediaQuery } from "@vueuse/core"
 import { ChevronsUpDown } from "lucide-vue-next"
 import { ref } from "vue"
 
+interface Props {
+  modelValue: string
+}
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void
+}>()
+
 interface CountryCode {
   country: string
   code: string
@@ -221,6 +229,7 @@ const selectedCountryCode = ref<CountryCode>(countryCodes[56])
 function onCountryCodeSelect(countryCode: CountryCode) {
   selectedCountryCode.value = countryCode
   isOpen.value = false
+  emit("update:modelValue", countryCode.code)
 }
 </script>
 
