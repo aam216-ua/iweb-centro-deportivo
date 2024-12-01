@@ -1,0 +1,64 @@
+Table pista{
+  id double [pk]
+  tipo varchar2 [not null]
+  descripcion varchar2
+  estado varchar2
+}
+
+Table reserva{
+  id double [pk]
+  id_usuario double [pk]
+  id_usuario_reserva double [pk]
+  id_pista double [pk]
+  horario horarios [not null]
+  fecha date [not null]
+}
+
+Table usuario{
+  id double [pk]
+  email varchar2 [not null]
+  nombre varchar2 [not null]
+  apellidos varchar2
+  teléfono varchar2
+  privilegios privilegios [not null]
+  estado estado [not null]
+  saldo float
+}
+
+Table pswd_usuario{
+  id double [pk]
+  id_usuario double [pk]
+  fecha date [not null]
+}
+
+Enum privilegios{
+  no_socio
+  socio
+  recepcionista
+  web_master
+}
+
+Enum estado{
+  pendiente
+  activo
+  bloqueado
+  de_baja
+}
+
+Enum horarios{
+  0800_0930
+  0930_1100
+  1100_1230
+  1230_1400
+  1400_1530
+  1530_1700
+  1700_1830
+  1830_2000
+  2000_2130
+}
+
+Ref: usuario.id > pswd_usuario.id_usuario
+Ref: usuario.id > reserva.id_usuario
+Ref: usuario.id > reserva.id_usuario_reserva
+
+Ref: pista.id > reserva.id_pista
