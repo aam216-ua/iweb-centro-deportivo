@@ -28,7 +28,9 @@ CREATE TABLE "pista" (
   "id" double PRIMARY KEY,
   "tipo" varchar2 NOT NULL,
   "descripcion" varchar2,
-  "estado" varchar2
+  "estado" varchar2 NOT NULL,
+  "precio" float NOT NULL,
+  "imagen" blob
 );
 
 CREATE TABLE "reserva" (
@@ -38,6 +40,7 @@ CREATE TABLE "reserva" (
   "id_pista" double,
   "horario" horarios NOT NULL,
   "fecha" date NOT NULL,
+  "precio" float NOT NULL,
   PRIMARY KEY ("id", "id_usuario", "id_usuario_reserva", "id_pista")
 );
 
@@ -59,6 +62,11 @@ CREATE TABLE "pswd_usuario" (
   PRIMARY KEY ("id", "id_usuario")
 );
 
+CREATE TABLE "tipo" (
+  "id" double PRIMARY KEY,
+  "nombre" varchar2 NOT NULL
+);
+
 ALTER TABLE "usuario" ADD FOREIGN KEY ("id") REFERENCES "pswd_usuario" ("id_usuario");
 
 ALTER TABLE "usuario" ADD FOREIGN KEY ("id") REFERENCES "reserva" ("id_usuario");
@@ -66,3 +74,7 @@ ALTER TABLE "usuario" ADD FOREIGN KEY ("id") REFERENCES "reserva" ("id_usuario")
 ALTER TABLE "usuario" ADD FOREIGN KEY ("id") REFERENCES "reserva" ("id_usuario_reserva");
 
 ALTER TABLE "pista" ADD FOREIGN KEY ("id") REFERENCES "reserva" ("id_pista");
+
+ALTER TABLE "pista" ADD FOREIGN KEY ("precio") REFERENCES "reserva" ("precio");
+
+ALTER TABLE "tipo" ADD FOREIGN KEY ("id") REFERENCES "pista" ("tipo");
