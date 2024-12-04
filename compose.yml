@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: iw-db
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - PGUSER=${DB_USER}
+      - PGPASSWORD={$DB_PASSWORD}
+      - PGDATABASE=database
+    healthcheck:
+      test: /usr/local/bin/pg_isready
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - iw-net
+
+  application:
+    build: .
+    container_name: iw-app
+    ports:
+      # Dejarlo fijo a 3000 internamente es más sencillo;
+      # el puerto expuesto es el único que nos importa
+      - "3000:${APP_PORT}"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=database
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - iw-net
+
+networks:
+  iw-net:
+    driver: bridge
