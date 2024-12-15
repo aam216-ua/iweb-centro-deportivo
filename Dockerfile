@@ -1,10 +1,9 @@
 # Compilar el Frontend
-FROM oven/bun:latest AS frontend
-WORKDIR /app/frontend
-COPY frontend/package.json frontend/bun.lockb ./
-RUN bun install
-COPY frontend/ .
-RUN bun run build
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN npm install
+RUN npm run build
 
 # Compilar el Backend
 FROM node:20-alpine AS backend

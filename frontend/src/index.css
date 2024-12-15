@@ -66,9 +66,7 @@
 
     --ring: 240 4.9% 83.9%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -82,5 +80,11 @@
   }
   input[type="number"] {
     -moz-appearance: textfield;
+  }
+}
+
+@layer components {
+  .border-border {
+    border: 2px solid #000;
   }
 }
