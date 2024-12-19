@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: iw-db
+    container_name: iw-postgres
     ports:
       - 5432:5432
     env_file:
@@ -14,9 +14,26 @@ services:
     networks:
       - iw-net
 
+  pgadmin:
+    image: elestio/pgadmin:REL-8_12
+    container_name: iw-pgadmin
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@ua.com
+      - PGADMIN_DEFAULT_PASSWORD=password
+      - PGADMIN_LISTEN_PORT=8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - iw-net
+
   application:
     build: .
-    container_name: iw-app
+    container_name: iw-application
     ports:
       - 3000:3000
     env_file:
