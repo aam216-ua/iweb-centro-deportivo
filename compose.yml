@@ -20,9 +20,7 @@ services:
     build: .
     container_name: iw-app
     ports:
-      # Dejarlo fijo a 3000 internamente es más sencillo;
-      # el puerto expuesto es el único que nos importa
-      - "3000:${APP_PORT}"
+      - "3000:3000"
     environment:
       - DB_HOST=postgres
       - DB_PORT=${DB_PORT}

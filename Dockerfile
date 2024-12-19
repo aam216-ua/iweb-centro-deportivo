@@ -1,26 +1,25 @@
 # Compilar el Frontend
-FROM node:22-alpine AS builder
+FROM node:22-alpine AS frontend
 WORKDIR /app
-COPY . .
+COPY frontend/package*.json .
 RUN npm install
+COPY frontend/ .
 RUN npm run build
 
 # Compilar el Backend
-FROM node:20-alpine AS backend
-WORKDIR /app/backend
-COPY backend/package*.json ./
+FROM node:22-alpine AS backend
+WORKDIR /app
+COPY backend/package.json .
+COPY backend/yarn.lock .
 RUN yarn install
 COPY backend/ .
-RUN yarn run build
+RUN yarn build
 
 # Servir la aplicación
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
-
-COPY --from=frontend /app/frontend/dist /app/public
-COPY --from=backend /app/backend/dist ./dist
-COPY --from=backend /app/backend/node_modules ./node_modules
-COPY --from=backend /app/backend/package*.json ./
-
+COPY --from=backend /app/node_modules ./node_modules
+COPY --from=backend /app/dist ./dist
+COPY --from=frontend /app/dist ./dist/public
 EXPOSE 3000
 CMD ["node", "dist/main"]
