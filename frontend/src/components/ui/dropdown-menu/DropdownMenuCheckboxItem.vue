@@ -3,10 +3,10 @@ import { cn } from "@/lib/utils"
 import { Check } from "lucide-vue-next"
 import {
   DropdownMenuCheckboxItem,
-  DropdownMenuItemIndicator,
-  useForwardPropsEmits,
   type DropdownMenuCheckboxItemEmits,
   type DropdownMenuCheckboxItemProps,
+  DropdownMenuItemIndicator,
+  useForwardPropsEmits,
 } from "radix-vue"
 import { computed, type HTMLAttributes } from "vue"
 

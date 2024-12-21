@@ -7,9 +7,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void
-}>()
+const emit = defineEmits<(e: "update:modelValue", value: boolean) => void>()
 
 const toggleVisibility = () => {
   emit("update:modelValue", !props.modelValue)

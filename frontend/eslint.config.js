@@ -13,38 +13,17 @@ export default [
     name: "app/files-to-ignore",
     ignores: ["**/dist/**", "**/dist-ssr/**", "**/coverage/**"],
   },
-  {
-    name: "app/vue-rules",
-    rules: {
-      "vue/multi-word-component-names": [
-        "error",
-        {
-          ignores: [
-            "Alert",
-            "Avatar",
-            "Badge",
-            "Button",
-            "Card",
-            "Command",
-            "Dialog",
-            "Drawer",
-            "Input",
-            "Label",
-            "Popover",
-            "Select",
-            "Sheet",
-            "Sonner",
-            "Switch",
-            "Table",
-            "Toaster",
-          ],
-        },
-      ],
-    },
-  },
 
   ...pluginVue.configs["flat/essential"],
-  ...vueTsEslintConfig(),
+  ...vueTsEslintConfig({
+    extends: ["recommended", "stylistic"],
+  }),
+  {
+    files: ["**/*.{ts,mts,tsx,vue}"],
+    rules: {
+      "vue/multi-word-component-names": "off",
+    },
+  },
   oxlint.configs["flat/recommended"],
   skipFormatting,
 ]

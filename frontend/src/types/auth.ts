@@ -1,3 +1,5 @@
+import type { User } from "@/types/user"
+
 export interface LoginCredentials {
   email: string
   password: string
@@ -10,15 +12,6 @@ export interface RegisterUserData {
   password: string
   confirmPassword: string
   telefono: string
-}
-
-export interface User {
-  id: number
-  email: string
-  nombre: string
-  apellidos: string
-  telefono: string
-  saldo: number
 }
 
 export interface Facility {

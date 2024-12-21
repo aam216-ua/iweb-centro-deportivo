@@ -3,9 +3,5 @@
   "semi": false,
   "singleQuote": false,
   "printWidth": 100,
-  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
-  "importOrder": ["^@core/(.*)$", "", "^@server/(.*)$", "", "^@ui/(.*)$", "", "^[./]"],
-  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
-  "importOrderTypeScriptVersion": "5.0.0",
-  "importOrderCaseSensitive": false
+  "plugins": ["prettier-plugin-organize-imports"]
 }

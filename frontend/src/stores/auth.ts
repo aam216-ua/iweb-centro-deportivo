@@ -1,5 +1,5 @@
-import { authService } from "@/services/auth.service"
-import type { User } from "@/services/types/auth.types"
+import { authService } from "@/services/auth"
+import type { User } from "@/types/user"
 import { defineStore } from "pinia"
 import { computed, ref } from "vue"
 

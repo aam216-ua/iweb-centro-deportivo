@@ -4,15 +4,14 @@ import { X } from "lucide-vue-next"
 import {
   DialogClose,
   DialogContent,
+  type DialogContentEmits,
+  type DialogContentProps,
   DialogOverlay,
   DialogPortal,
   useForwardPropsEmits,
-  type DialogContentEmits,
-  type DialogContentProps,
 } from "radix-vue"
 import { computed, type HTMLAttributes } from "vue"
-
-import { sheetVariants, type SheetVariants } from "."
+import { type SheetVariants, sheetVariants } from "."
 
 interface SheetContentProps extends DialogContentProps {
   class?: HTMLAttributes["class"]

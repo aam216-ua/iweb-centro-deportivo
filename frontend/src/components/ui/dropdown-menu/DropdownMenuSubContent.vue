@@ -2,9 +2,9 @@
 import { cn } from "@/lib/utils"
 import {
   DropdownMenuSubContent,
-  useForwardPropsEmits,
   type DropdownMenuSubContentEmits,
   type DropdownMenuSubContentProps,
+  useForwardPropsEmits,
 } from "radix-vue"
 import { computed, type HTMLAttributes } from "vue"
 

@@ -1,11 +1,19 @@
+import { type Config } from "tailwindcss"
 import animate from "tailwindcss-animate"
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: ["class"],
   safelist: ["dark"],
   prefix: "",
-  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx,vue}"],
+
+  content: [
+    "./pages/**/*.{ts,tsx,vue}",
+    "./components/**/*.{ts,tsx,vue}",
+    "./app/**/*.{ts,tsx,vue}",
+    "./src/**/*.{ts,tsx,vue}",
+  ],
+
   theme: {
     container: {
       center: true,
@@ -83,4 +91,4 @@ module.exports = {
     },
   },
   plugins: [animate],
-}
+} satisfies Config

@@ -4,9 +4,9 @@ import { Circle } from "lucide-vue-next"
 import {
   DropdownMenuItemIndicator,
   DropdownMenuRadioItem,
-  useForwardPropsEmits,
   type DropdownMenuRadioItemEmits,
   type DropdownMenuRadioItemProps,
+  useForwardPropsEmits,
 } from "radix-vue"
 import { computed, type HTMLAttributes } from "vue"
 

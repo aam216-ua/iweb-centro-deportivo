@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils"
 import { ChevronRight } from "lucide-vue-next"
 import {
   DropdownMenuSubTrigger,
-  useForwardProps,
   type DropdownMenuSubTriggerProps,
+  useForwardProps,
 } from "radix-vue"
 import { computed, type HTMLAttributes } from "vue"
 
