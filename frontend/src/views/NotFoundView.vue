@@ -1,9 +1,5 @@
-<script setup lang="ts">
-import { Button } from "@/components/ui/button"
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <div>
-    <Button>not found</Button>
-  </div>
+  <div>Not found</div>
 </template>

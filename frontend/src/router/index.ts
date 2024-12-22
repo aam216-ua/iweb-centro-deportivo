@@ -1,7 +1,6 @@
 // router/index.ts
 import EmptyLayout from "@/layouts/EmptyLayout.vue"
 import MainLayout from "@/layouts/MainLayout.vue"
-import { useAuthStore } from "@/stores/auth"
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 
 // Auth routes
@@ -43,20 +42,16 @@ const router = createRouter({
     authRoutes,
     {
       path: "/:pathMatch(.*)*",
-      name: "not-found",
-      component: () => import("@/views/NotFoundView.vue"),
+      component: EmptyLayout,
+      children: [
+        {
+          path: "",
+          name: "not-found",
+          component: () => import("@/views/NotFoundView.vue"),
+        },
+      ],
     },
   ],
-})
-
-// Navigation guard
-router.beforeEach(async (to) => {
-  const authStore = useAuthStore()
-
-  // Prevent authenticated users from accessing auth pages
-  if (authStore.isAuthenticated && to.path.startsWith("/auth/")) {
-    return { name: "home" }
-  }
 })
 
 export default router
