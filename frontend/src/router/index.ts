@@ -1,7 +1,18 @@
-// router/index.ts
 import EmptyLayout from "@/layouts/EmptyLayout.vue"
 import MainLayout from "@/layouts/MainLayout.vue"
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
+
+const reservationRoutes: RouteRecordRaw = {
+  path: "/",
+  component: MainLayout,
+  children: [
+    {
+      path: "reserve",
+      name: "reserve",
+      component: () => import("@/views/ReserveView.vue"),
+    },
+  ],
+}
 
 // Auth routes
 const authRoutes: RouteRecordRaw = {
@@ -40,6 +51,7 @@ const router = createRouter({
   routes: [
     appRoutes,
     authRoutes,
+    reservationRoutes,
     {
       path: "/:pathMatch(.*)*",
       component: EmptyLayout,

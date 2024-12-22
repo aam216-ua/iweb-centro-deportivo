@@ -3,6 +3,7 @@ import PasswordToggleButton from "@/components/PasswordVisibility.vue"
 import { Button } from "@/components/ui/button"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { randImage } from "@/lib/utils"
 import { registerSchema } from "@/schemas/auth"
 import { authService } from "@/services/auth"
 import { Loader2 } from "lucide-vue-next"
@@ -11,6 +12,7 @@ import { ref } from "vue"
 import { useRouter } from "vue-router"
 import { toast } from "vue-sonner"
 
+const bgImg = randImage()
 const router = useRouter()
 const loading = ref(false)
 const showPassword = ref(false)
@@ -35,10 +37,10 @@ const onSubmit = form.handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div class="w-full h-svh grid lg:grid-cols-2">
-    <div class="h-full overflow-y-auto">
-      <div class="flex items-center justify-center py-12">
-        <div class="mx-auto w-[350px]">
+  <div class="grid min-h-svh w-full lg:grid-cols-2">
+    <div class="max-h-svh overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center py-8">
+        <div class="w-full max-w-[350px] px-4">
           <div class="grid gap-2 text-center">
             <h1 class="text-3xl font-bold">Crear Cuenta</h1>
             <p class="text-balance text-muted-foreground">
@@ -147,13 +149,13 @@ const onSubmit = form.handleSubmit(async (values) => {
       </div>
     </div>
 
-    <div class="hidden lg:block h-screen">
+    <div class="hidden lg:block relative">
       <img
-        src="/placeholder.svg"
+        :src="bgImg"
         alt="Image"
         width="1920"
         height="1080"
-        class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        class="absolute inset-0 h-svh w-full object-cover dark:brightness-[0.2] dark:grayscale"
       />
     </div>
   </div>

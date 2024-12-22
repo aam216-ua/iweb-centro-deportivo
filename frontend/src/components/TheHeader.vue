@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { randImage } from "@/lib/utils"
 import { useAuthStore } from "@/stores/auth"
 import { CircleUser, Menu } from "lucide-vue-next"
 import { computed } from "vue"
@@ -27,12 +28,14 @@ const handleLogout = () => {
   authStore.logout()
   router.push({ name: "home" })
 }
+
+const bgImg = randImage()
 </script>
 
 <template>
   <header class="relative h-80 bg-background">
     <div class="absolute inset-0 overflow-hidden">
-      <img src="/placeholder.svg" alt="Header background" class="h-80 w-full object-cover" />
+      <img :src="bgImg" alt="" class="h-80 w-full object-cover" />
       <div
         class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 via-30% to-transparent to-50%"
       ></div>
