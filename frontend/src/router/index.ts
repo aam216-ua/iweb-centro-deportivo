@@ -1,10 +1,11 @@
 import EmptyLayout from "@/layouts/EmptyLayout.vue"
 import MainLayout from "@/layouts/MainLayout.vue"
+import SecondaryLayout from "@/layouts/SecondaryLayout.vue"
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 
 const reservationRoutes: RouteRecordRaw = {
   path: "/",
-  component: MainLayout,
+  component: SecondaryLayout,
   children: [
     {
       path: "reserve",
