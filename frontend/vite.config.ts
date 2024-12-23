@@ -4,6 +4,7 @@ import vue from "@vitejs/plugin-vue"
 import autoprefixer from "autoprefixer"
 import tailwind from "tailwindcss"
 import { defineConfig } from "vite"
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import vueDevTools from "vite-plugin-vue-devtools"
 
 // https://vite.dev/config/
@@ -13,7 +14,7 @@ export default defineConfig({
       plugins: [tailwind(), autoprefixer()],
     },
   },
-  plugins: [vue(), vueDevTools()],
+  plugins: [vue(), vueDevTools(), ViteImageOptimizer()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
