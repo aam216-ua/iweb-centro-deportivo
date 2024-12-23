@@ -20,8 +20,6 @@ export const reserveSchema = toTypedSchema(
         message: "La fecha debe estar entre mañana y los próximos 15 días",
       },
     ),
-    time: z.enum(
-      Object.keys(TimeSlots) as [keyof typeof TimeSlots, ...(keyof typeof TimeSlots)[]],
-    ),
+    time: z.enum(Object.keys(TimeSlots) as [keyof typeof TimeSlots, ...(keyof typeof TimeSlots)[]]),
   }),
 )

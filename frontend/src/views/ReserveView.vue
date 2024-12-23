@@ -59,6 +59,7 @@ const onSubmit = handleSubmit((values) => {
                   v-model:placeholder="placeholder"
                   v-model="value"
                   class="border rounded-md"
+                  locale="es"
                   :min-value="tomorrow"
                   :max-value="maxDate"
                   @update:model-value="
