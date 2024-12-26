@@ -1,7 +1,10 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UpdateCredentialsDto } from './dto/update-credentials.dto';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { EntityManager, Repository, UpdateResult } from 'typeorm';
@@ -33,7 +36,7 @@ export class UsersService {
       );
     }
 
-    await entityManager.transaction(async (manager) => {
+    return await entityManager.transaction(async (manager) => {
       const user = await manager.save(
         User,
         manager.create(User, {

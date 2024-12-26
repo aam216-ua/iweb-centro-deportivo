@@ -1,4 +1,8 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { UpdateCredentialsDto } from './dto/update-credentials.dto';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
