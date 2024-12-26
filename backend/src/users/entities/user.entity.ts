@@ -1,17 +1,25 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Password } from './password.entity';
 
 export enum UserRole {
-  SUPERADMIN = 'super',
+  SUPERADMIN = 'superadmin',
   RECEPTIONIST = 'receptionist',
   CUSTOMER = 'customer',
 }
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', unique: true })
   email: string;
 
   @Column({ type: 'varchar' })
@@ -20,15 +28,24 @@ export class User {
   @Column({ type: 'varchar' })
   surname: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', unique: true })
   phone: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
 
-  @Column({ type: 'boolean' })
-  active: boolean;
-
   @Column({ type: 'money' })
   balance: number;
+
+  @OneToMany(() => Password, (password) => password.user)
+  passwords: Password[];
+
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
