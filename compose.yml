@@ -1,13 +1,13 @@
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: iw-postgres
+    container_name: postgres
     ports:
       - 5432:5432
     env_file:
       - .env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" # ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -16,15 +16,20 @@ services:
 
   pgadmin:
     image: elestio/pgadmin:REL-8_12
-    container_name: iw-pgadmin
+    container_name: pgadmin
     ports:
       - 8080:8080
     env_file:
       - .env
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@ua.com
+      - PGADMIN_DEFAULT_EMAIL=user@ua.es
       - PGADMIN_DEFAULT_PASSWORD=password
       - PGADMIN_LISTEN_PORT=8080
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+      - PGADMIN_SERVER_JSON_FILE=/.data/servers.json
+    volumes:
+      - ./.data:/.data
     depends_on:
       postgres:
         condition: service_healthy
@@ -33,7 +38,7 @@ services:
 
   application:
     build: .
-    container_name: iw-application
+    container_name: application
     ports:
       - 3000:3000
     env_file:
