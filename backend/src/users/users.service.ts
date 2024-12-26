@@ -1,12 +1,14 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateCredentialsDto } from './dto/update-credentials.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { Password } from './entities/password.entity';
 import { hash } from 'bcrypt';
+import { PaginatedQueryDto } from 'src/common/dto/paginated-query.dto';
+import { PaginatedResult } from 'src/common/type/paginated-result.type';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +19,7 @@ export class UsersService {
     private passwordRepository: Repository<Password>,
   ) {}
 
-  private async create(createUserDto: CreateUserDto): Promise<User> {
+  public async create(createUserDto: CreateUserDto): Promise<User> {
     if (
       await this.userRepository.findOne({
         where: [{ email: createUserDto.email }, { phone: createUserDto.phone }],
@@ -48,23 +50,47 @@ export class UsersService {
     return user;
   }
 
-  changePassword(id: string, updateCredentialsDto: UpdateCredentialsDto) {
-    return;
+  public async findMany(
+    paginatedQueryDto: PaginatedQueryDto,
+  ): Promise<PaginatedResult<User>> {
+    const { page = 1, size = 10 } = paginatedQueryDto;
+
+    const [data, total] = await this.userRepository
+      .createQueryBuilder('user')
+      .skip((page - 1) * size)
+      .take(size)
+      .getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        page,
+        size,
+        total,
+      },
+    } as PaginatedResult<User>;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  public async findOne(id: string): Promise<User | null> {
+    return await this.userRepository.findOneBy({ id });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} user`;
+  public async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UpdateResult> {
+    if (this.findOne(id)) {
+      return await this.userRepository.update({ id }, updateUserDto);
+    } else {
+      throw new NotFoundException('user not found');
+    }
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  public async remove(id: string): Promise<void> {
+    if (this.findOne(id)) {
+      await this.userRepository.update({ id }, { isActive: false });
+    } else {
+      throw new NotFoundException('user not found');
+    }
   }
 }

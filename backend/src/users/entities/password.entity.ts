@@ -11,7 +11,7 @@ import { User } from './user.entity';
 @Entity()
 export class Password {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @ManyToOne(() => User, (user) => user.passwords)
   user: User;
