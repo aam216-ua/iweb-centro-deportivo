@@ -4,15 +4,15 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { UpdateCredentialsDto } from './dto/update-credentials.dto';
-import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { EntityManager, Repository, UpdateResult } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { Password } from './entities/password.entity';
 import { compare, hash } from 'bcrypt';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 
 @Injectable()
-export class UsersService {
+export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -47,7 +47,6 @@ export class UsersService {
   public async reset(
     authCredentialsDto: AuthCredentialsDto,
     updateCredentialsDto: UpdateCredentialsDto,
-    @InjectEntityManager() entityManager: EntityManager,
   ): Promise<UpdateResult> {
     const user = await this.userRepository.findOneBy({
       email: authCredentialsDto.email,
@@ -61,7 +60,7 @@ export class UsersService {
     });
 
     if (password?.password == (await hash(authCredentialsDto.password, 10))) {
-      await entityManager.transaction(async (manager) => {
+      await this.userRepository.manager.transaction(async (manager) => {
         await manager.update(Password, password, { isActive: false });
 
         const [outdated, count] = await manager.findAndCount(Password, {

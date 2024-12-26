@@ -5,9 +5,9 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { EntityManager, Repository, UpdateResult } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { Password } from './entities/password.entity';
 import { hash } from 'bcrypt';
 import { PaginatedQueryDto } from 'src/common/dto/paginated-query.dto';
@@ -22,10 +22,7 @@ export class UsersService {
     private passwordRepository: Repository<Password>,
   ) {}
 
-  public async create(
-    createUserDto: CreateUserDto,
-    @InjectEntityManager() entityManager: EntityManager,
-  ): Promise<User> {
+  public async create(createUserDto: CreateUserDto): Promise<User> {
     if (
       await this.userRepository.findOne({
         where: [{ email: createUserDto.email }, { phone: createUserDto.phone }],
@@ -36,7 +33,7 @@ export class UsersService {
       );
     }
 
-    return await entityManager.transaction(async (manager) => {
+    return await this.userRepository.manager.transaction(async (manager) => {
       const user = await manager.save(
         User,
         manager.create(User, {
