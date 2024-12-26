@@ -2,9 +2,9 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateCredentialsDto } from './dto/update-credentials.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository, UpdateResult } from 'typeorm';
+import { EntityManager, Repository, UpdateResult } from 'typeorm';
 import { Password } from './entities/password.entity';
 import { hash } from 'bcrypt';
 import { PaginatedQueryDto } from 'src/common/dto/paginated-query.dto';
@@ -19,7 +19,10 @@ export class UsersService {
     private passwordRepository: Repository<Password>,
   ) {}
 
-  public async create(createUserDto: CreateUserDto): Promise<User> {
+  public async create(
+    createUserDto: CreateUserDto,
+    @InjectEntityManager() entityManager: EntityManager,
+  ): Promise<User> {
     if (
       await this.userRepository.findOne({
         where: [{ email: createUserDto.email }, { phone: createUserDto.phone }],
@@ -30,24 +33,28 @@ export class UsersService {
       );
     }
 
-    const user = await this.userRepository.save(
-      this.userRepository.create({
-        email: createUserDto.email,
-        name: createUserDto.name,
-        surname: createUserDto.surname,
-        phone: createUserDto.phone,
-        role: createUserDto.role,
-      }),
-    );
+    await entityManager.transaction(async (manager) => {
+      const user = await manager.save(
+        User,
+        manager.create(User, {
+          email: createUserDto.email,
+          name: createUserDto.name,
+          surname: createUserDto.surname,
+          phone: createUserDto.phone,
+          role: createUserDto.role,
+        }),
+      );
 
-    await this.passwordRepository.save(
-      this.passwordRepository.create({
-        user,
-        password: await hash(createUserDto.password, 10),
-      }),
-    );
+      await manager.save(
+        Password,
+        manager.create(Password, {
+          user,
+          password: await hash(createUserDto.password, 10),
+        }),
+      );
 
-    return user;
+      return user;
+    });
   }
 
   public async findMany(

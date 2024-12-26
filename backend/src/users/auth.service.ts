@@ -19,8 +19,11 @@ export class UsersService {
   public async authenticate(
     authCredentialsDto: AuthCredentialsDto,
   ): Promise<User> {
-    const user = await this.userRepository.findOneBy({
-      email: authCredentialsDto.email,
+    const user = await this.userRepository.findOne({
+      where: {
+        email: authCredentialsDto.email,
+        isActive: true,
+      },
     });
 
     const password = await this.passwordRepository.findOne({
