@@ -1,4 +1,3 @@
-import { UserRole } from '../entities/user.entity';
 import {
   IsStrongPassword,
   Length,
@@ -6,7 +5,6 @@ import {
   IsAlpha,
   IsEmail,
   IsPhoneNumber,
-  IsEnum,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -33,7 +31,4 @@ export class CreateUserDto {
 
   @IsPhoneNumber('ES')
   phone: string;
-
-  @IsEnum(UserRole)
-  role: UserRole;
 }

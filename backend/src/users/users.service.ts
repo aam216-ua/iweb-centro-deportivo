@@ -23,9 +23,11 @@ export class UsersService {
     private userRepository: Repository<User>,
     @InjectRepository(Password)
     private passwordRepository: Repository<Password>
-  ) {}
+  ) { }
 
   public async create(createUserDto: CreateUserDto): Promise<User> {
+    this.logger.debug('Checking user uniqueness');
+
     if (
       await this.userRepository.findOne({
         where: [{ email: createUserDto.email }, { phone: createUserDto.phone }],
@@ -36,30 +38,34 @@ export class UsersService {
       );
     }
 
+    this.logger.debug('Running create user transaction');
+
     return await this.userRepository.manager.transaction(async (manager) => {
-      try {
-        const user = await manager.save(
-          manager.create(User, {
-            email: createUserDto.email,
-            name: createUserDto.name,
-            surname: createUserDto.surname,
-            phone: createUserDto.phone,
-            role: createUserDto.role,
-          })
-        );
+      this.logger.debug('Creating and saving user data');
 
-        await manager.save(
-          Password,
-          manager.create(Password, {
-            user,
-            password: await hash(createUserDto.password, 10),
-          })
-        );
+      const user = await manager.save(
+        manager.create(User, {
+          email: createUserDto.email,
+          name: createUserDto.name,
+          surname: createUserDto.surname,
+          phone: createUserDto.phone,
+          passwords: [],
+        })
+      );
 
-        return user;
-      } catch (err) {
-        this.logger.error(err);
-      }
+      this.logger.debug('Creating and saving user password');
+
+      await manager.save(
+        manager.create(Password, {
+          user,
+          password: createUserDto.password,
+          // password: await hash(createUserDto.password, 10),
+        })
+      );
+
+      this.logger.debug('Returning created user');
+
+      return user;
     });
   }
 

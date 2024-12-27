@@ -25,7 +25,7 @@ export class AuthService {
 
   public async signIn(
     authCredentialsDto: AuthCredentialsDto
-  ): Promise<{ token: string, user: User }> {
+  ): Promise<{ token: string; user: User }> {
     const user = await this.userRepository.findOne({
       where: {
         email: authCredentialsDto.email,

@@ -2,9 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 
@@ -14,6 +14,7 @@ export class Password {
   id: string;
 
   @ManyToOne(() => User, (user) => user.passwords)
+  @JoinColumn()
   user: User;
 
   @Column({ type: 'varchar' })
@@ -24,7 +25,4 @@ export class Password {
 
   @CreateDateColumn()
   createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }
