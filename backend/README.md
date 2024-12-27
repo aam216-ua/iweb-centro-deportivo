@@ -12,9 +12,7 @@ URL: `http://localhost:3000/api`
 ```json
 {
   "token": "jwt_token",
-  "user": {
-    // ...
-  }
+  "user": {}
 }
 ```
 
@@ -60,11 +58,7 @@ URL: `http://localhost:3000/api`
     "size": 10,
     "total": 3,
   },
-  "data": [
-    {
-      // ...
-    }
-  ]
+  "data": []
 }
 ```
 
