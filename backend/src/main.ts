@@ -8,7 +8,11 @@ async function bootstrap() {
       logger: ['debug', 'error', 'fatal', 'log', 'verbose', 'warn'],
     })
   ).setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    })
+  );
   await app.listen(3000);
 }
 bootstrap();

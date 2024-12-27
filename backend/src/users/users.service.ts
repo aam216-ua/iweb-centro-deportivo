@@ -64,11 +64,11 @@ export class UsersService {
   public async findMany(
     paginatedQueryDto: PaginatedQueryDto
   ): Promise<PaginatedResult<User>> {
-    const { page = 1, size = 10 } = paginatedQueryDto;
+    const { page = 0, size = 10 } = paginatedQueryDto;
 
     const [data, total] = await this.userRepository
       .createQueryBuilder('user')
-      .skip((page - 1) * size)
+      .skip(page * size)
       .take(size)
       .getManyAndCount();
 
