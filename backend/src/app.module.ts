@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -15,7 +17,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
+      autoLoadEntities: true,
+      synchronize: true,
     }),
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
