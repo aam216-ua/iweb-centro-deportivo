@@ -2,12 +2,13 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UpdateCredentialsDto } from './dto/update-credentials.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Password } from '../users/entities/password.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -15,6 +16,8 @@ import { hash, verify } from 'argon2';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -35,12 +38,19 @@ export class AuthService {
 
     const password = await this.passwordRepository.findOne({
       where: {
-        user,
+        user: { id: user.id },
         isActive: true,
       },
     });
 
-    if (await verify(password?.password, authCredentialsDto.password)) {
+    this.logger.debug(
+      `Found user with email '${user?.email ?? undefined}' and ${password ? 'existing' : 'undefined'} password`
+    );
+
+    if (
+      password &&
+      (await verify(password.password, authCredentialsDto.password))
+    ) {
       return {
         token: await this.jwtService.signAsync({
           id: user.id,
@@ -58,47 +68,55 @@ export class AuthService {
   public async reset(
     authCredentialsDto: AuthCredentialsDto,
     updateCredentialsDto: UpdateCredentialsDto
-  ): Promise<UpdateResult> {
+  ): Promise<void> {
     const user = await this.userRepository.findOneBy({
       email: authCredentialsDto.email,
     });
 
     const password = await this.passwordRepository.findOne({
       where: {
-        user,
+        user: { id: user.id },
         isActive: true,
       },
     });
 
-    if (password?.password == (await hash(authCredentialsDto.password))) {
-      await this.userRepository.manager.transaction(async (manager) => {
-        await manager.update(Password, password, { isActive: false });
+    this.logger.debug(
+      `Found user with email '${user?.email ?? undefined}' and ${password != null ? 'existing' : 'undefined'} password`
+    );
 
-        const [outdated, count] = await manager.findAndCount(Password, {
-          where: { user, isActive: false },
+    if (
+      password &&
+      (await verify(password.password, authCredentialsDto.password))
+    ) {
+      await this.userRepository.manager.transaction(async (manager) => {
+        const [userPasswords, count] = await manager.findAndCount(Password, {
+          where: { user: { id: user.id } },
           order: { createdAt: 'desc' },
         });
 
-        for (const password of outdated) {
-          if (await verify(password.password, updateCredentialsDto.password)) {
+        for (const oldPassword of userPasswords) {
+          if (
+            await verify(oldPassword.password, updateCredentialsDto.newPassword)
+          ) {
             throw new BadRequestException(
               'password matches one of the last five used passwords'
             );
           }
         }
 
-        if (count == 5) {
-          await manager.delete(Password, outdated.pop());
-        }
+        await manager.update(Password, password, { isActive: false });
+
+        if (count >= 5) await manager.delete(Password, userPasswords.pop());
 
         await manager.save(
-          Password,
-          this.passwordRepository.create({
+          manager.create(Password, {
             user,
-            password: await hash(updateCredentialsDto.password),
+            password: await hash(updateCredentialsDto.newPassword),
           })
         );
       });
+
+      return;
     }
 
     throw new ForbiddenException('invalid credentials');

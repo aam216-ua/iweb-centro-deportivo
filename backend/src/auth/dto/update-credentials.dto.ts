@@ -9,5 +9,5 @@ export class UpdateCredentialsDto {
     minUppercase: 0,
   })
   @MaxLength(256)
-  password: string;
+  newPassword: string;
 }

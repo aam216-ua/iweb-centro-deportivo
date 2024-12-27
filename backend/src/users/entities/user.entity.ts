@@ -33,7 +33,9 @@ export class User {
   @Column({ type: 'money', default: 0 })
   balance: number;
 
-  @OneToMany(() => Password, (password) => password.user)
+  @OneToMany(() => Password, (password) => password.user, {
+    onDelete: 'CASCADE',
+  })
   @Exclude()
   passwords: Password[];
 
