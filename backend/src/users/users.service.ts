@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -15,11 +16,13 @@ import { PaginatedResult } from 'src/common/type/paginated-result.type';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Password)
-    private passwordRepository: Repository<Password>,
+    private passwordRepository: Repository<Password>
   ) {}
 
   public async create(createUserDto: CreateUserDto): Promise<User> {
@@ -29,36 +32,39 @@ export class UsersService {
       })
     ) {
       throw new ConflictException(
-        'email and phone numbers must be unique across users',
+        'email and phone numbers must be unique across users'
       );
     }
 
     return await this.userRepository.manager.transaction(async (manager) => {
-      const user = await manager.save(
-        User,
-        manager.create(User, {
-          email: createUserDto.email,
-          name: createUserDto.name,
-          surname: createUserDto.surname,
-          phone: createUserDto.phone,
-          role: createUserDto.role,
-        }),
-      );
+      try {
+        const user = await manager.save(
+          manager.create(User, {
+            email: createUserDto.email,
+            name: createUserDto.name,
+            surname: createUserDto.surname,
+            phone: createUserDto.phone,
+            role: createUserDto.role,
+          })
+        );
 
-      await manager.save(
-        Password,
-        manager.create(Password, {
-          user,
-          password: await hash(createUserDto.password, 10),
-        }),
-      );
+        await manager.save(
+          Password,
+          manager.create(Password, {
+            user,
+            password: await hash(createUserDto.password, 10),
+          })
+        );
 
-      return user;
+        return user;
+      } catch (err) {
+        this.logger.error(err);
+      }
     });
   }
 
   public async findMany(
-    paginatedQueryDto: PaginatedQueryDto,
+    paginatedQueryDto: PaginatedQueryDto
   ): Promise<PaginatedResult<User>> {
     const { page = 1, size = 10 } = paginatedQueryDto;
 
@@ -84,7 +90,7 @@ export class UsersService {
 
   public async update(
     id: string,
-    updateUserDto: UpdateUserDto,
+    updateUserDto: UpdateUserDto
   ): Promise<UpdateResult> {
     if (this.findOne(id)) {
       return await this.userRepository.update({ id }, updateUserDto);

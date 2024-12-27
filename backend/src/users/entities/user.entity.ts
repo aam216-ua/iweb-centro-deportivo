@@ -34,7 +34,7 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
 
-  @Column({ type: 'money' })
+  @Column({ type: 'money', default: 0 })
   balance: number;
 
   @OneToMany(() => Password, (password) => password.user)

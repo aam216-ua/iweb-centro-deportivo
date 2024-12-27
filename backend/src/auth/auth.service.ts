@@ -2,14 +2,16 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UpdateCredentialsDto } from './dto/update-credentials.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
-import { Password } from './entities/password.entity';
+import { Password } from '../users/entities/password.entity';
 import { compare, hash } from 'bcrypt';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -18,11 +20,12 @@ export class AuthService {
     private userRepository: Repository<User>,
     @InjectRepository(Password)
     private passwordRepository: Repository<Password>,
+    private jwtService: JwtService
   ) {}
 
-  public async authenticate(
-    authCredentialsDto: AuthCredentialsDto,
-  ): Promise<User> {
+  public async signIn(
+    authCredentialsDto: AuthCredentialsDto
+  ): Promise<{ token: string, user: User }> {
     const user = await this.userRepository.findOne({
       where: {
         email: authCredentialsDto.email,
@@ -38,15 +41,23 @@ export class AuthService {
     });
 
     if (await compare(authCredentialsDto.password, password?.password)) {
-      return user;
+      return {
+        token: await this.jwtService.signAsync({
+          id: user.id,
+          email: user.email,
+        }),
+        user,
+      };
     }
 
-    throw new ForbiddenException('invalid credentials');
+    throw new UnauthorizedException('invalid credentials');
   }
+
+  public async signOut() {}
 
   public async reset(
     authCredentialsDto: AuthCredentialsDto,
-    updateCredentialsDto: UpdateCredentialsDto,
+    updateCredentialsDto: UpdateCredentialsDto
   ): Promise<UpdateResult> {
     const user = await this.userRepository.findOneBy({
       email: authCredentialsDto.email,
@@ -71,7 +82,7 @@ export class AuthService {
         for (const password of outdated) {
           if (await compare(updateCredentialsDto.password, password.password)) {
             throw new BadRequestException(
-              'password matches one of the last five used passwords',
+              'password matches one of the last five used passwords'
             );
           }
         }
@@ -85,7 +96,7 @@ export class AuthService {
           this.passwordRepository.create({
             user,
             password: await hash(updateCredentialsDto.password, 10),
-          }),
+          })
         );
       });
     }
