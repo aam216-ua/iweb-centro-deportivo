@@ -29,6 +29,7 @@ export class UsersService {
     if (
       await this.userRepository.findOne({
         where: [{ email: createUserDto.email }, { phone: createUserDto.phone }],
+        withDeleted: true,
       })
     ) {
       throw new ConflictException(
