@@ -32,7 +32,6 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: {
         email: authCredentialsDto.email,
-        isActive: true,
       },
     });
 

@@ -52,7 +52,6 @@ export class UsersService {
       await manager.save(
         manager.create(Password, {
           user,
-          // password: createUserDto.password,
           password: await hash(createUserDto.password),
         })
       );
@@ -99,7 +98,7 @@ export class UsersService {
 
   public async remove(id: string): Promise<void> {
     if (this.findOne(id)) {
-      await this.userRepository.update({ id }, { isActive: false });
+      await this.userRepository.softDelete({ id });
     } else {
       throw new NotFoundException('user not found');
     }

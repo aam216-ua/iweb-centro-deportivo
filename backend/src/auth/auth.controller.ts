@@ -1,4 +1,10 @@
-import { Controller, Post, Body, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Patch,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from '../auth/dto/auth-credentials.dto';
 import { UpdateCredentialsDto } from '../auth/dto/update-credentials.dto';
@@ -14,7 +20,7 @@ export class AuthController {
 
   @Post('/signout')
   signOut() {
-    return;
+    throw new BadRequestException('unimplemented');
   }
 
   @Patch('/reset')
