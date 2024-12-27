@@ -9,9 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
 import { Password } from '../users/entities/password.entity';
-import { compare, hash } from 'bcrypt';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { JwtService } from '@nestjs/jwt';
+import { hash, verify } from 'argon2';
 
 @Injectable()
 export class AuthService {
@@ -40,7 +40,7 @@ export class AuthService {
       },
     });
 
-    if (await compare(authCredentialsDto.password, password?.password)) {
+    if (await verify(password?.password, authCredentialsDto.password)) {
       return {
         token: await this.jwtService.signAsync({
           id: user.id,
@@ -70,7 +70,7 @@ export class AuthService {
       },
     });
 
-    if (password?.password == (await hash(authCredentialsDto.password, 10))) {
+    if (password?.password == (await hash(authCredentialsDto.password))) {
       await this.userRepository.manager.transaction(async (manager) => {
         await manager.update(Password, password, { isActive: false });
 
@@ -80,7 +80,7 @@ export class AuthService {
         });
 
         for (const password of outdated) {
-          if (await compare(updateCredentialsDto.password, password.password)) {
+          if (await verify(password.password, updateCredentialsDto.password)) {
             throw new BadRequestException(
               'password matches one of the last five used passwords'
             );
@@ -95,7 +95,7 @@ export class AuthService {
           Password,
           this.passwordRepository.create({
             user,
-            password: await hash(updateCredentialsDto.password, 10),
+            password: await hash(updateCredentialsDto.password),
           })
         );
       });

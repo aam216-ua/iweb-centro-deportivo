@@ -10,9 +10,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
 import { Password } from './entities/password.entity';
-import { hash } from 'bcrypt';
 import { PaginatedQueryDto } from 'src/common/dto/paginated-query.dto';
 import { PaginatedResult } from 'src/common/type/paginated-result.type';
+import { hash } from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -23,11 +23,9 @@ export class UsersService {
     private userRepository: Repository<User>,
     @InjectRepository(Password)
     private passwordRepository: Repository<Password>
-  ) { }
+  ) {}
 
   public async create(createUserDto: CreateUserDto): Promise<User> {
-    this.logger.debug('Checking user uniqueness');
-
     if (
       await this.userRepository.findOne({
         where: [{ email: createUserDto.email }, { phone: createUserDto.phone }],
@@ -37,8 +35,6 @@ export class UsersService {
         'email and phone numbers must be unique across users'
       );
     }
-
-    this.logger.debug('Running create user transaction');
 
     return await this.userRepository.manager.transaction(async (manager) => {
       this.logger.debug('Creating and saving user data');
@@ -53,17 +49,13 @@ export class UsersService {
         })
       );
 
-      this.logger.debug('Creating and saving user password');
-
       await manager.save(
         manager.create(Password, {
           user,
-          password: createUserDto.password,
-          // password: await hash(createUserDto.password, 10),
+          // password: createUserDto.password,
+          password: await hash(createUserDto.password),
         })
       );
-
-      this.logger.debug('Returning created user');
 
       return user;
     });

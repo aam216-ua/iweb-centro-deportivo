@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Password } from './password.entity';
 import { UserRole } from '../enums/user-role.enum';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -33,6 +34,7 @@ export class User {
   balance: number;
 
   @OneToMany(() => Password, (password) => password.user)
+  @Exclude()
   passwords: Password[];
 
   @Column({ type: 'boolean', default: true })
