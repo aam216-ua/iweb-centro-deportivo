@@ -7,7 +7,6 @@ import {
 } from 'typeorm';
 import { VenueStatus } from '../enums/venue-status.enum';
 import { Activity } from './activity.entity';
-import { Transform } from 'class-transformer';
 
 @Entity()
 export class Venue {

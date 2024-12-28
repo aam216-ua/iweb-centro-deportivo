@@ -20,7 +20,7 @@ export class CreateVenueDto {
 
   @IsInt()
   @IsPositive()
-  @Max(1_000)
+  @Max(100)
   capacity: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })

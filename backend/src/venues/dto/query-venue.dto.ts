@@ -20,14 +20,14 @@ export class QueryVenueDto extends PaginatedQueryDto {
   @Transform(({ value }) => parseFloat(value))
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
-  @Max(1_000)
+  @Max(9_999.99)
   maxFee: number;
 
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsInt()
   @IsPositive()
-  @Max(20)
+  @Max(100)
   minCapacity: number;
 
   @IsOptional()
