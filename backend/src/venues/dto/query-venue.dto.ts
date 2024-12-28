@@ -17,14 +17,14 @@ export class QueryVenueDto extends PaginatedQueryDto {
   activityId: string;
 
   @IsOptional()
-  @Transform(({ value }) => Number.parseFloat(value))
+  @Transform(({ value }) => parseFloat(value))
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
   @Max(1_000)
   maxFee: number;
 
   @IsOptional()
-  @Transform(({ value }) => Number.parseInt(value))
+  @Transform(({ value }) => parseInt(value))
   @IsInt()
   @IsPositive()
   @Max(20)

@@ -52,10 +52,10 @@ export class VenuesService {
     const {
       page = 0,
       size = 10,
-      activityId,
-      maxFee,
-      minCapacity,
-      status,
+      activityId = undefined,
+      maxFee = undefined,
+      minCapacity = undefined,
+      status = undefined,
     } = queryVenueDto;
 
     const query = this.venueRepository

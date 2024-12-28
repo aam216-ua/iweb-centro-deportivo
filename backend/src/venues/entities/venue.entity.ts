@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { VenueStatus } from '../enums/venue-status.enum';
 import { Activity } from './activity.entity';
+import { Transform } from 'class-transformer';
 
 @Entity()
 export class Venue {
@@ -25,7 +26,16 @@ export class Venue {
   @Column({ type: 'enum', enum: VenueStatus, default: VenueStatus.AVAILABLE })
   status: VenueStatus;
 
-  @Column({ type: 'money', nullable: false })
+  @Column({
+    type: 'decimal',
+    precision: 6,
+    scale: 2,
+    transformer: {
+      to: (value: number): number => value,
+      from: (value: string): number => parseFloat(value),
+    },
+    nullable: false,
+  })
   fee: number;
 
   @ManyToOne(() => Activity, (activity) => activity.venues, {

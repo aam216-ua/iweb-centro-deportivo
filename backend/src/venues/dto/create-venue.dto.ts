@@ -25,7 +25,7 @@ export class CreateVenueDto {
 
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
-  @Max(1_000)
+  @Max(9_999.99)
   fee: number;
 
   @IsOptional()
