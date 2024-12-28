@@ -25,10 +25,12 @@ export class Venue {
   @Column({ type: 'enum', enum: VenueStatus, default: VenueStatus.AVAILABLE })
   status: VenueStatus;
 
-  @Column({ type: 'money' })
+  @Column({ type: 'money', nullable: false })
   fee: number;
 
-  @ManyToOne(() => Activity, (activity) => activity.venues)
+  @ManyToOne(() => Activity, (activity) => activity.venues, {
+    nullable: false,
+  })
   @JoinColumn()
   activity: Activity;
 }

@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { VenuesService } from './venues.service';
 import { CreateVenueDto } from './dto/create-venue.dto';
 import { UpdateVenueDto } from './dto/update-venue.dto';
+import { QueryVenueDto } from './dto/query-venue.dto';
 
 @Controller('venues')
 export class VenuesController {
@@ -13,22 +24,25 @@ export class VenuesController {
   }
 
   @Get()
-  findAll() {
-    return this.venuesService.findAll();
+  findMany(@Query() queryVenueDto: QueryVenueDto) {
+    return this.venuesService.findMany(queryVenueDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.venuesService.findOne(+id);
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.venuesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVenueDto: UpdateVenueDto) {
-    return this.venuesService.update(+id, updateVenueDto);
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateVenueDto: UpdateVenueDto
+  ) {
+    return this.venuesService.update(id, updateVenueDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.venuesService.remove(+id);
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.venuesService.remove(id);
   }
 }

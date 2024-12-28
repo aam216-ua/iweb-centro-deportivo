@@ -28,18 +28,19 @@ export class VenuesService {
       throw new ConflictException('venue name must be unique');
     }
 
-    if (
-      !(await this.activityRepository.findOneBy({
-        id: createVenueDto.activityId,
-      }))
-    ) {
-      throw new NotFoundException('activity does not exist');
-    }
+    const activity = await this.activityRepository.findOneBy({
+      id: createVenueDto.activityId,
+    });
+
+    if (!activity) throw new NotFoundException('activity does not exist');
 
     this.logger.debug('Creating and saving venue data');
 
     const venue = await this.venueRepository.save(
-      this.venueRepository.create(createVenueDto)
+      this.venueRepository.create({
+        ...createVenueDto,
+        activity,
+      })
     );
 
     return venue;
@@ -61,10 +62,19 @@ export class VenuesService {
       .createQueryBuilder('venue')
       .leftJoinAndSelect('venue.activity', 'activity');
 
-    if (activityId) query.andWhere({ activityId });
+    if (activityId) {
+      const activity = await this.activityRepository.findOneBy({
+        id: activityId,
+      });
+
+      if (!activity) throw new NotFoundException('activity not found');
+
+      query.where({ activity: { id: activity.id } });
+    }
+
     if (maxFee) query.andWhere('venue.fee <= :maxFee', { maxFee });
-    if (minCapacity)
-      query.andWhere('venue.capacity >= :minCapacity', { minCapacity });
+    // eslint-disable-next-line prettier/prettier
+    if (minCapacity) query.andWhere('venue.capacity >= :minCapacity', { minCapacity });
     if (status) query.andWhere({ status });
 
     const [data, total] = await query

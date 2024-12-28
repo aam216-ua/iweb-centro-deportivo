@@ -42,10 +42,7 @@ export class UsersService {
 
       const user = await manager.save(
         manager.create(User, {
-          email: createUserDto.email,
-          name: createUserDto.name,
-          surname: createUserDto.surname,
-          phone: createUserDto.phone,
+          ...createUserDto,
           passwords: [],
         })
       );

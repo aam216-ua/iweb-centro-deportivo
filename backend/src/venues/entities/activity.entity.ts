@@ -9,6 +9,8 @@ export class Activity {
   @Column({ type: 'varchar' })
   name: string;
 
-  @OneToMany(() => Venue, (venue) => venue.activity)
+  @OneToMany(() => Venue, (venue) => venue.activity, {
+    onDelete: 'RESTRICT',
+  })
   venues: Venue[];
 }

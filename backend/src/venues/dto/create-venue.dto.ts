@@ -1,5 +1,4 @@
 import {
-  IsAlphanumeric,
   IsEnum,
   IsInt,
   IsNumber,
@@ -12,12 +11,10 @@ import {
 import { VenueStatus } from '../enums/venue-status.enum';
 
 export class CreateVenueDto {
-  @IsAlphanumeric()
   @Length(2, 64)
   name: string;
 
   @IsOptional()
-  @IsAlphanumeric()
   @Length(2, 512)
   description: string;
 
