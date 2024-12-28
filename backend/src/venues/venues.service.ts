@@ -110,4 +110,8 @@ export class VenuesService {
       throw new NotFoundException('venue not found');
     }
   }
+
+  public async findActivities(): Promise<Activity[]> {
+    return this.activityRepository.find();
+  }
 }

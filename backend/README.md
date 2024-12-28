@@ -110,6 +110,7 @@ URL: `http://localhost:3000/api`
 ```
 * Todos los parámetros son opcionales
 
+
 ## Pistas (`/venues`)
 
 ### Endpoints:
@@ -185,4 +186,26 @@ enum VenueStatus {
   AVAILABLE = 'available',
   UNAVAILABLE = 'unavailable',
 }
+```
+## Actividades (`/activities`)
+
+### Endpoints:
+
+#### GET `/`:
+* Responde:
+```json
+[
+  {
+    "id": "de2fcc50-72af-4aa7-9e17-49176aa9edc5",
+    "name": "football"
+  },
+  {
+    "id": "0259f490-0e13-4a4f-96ee-465b05cbc939",
+    "name": "tennis"
+  },
+  {
+    "id": "69f7c96d-8d82-4545-a0d4-bd28f82595b9",
+    "name": "basketball"
+  }
+]
 ```

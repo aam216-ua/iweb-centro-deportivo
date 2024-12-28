@@ -14,26 +14,26 @@ import { CreateVenueDto } from './dto/create-venue.dto';
 import { UpdateVenueDto } from './dto/update-venue.dto';
 import { QueryVenueDto } from './dto/query-venue.dto';
 
-@Controller('venues')
+@Controller()
 export class VenuesController {
   constructor(private readonly venuesService: VenuesService) {}
 
-  @Post()
+  @Post('venues/')
   create(@Body() createVenueDto: CreateVenueDto) {
     return this.venuesService.create(createVenueDto);
   }
 
-  @Get()
+  @Get('venues/')
   findMany(@Query() queryVenueDto: QueryVenueDto) {
     return this.venuesService.findMany(queryVenueDto);
   }
 
-  @Get(':id')
+  @Get('venues/:id')
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.venuesService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('venues/:id')
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateVenueDto: UpdateVenueDto
@@ -41,8 +41,13 @@ export class VenuesController {
     return this.venuesService.update(id, updateVenueDto);
   }
 
-  @Delete(':id')
+  @Delete('venues/:id')
   remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.venuesService.remove(id);
+  }
+
+  @Get('activities')
+  findActivities() {
+    return this.venuesService.findActivities();
   }
 }
