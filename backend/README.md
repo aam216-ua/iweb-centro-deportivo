@@ -109,3 +109,80 @@ URL: `http://localhost:3000/api`
 }
 ```
 * Todos los parámetros son opcionales
+
+## Pistas (`/venues`)
+
+### Endpoints:
+
+#### POST `/`:
+* Recibe `create-venue`
+* Responde con `venue`
+
+#### GET `/`:
+* Recibe parámetros query opcionales
+  * `page` (`int >= 0`), número de página
+  * `size` (`int > 0`), tamaño de página
+  * `activityId` (`uuid`), filtro tipo de actividad
+  * `maxFee` (`0 < float <= 9999.99`), filtro coste máximo
+  * `minCapacity` (`0 < int <= 200`), filtro capacidad mínima
+  * `status` (`venue-status`), filtro estado de la pista
+* Responde:
+```json
+{
+  "meta": {
+    "page": 0,
+    "size": 10,
+    "total": 3,
+  },
+  "data": []
+}
+```
+
+#### GET `/{uid}`:
+* Responde:
+```json
+{
+  "id": "e05c9664-2d03-42e1-a601-df5007b7375c",
+  "name": "Football Venue",
+  "description": "This is a venue",
+  "capacity": 15,
+  "status": "available",
+  "fee": 10.95,
+  "activity": {
+    "id": "14d8b8e0-31b1-43cf-85f4-f89d9812b1f1",
+    "name": "football"
+  }
+}
+```
+
+#### PATCH `/{uid}`
+* Recibe `update-user`
+* Responde con `update-results`
+
+#### DELETE `/{uid}`
+* Responde con `delete-results`
+
+### DTOs:
+
+#### `create-user`
+```json
+{
+  "name": "Football Venue 4112",
+  "description": "This is a venue (optional description)",
+  "capacity": 15,
+  "fee": 325.55,
+  "activityId": "{{uuid}}",
+  "status": "(optional status, defaults to available)",
+}
+```
+
+#### `update-user`
+* Exactamene igual que `create-user` pero con todos los campos opcionales
+
+#### `venue-status`
+```ts
+enum VenueStatus {
+  AVAILABLE = 'available',
+  UNAVAILABLE = 'unavailable',
+}
+```
