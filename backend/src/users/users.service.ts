@@ -74,11 +74,7 @@ export class UsersService {
 
     return {
       data,
-      meta: {
-        page,
-        size,
-        total,
-      },
+      meta: { page, size, total },
     } as PaginatedResult<User>;
   }
 

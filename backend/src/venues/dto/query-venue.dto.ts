@@ -1,40 +1,33 @@
 import {
-  IsAlphanumeric,
   IsEnum,
   IsInt,
   IsNumber,
   IsOptional,
   IsPositive,
   IsUUID,
-  Length,
   Max,
 } from 'class-validator';
+import { PaginatedQueryDto } from 'src/common/dto/paginated-query.dto';
 import { VenueStatus } from '../enums/venue-status.enum';
 
-export class CreateVenueDto {
-  @IsAlphanumeric()
-  @Length(2, 64)
-  name: string;
+export class QueryVenueDto extends PaginatedQueryDto {
+  @IsOptional()
+  @IsUUID()
+  activityId: string;
 
   @IsOptional()
-  @IsAlphanumeric()
-  @Length(2, 512)
-  description: string;
-
-  @IsInt()
-  @IsPositive()
-  @Max(1_000)
-  capacity: number;
-
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
   @Max(1_000)
-  fee: number;
+  maxFee: number;
+
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  @Max(1_000)
+  minCapacity: number;
 
   @IsOptional()
   @IsEnum(VenueStatus)
   status: VenueStatus;
-
-  @IsUUID()
-  activityId: string;
 }
