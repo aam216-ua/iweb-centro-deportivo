@@ -1,8 +1,8 @@
 import type {
-  LoginCredentials,
   LoginAuthResponse,
-  UpdateProfileData,
+  LoginCredentials,
   UpdatePasswordData,
+  UpdateProfileData,
 } from "@/types/auth"
 import type { User } from "@/types/user"
 import { api } from "./api"

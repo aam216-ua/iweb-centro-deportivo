@@ -13,20 +13,27 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuthStore } from "@/stores/auth"
 import { CircleUser, Menu } from "lucide-vue-next"
 import { computed } from "vue"
+import { useRouter } from "vue-router"
 
+const router = useRouter()
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const user = computed(() => authStore.user)
 
 const handleLogout = () => {
   authStore.logout()
+  router.push({ name: "home" })
+}
+
+const handleSettings = () => {
+  router.push({ name: "settings" })
 }
 </script>
 
 <template>
   <header class="sticky top-0 z-40 w-full border-b bg-background">
-    <div class="container flex h-16 items-center px-4">
-      <div class="flex flex-1">
+    <div class="container flex h-16 items-center">
+      <div class="flex flex-1 items-center">
         <!-- Mobile Menu -->
         <Sheet>
           <SheetTrigger as-child class="md:hidden">
@@ -37,34 +44,41 @@ const handleLogout = () => {
           </SheetTrigger>
           <SheetContent side="left">
             <nav class="grid gap-6 py-6">
-              <a href="#" class="text-lg font-medium uppercase">Información</a>
-              <a href="#" class="text-lg font-medium uppercase">Hazte socio</a>
+              <RouterLink to="/info" class="text-lg font-medium uppercase">Información</RouterLink>
+              <RouterLink to="/membership" class="text-lg font-medium uppercase"
+                >Hazte socio</RouterLink
+              >
               <template v-if="isAuthenticated">
-                <a href="#" class="text-lg font-medium">Mis Reservas</a>
-                <a href="#" class="text-lg font-medium">Ajustes</a>
-                <a href="#" class="text-lg font-medium" @click.prevent="handleLogout"
-                  >Cerrar Sesión</a
-                >
+                <RouterLink to="/reserves" class="text-lg font-medium">Mis Reservas</RouterLink>
+                <RouterLink to="/settings" class="text-lg font-medium">Ajustes</RouterLink>
+                <button class="text-lg font-medium text-left" @click="handleLogout">
+                  Cerrar Sesión
+                </button>
               </template>
             </nav>
           </SheetContent>
         </Sheet>
 
-        <a href="/" class="mr-6 flex items-center space-x-2">
+        <RouterLink to="/" class="mr-6 flex items-center">
           <img src="/placeholder.svg" alt="Logo" class="h-6 w-auto" />
-        </a>
+        </RouterLink>
+
         <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
-          <a href="#" class="transition-colors hover:text-foreground/80">Información</a>
-          <a href="#" class="transition-colors hover:text-foreground/80">Hazte socio</a>
+          <RouterLink to="/info" class="transition-colors hover:text-foreground/80"
+            >Información</RouterLink
+          >
+          <RouterLink to="/membership" class="transition-colors hover:text-foreground/80"
+            >Hazte socio</RouterLink
+          >
         </nav>
       </div>
 
       <!-- Desktop Menu -->
-      <div class="hidden md:flex items-center space-x-4">
+      <div class="flex items-center gap-2">
         <HeaderReserve />
         <DropdownMenu v-if="isAuthenticated">
           <DropdownMenuTrigger as-child>
-            <Button variant="ghost" size="icon" class="h-10 w-10">
+            <Button variant="ghost" size="icon">
               <CircleUser class="h-6 w-6" />
               <span class="sr-only">Menú de usuario</span>
             </Button>
@@ -72,9 +86,9 @@ const handleLogout = () => {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>{{ user?.name }}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Ajustes</DropdownMenuItem>
+            <DropdownMenuItem @click="handleSettings">Ajustes</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem @click="handleLogout"> Cerrar Sesión </DropdownMenuItem>
+            <DropdownMenuItem @click="handleLogout">Cerrar Sesión</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

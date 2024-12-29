@@ -1,6 +1,11 @@
 import { authService } from "@/services/auth"
 import { userService } from "@/services/user"
-import type { LoginCredentials, RegisterUserData, UpdateProfileData, UpdatePasswordData } from "@/types/auth"
+import type {
+  LoginCredentials,
+  RegisterUserData,
+  UpdatePasswordData,
+  UpdateProfileData,
+} from "@/types/auth"
 import type { User } from "@/types/user"
 import { defineStore } from "pinia"
 import { computed, ref } from "vue"
@@ -92,6 +97,7 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = userData
     } catch (error) {
       logout()
+      throw error
     } finally {
       loading.value = false
     }
