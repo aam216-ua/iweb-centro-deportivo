@@ -3,7 +3,7 @@ import MainLayout from "@/layouts/MainLayout.vue"
 import SecondaryLayout from "@/layouts/SecondaryLayout.vue"
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 
-const reservationRoutes: RouteRecordRaw = {
+const userUtilRoutes: RouteRecordRaw = {
   path: "/",
   component: SecondaryLayout,
   children: [
@@ -11,6 +11,12 @@ const reservationRoutes: RouteRecordRaw = {
       path: "reserve",
       name: "reserve",
       component: () => import("@/views/ReserveView.vue"),
+    },
+    {
+      path: "settings",
+      name: "settings",
+      component: () => import("@/views/SettingsView.vue"),
+      meta: { publicWithAuth: false },
     },
   ],
 }
@@ -52,7 +58,7 @@ const router = createRouter({
   routes: [
     appRoutes,
     authRoutes,
-    reservationRoutes,
+    userUtilRoutes,
     {
       path: "/:pathMatch(.*)*",
       component: EmptyLayout,

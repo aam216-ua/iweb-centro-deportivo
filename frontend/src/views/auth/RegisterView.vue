@@ -76,7 +76,7 @@ const onSubmit = form.handleSubmit(async (values) => {
               <FormItem>
                 <FormLabel>Teléfono</FormLabel>
                 <FormControl>
-                  <Input type="text" v-bind="componentField" />
+                  <Input type="tel" v-bind="componentField" />
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
               </FormItem>

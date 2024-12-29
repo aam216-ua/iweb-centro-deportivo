@@ -14,19 +14,23 @@ export interface RegisterUserData {
   phone: string
 }
 
-export interface UpdateUserData {
+export interface UpdateProfileData{
   email: string
   name: string
   surname: string
   phone: string
 }
 
+export interface  UpdatePasswordData{
+  password: string
+  newPassword: string
+  confirmPassword: string
+}
+
+
 export interface LoginAuthResponse {
   token: string
   user: User
 }
 
-export interface RegisterAuthResponse {
-  token: string
-  user: User
-}
+export interface RegisterAuthResponse = User
