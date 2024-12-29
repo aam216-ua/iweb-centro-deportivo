@@ -1,21 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  BadRequestException,
+} from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
+import { UsersService } from 'src/users/users.service';
+import { VenuesService } from 'src/venues/venues.service';
 
 @Controller('bookings')
 export class BookingsController {
-  constructor(private readonly bookingsService: BookingsService) {}
+  constructor(
+    private readonly bookingsService: BookingsService,
+    private readonly usersService: UsersService,
+    private readonly venuesService: VenuesService,
+  ) {}
 
   @Post()
-  create(@Body() createBookingDto: CreateBookingDto) {
+  createAsReceptionist(@Body() createBookingDto: CreateBookingDto) {
+    return this.bookingsService.create(createBookingDto);
+  }
+
+  @Post('/customer')
+  createAsCustomer(@Body() createBookingDto: CreateBookingDto) {
+    if (createBookingDto.appointeeId != createBookingDto.appointerId)
+      throw new BadRequestException('appointer and appointee must match');
+
+    // TODO: comprobar saldo y descontar precio de la pista
+
     return this.bookingsService.create(createBookingDto);
   }
 
   @Get()
-  findAll() {
-    return this.bookingsService.findAll();
+  findManyAsReceptionist() {
+    return this.bookingsService.findMany();
   }
+
+  @Get('/customer')
+  findManyAsCustomer() {}
 
   @Get(':id')
   findOne(@Param('id') id: string) {

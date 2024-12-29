@@ -1,26 +1,66 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Booking } from './entities/booking.entity';
+import { Repository } from 'typeorm';
+import { UsersService } from 'src/users/users.service';
+import { VenuesService } from 'src/venues/venues.service';
 
 @Injectable()
 export class BookingsService {
-  create(createBookingDto: CreateBookingDto) {
-    return 'This action adds a new booking';
+  private readonly logger = new Logger(BookingsService.name);
+
+  constructor(
+    @InjectRepository(Booking)
+    private readonly bookingRepository: Repository<Booking>,
+    private readonly userService: UsersService,
+    private readonly venueService: VenuesService,
+  ) {}
+
+  public async create(createBookingDto: CreateBookingDto): Promise<Booking> {
+    const appointer = await this.userService.findOne(
+        createBookingDto.appointerId
+      ),
+      appointee = await this.userService.findOne(createBookingDto.appointeeId),
+      venue = await this.venueService.findOne(createBookingDto.venueId);
+
+    if (!appointer) throw new NotFoundException('appointer user not found');
+    if (!appointee) throw new NotFoundException('appointee user not found');
+    if (!venue) throw new NotFoundException('venue not found');
+
+    if (
+      await this.bookingRepository.findOneBy({
+        date: createBookingDto.date,
+        turn: createBookingDto.turn,
+        venue,
+      })
+    ) {
+      throw new ConflictException('this spot is already taken');
+    }
+
+    const booking = await this.bookingRepository.save(
+      this.bookingRepository.create({
+        ...createBookingDto,
+        appointer,
+        appointee,
+        venue,
+      })
+    );
+
+    return booking;
   }
 
-  findAll() {
-    return `This action returns all bookings`;
-  }
+  public async findMany() { }
 
-  findOne(id: number) {
-    return `This action returns a #${id} booking`;
-  }
+  public async findOne(id: string) { }
 
-  update(id: number, updateBookingDto: UpdateBookingDto) {
-    return `This action updates a #${id} booking`;
-  }
+  public async update(id: string, updateBookingDto: UpdateBookingDto) { }
 
-  remove(id: number) {
-    return `This action removes a #${id} booking`;
-  }
+  public async remove(id: string) { }
 }
