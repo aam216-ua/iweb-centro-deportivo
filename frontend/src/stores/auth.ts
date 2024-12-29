@@ -1,10 +1,6 @@
 import { authService } from "@/services/auth"
-import type {
-  LoginCredentials,
-  RegisterUserData,
-  UpdatePasswordData,
-  UpdateProfileData,
-} from "@/types/auth"
+import { userService } from "@/services/user"
+import type { LoginCredentials, RegisterUserData, UpdateProfileData, UpdatePasswordData } from "@/types/auth"
 import type { User } from "@/types/user"
 import { defineStore } from "pinia"
 import { computed, ref } from "vue"
@@ -12,6 +8,7 @@ import { computed, ref } from "vue"
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null)
   const token = ref<string | null>(localStorage.getItem("token"))
+  const userId = ref<string | null>(localStorage.getItem("userId"))
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -24,7 +21,9 @@ export const useAuthStore = defineStore("auth", () => {
       const response = await authService.login(credentials)
       token.value = response.token
       user.value = response.user
+      userId.value = response.user.id
       localStorage.setItem("token", response.token)
+      localStorage.setItem("userId", response.user.id)
     } catch (err) {
       error.value = "Credenciales inválidas"
       throw err
@@ -76,14 +75,25 @@ export const useAuthStore = defineStore("auth", () => {
     authService.logout()
     user.value = null
     token.value = null
+    userId.value = null
+    localStorage.removeItem("token")
+    localStorage.removeItem("userId")
   }
 
   async function checkAuth() {
-    if (!token.value) return
-    try {
-      user.value = await authService.me()
-    } catch {
+    if (!token.value || !userId.value) {
       logout()
+      return
+    }
+
+    try {
+      loading.value = true
+      const userData = await userService.get(userId.value)
+      user.value = userData
+    } catch (error) {
+      logout()
+    } finally {
+      loading.value = false
     }
   }
 

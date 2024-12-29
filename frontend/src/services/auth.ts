@@ -1,9 +1,8 @@
 import type {
-  LoginAuthResponse,
   LoginCredentials,
-  RegisterUserData,
-  UpdatePasswordData,
+  LoginAuthResponse,
   UpdateProfileData,
+  UpdatePasswordData,
 } from "@/types/auth"
 import type { User } from "@/types/user"
 import { api } from "./api"
@@ -28,12 +27,8 @@ export const authService = {
     await api.patch<void>("/auth/reset", credentials)
   },
 
-  async me() {
-    const { data } = await api.get<User>("/auth/me")
-    return data
-  },
-
   logout() {
     localStorage.removeItem("token")
+    localStorage.removeItem("userId")
   },
 }
