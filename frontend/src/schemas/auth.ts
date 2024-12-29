@@ -11,8 +11,8 @@ export const loginSchema = toTypedSchema(
 export const registerSchema = toTypedSchema(
   z
     .object({
-      nombre: z.string().trim().min(2).max(50),
-      apellidos: z.string().trim().min(2).max(50),
+      name: z.string().trim().min(2).max(50),
+      surname: z.string().trim().min(2).max(50),
       email: z.string().email(),
       password: z
         .string()
@@ -24,7 +24,7 @@ export const registerSchema = toTypedSchema(
         .regex(/[!@#$%^&*]/)
         .regex(/^[A-Za-z0-9!@#$%^&*]+$/),
       confirmPassword: z.string(),
-      telefono: z.string().transform((value) => value.toString()),
+      phone: z.string().transform((phone) => "+34 " + phone),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: "Las contraseñas no coinciden",

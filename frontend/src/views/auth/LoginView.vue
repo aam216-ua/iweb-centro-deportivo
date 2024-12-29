@@ -22,7 +22,7 @@ const showPassword = ref(false)
 
 const onSubmit = form.handleSubmit(async (values) => {
   try {
-    await authStore.login(values.email, values.password)
+    await authStore.login(values)
     toast.message("¡Bienvenido!", { description: "Has iniciado sesión correctamente." })
     router.push("/")
   } catch (error) {

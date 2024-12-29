@@ -1,8 +1,8 @@
 export enum Role {
-  no_socio,
-  socio,
-  recepcionista,
-  web_master,
+  SUPERADMIN = "superadmin",
+  ADMIN = "admin",
+  RECEPTIONIST = "receptionist",
+  CUSTOMER = "customer",
 }
 
 export enum Status {
@@ -15,10 +15,12 @@ export enum Status {
 export interface User {
   id: number
   email: string
-  nombre: string
-  apellidos: string
-  telefono: string
-  privilegios: Role
-  estado: Status
-  saldo: number
+  name: string
+  surname: string
+  phone: string
+  role: Role
+  balance: number
+  createdAt: Date
+  updatedAt: Date
+  deletedAt: Date | null
 }
