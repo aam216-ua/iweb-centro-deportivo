@@ -53,7 +53,7 @@ export class AuthService {
       return {
         token: await this.jwtService.signAsync({
           id: user.id,
-          email: user.email,
+          role: user.role,
         }),
         user,
       };

@@ -1,16 +1,18 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class PaginatedQueryDto {
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsInt()
+  @Max(10_000)
   @Min(0)
   page: number;
 
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsInt()
+  @Max(25)
   @Min(1)
   size: number;
 }

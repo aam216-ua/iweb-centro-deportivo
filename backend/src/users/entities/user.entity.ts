@@ -10,6 +10,7 @@ import {
 import { Password } from './password.entity';
 import { UserRole } from '../enums/user-role.enum';
 import { Exclude } from 'class-transformer';
+import { Booking } from 'src/bookings/entities/booking.entity';
 
 @Entity()
 export class User {
@@ -39,6 +40,18 @@ export class User {
   })
   @Exclude()
   passwords: Password[];
+
+  // reservas creadas
+  @OneToMany(() => Booking, (booked) => booked.appointer, {
+    onDelete: 'SET NULL',
+  })
+  booked: Booking[];
+
+  // reservas atendidas
+  @OneToMany(() => Booking, (booking) => booking.appointee, {
+    onDelete: 'SET NULL',
+  })
+  bookings: Booking[];
 
   @CreateDateColumn()
   createdAt: Date;
