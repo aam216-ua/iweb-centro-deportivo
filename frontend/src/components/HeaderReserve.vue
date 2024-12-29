@@ -5,6 +5,10 @@ import { CircleUser, Pen } from "lucide-vue-next"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
 
+defineProps<{
+  class?: string
+}>()
+
 const router = useRouter()
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
@@ -18,12 +22,14 @@ const handleReservasClick = () => {
 </script>
 
 <template>
-  <Button variant="outline" @click="handleReservasClick" class="hidden md:flex rounded-full">
-    <Pen class="mr-2 h-5 w-5" />
-    {{ buttonText }}
-  </Button>
-  <Button variant="outline" size="icon" @click="handleReservasClick" class="md:hidden rounded-full">
-    <CircleUser class="h-6 w-6" />
-    <span class="sr-only">{{ buttonText }}</span>
-  </Button>
+  <div :class="class">
+    <Button variant="outline" @click="handleReservasClick" class="hidden md:flex rounded-full">
+      <Pen class="mr-2 h-5 w-5" />
+      {{ buttonText }}
+    </Button>
+    <Button variant="outline" size="icon" @click="handleReservasClick" class="md:hidden rounded-full">
+      <CircleUser class="h-6 w-6" />
+      <span class="sr-only">{{ buttonText }}</span>
+    </Button>
+  </div>
 </template>
