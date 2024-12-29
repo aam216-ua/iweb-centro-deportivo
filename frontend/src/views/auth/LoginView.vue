@@ -23,7 +23,7 @@ const showPassword = ref(false)
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     await authStore.login(values)
-    toast.message("¡Bienvenido!", { description: "Has iniciado sesión correctamente." })
+    toast.success("¡Bienvenido!", { description: "Has iniciado sesión correctamente." })
     router.push("/")
   } catch (error) {
     toast.error("Credenciales inválidas")
