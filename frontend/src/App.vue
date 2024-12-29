@@ -5,5 +5,5 @@ import { RouterView } from "vue-router"
 
 <template>
   <RouterView />
-  <Toaster />
+  <Toaster theme="dark" richColors />
 </template>

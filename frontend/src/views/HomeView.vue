@@ -31,7 +31,7 @@ const handleLoginClick = () => {
     <section v-if="isAuthenticated" class="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Welcome back, {{ user?.nombre }}!</CardTitle>
+          <CardTitle>Welcome back, {{ user?.name }}!</CardTitle>
           <CardDescription>Here's what's new for you</CardDescription>
         </CardHeader>
       </Card>

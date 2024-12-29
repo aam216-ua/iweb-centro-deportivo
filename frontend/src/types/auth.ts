@@ -7,20 +7,26 @@ export interface LoginCredentials {
 
 export interface RegisterUserData {
   email: string
-  nombre: string
-  apellidos: string
+  name: string
+  surname: string
   password: string
   confirmPassword: string
-  telefono: string
+  phone: string
 }
 
-export interface Facility {
-  id: number
-  nombre: string
-  precio: number
+export interface UpdateUserData {
+  email: string
+  name: string
+  surname: string
+  phone: string
 }
 
-export interface AuthResponse {
+export interface LoginAuthResponse {
+  token: string
+  user: User
+}
+
+export interface RegisterAuthResponse {
   token: string
   user: User
 }

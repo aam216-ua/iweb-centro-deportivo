@@ -5,7 +5,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input"
 import { randImage } from "@/lib/utils"
 import { registerSchema } from "@/schemas/auth"
-import { authService } from "@/services/auth"
+import { useAuthStore } from "@/stores/auth"
 import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { ref } from "vue"
@@ -16,6 +16,7 @@ const bgImg = randImage()
 const router = useRouter()
 const loading = ref(false)
 const showPassword = ref(false)
+const authStore = useAuthStore()
 const showConfirmPassword = ref(false)
 
 const form = useForm({
@@ -25,7 +26,7 @@ const form = useForm({
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     loading.value = true
-    await authService.register(values)
+    await authStore.register(values)
     toast.success("Tu cuenta ha sido creada exitosamente.")
     router.push("/login")
   } catch (error) {
@@ -50,7 +51,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
           <form @submit="onSubmit" class="mt-6 grid gap-4">
             <div class="grid grid-cols-2 gap-4">
-              <FormField v-slot="{ componentField, errorMessage }" name="nombre">
+              <FormField v-slot="{ componentField, errorMessage }" name="name">
                 <FormItem>
                   <FormLabel>Nombre</FormLabel>
                   <FormControl>
@@ -60,7 +61,7 @@ const onSubmit = form.handleSubmit(async (values) => {
                 </FormItem>
               </FormField>
 
-              <FormField v-slot="{ componentField, errorMessage }" name="apellidos">
+              <FormField v-slot="{ componentField, errorMessage }" name="surname">
                 <FormItem>
                   <FormLabel>Apellidos</FormLabel>
                   <FormControl>
@@ -71,7 +72,7 @@ const onSubmit = form.handleSubmit(async (values) => {
               </FormField>
             </div>
 
-            <FormField v-slot="{ componentField, errorMessage }" name="telefono">
+            <FormField v-slot="{ componentField, errorMessage }" name="phone">
               <FormItem>
                 <FormLabel>Teléfono</FormLabel>
                 <FormControl>
