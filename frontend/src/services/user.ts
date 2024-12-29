@@ -1,4 +1,4 @@
-import type {User} from "@/types/user"
+import type { User } from "@/types/user"
 
 export const userService = {
   async get(id: string) {
@@ -6,4 +6,3 @@ export const userService = {
     return data
   },
 }
-
