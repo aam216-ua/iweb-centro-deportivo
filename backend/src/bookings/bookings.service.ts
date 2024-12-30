@@ -46,6 +46,8 @@ export class BookingsService {
       throw new ConflictException('this spot is already taken');
     }
 
+    this.logger.debug('Creating and saving booking data');
+
     const booking = await this.bookingRepository.save(
       this.bookingRepository.create({
         ...createBookingDto,
@@ -84,7 +86,7 @@ export class BookingsService {
 
     if (appointerId)
       query.andWhere({
-        appointer: await this.userService.findOne(appointerId) 
+        appointer: await this.userService.findOne(appointerId),
       });
 
     if (venueId)

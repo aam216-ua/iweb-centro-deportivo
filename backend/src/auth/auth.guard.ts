@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserSession } from './types/user-session.type';
-import { UserRole } from 'src/users/enums/user-role.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -20,32 +19,32 @@ export class AuthGuard implements CanActivate {
 
     const token = ((request) => {
       const [type, token] = request.headers.authorization?.split(' ') ?? [];
-      return type === 'Bearer' ? token : undefined;
-    })(request);
 
-    this.logger.debug(
-      `Received token with ${token ? 'defined' : 'undefined'} value`
-    );
+      this.logger.debug(
+        `Received token of type '${type}' with value '${token}'`
+      );
+
+      if (type == 'Bearer') return token;
+    })(request);
 
     if (!token) throw new UnauthorizedException('missing token');
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
+        // secret: process.env.JWT_SECRET,
       });
 
       this.logger.debug(
         `The received token corresponds to user '${payload.id}' with role '${payload.role}'`
       );
 
-      request['session'] = {
-        id: payload.id,
-        role: payload.role as UserRole,
-      } as UserSession;
+      request['session'] = payload as UserSession;
+    } catch (err) {
+      this.logger.error(err);
 
-      return true;
-    } catch {
       throw new UnauthorizedException('invalid token');
     }
+
+    return true;
   }
 }
