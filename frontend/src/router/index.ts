@@ -51,6 +51,11 @@ const protectedRoutes: RouteRecordRaw = {
       name: "reserve",
       component: () => import("@/views/ReserveView.vue"),
     },
+    {
+      path: "profile",
+      name: "profile",
+      component: () => import("@/views/ProfileView.vue"),
+    },
   ],
 }
 

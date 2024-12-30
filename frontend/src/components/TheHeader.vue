@@ -77,7 +77,11 @@ const handleSettings = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{{ user?.name }}</DropdownMenuLabel>
+                <DropdownMenuLabel
+                  ><RouterLink class="hover:underline" to="/profile">{{
+                    user?.name
+                  }}</RouterLink></DropdownMenuLabel
+                >
                 <DropdownMenuSeparator />
                 <DropdownMenuItem @click="handleSettings">Ajustes</DropdownMenuItem>
                 <DropdownMenuItem @click="handleLogout">Cerrar Sesión</DropdownMenuItem>
