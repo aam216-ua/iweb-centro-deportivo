@@ -23,8 +23,11 @@ export const registerSchema = toTypedSchema(
         .regex(/[0-9]/)
         .regex(/[!@#$%^&*]/)
         .regex(/^[A-Za-z0-9!@#$%^&*]+$/),
-      confirmPassword: z.string(),
-      phone: z.string().transform((phone) => "+34 " + phone),
+      confirmPassword: z.string().trim(),
+      phone: z
+        .string()
+        .trim()
+        .transform((phone) => "+34 " + phone),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: "Las contraseñas no coinciden",

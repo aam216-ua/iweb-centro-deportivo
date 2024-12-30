@@ -1,8 +1,9 @@
 import type {
   LoginAuthResponse,
   LoginCredentials,
-  RegisterAuthResponse,
   RegisterUserData,
+  UpdatePasswordData,
+  UpdateProfileData,
 } from "@/types/auth"
 import type { User } from "@/types/user"
 import { api } from "./api"
@@ -14,17 +15,21 @@ export const authService = {
   },
 
   async register(userData: RegisterUserData) {
-    const { data } = await api.post<RegisterAuthResponse>("/users", userData)
+    const { data } = await api.post<User>("/users", userData)
     return data
   },
 
-  async me() {
-    // TODO
-    const { data } = await api.get<User>("/auth/me")
+  async updateProfile(id: string, userData: UpdateProfileData) {
+    const { data } = await api.patch<User>(`/users/${id}`, userData)
     return data
+  },
+
+  async updatePassword(credentials: UpdatePasswordData) {
+    await api.patch<void>("/auth/reset", credentials)
   },
 
   logout() {
     localStorage.removeItem("token")
+    localStorage.removeItem("userId")
   },
 }

@@ -1,28 +1,30 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/auth"
-import { CircleUser, Pen } from "lucide-vue-next"
+import { Pen } from "lucide-vue-next"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
+
+const props = defineProps<{
+  class?: string
+}>()
 
 const router = useRouter()
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
-
 const buttonText = computed(() => (isAuthenticated.value ? "Mis Reservas" : "Reserva ahora"))
 
 const handleReservasClick = () => {
-  router.push({ name: "login" })
+  const route = isAuthenticated.value ? { name: "reserve" } : { name: "login" }
+  router.push(route)
 }
 </script>
 
 <template>
-  <Button variant="outline" @click="handleReservasClick" class="hidden md:flex rounded-full">
-    <Pen class="mr-2 h-5 w-5" />
-    {{ buttonText }}
-  </Button>
-  <Button variant="outline" size="icon" @click="handleReservasClick" class="md:hidden rounded-full">
-    <CircleUser class="h-6 w-6" />
-    <span class="sr-only">{{ buttonText }}</span>
-  </Button>
+  <div :class="props.class">
+    <Button variant="outline" @click="handleReservasClick" class="hidden flex rounded-full">
+      <Pen class="mr-2 h-5 w-5" />
+      {{ buttonText }}
+    </Button>
+  </div>
 </template>
