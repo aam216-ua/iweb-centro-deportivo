@@ -53,14 +53,10 @@ const handleSettings = () => {
             </SheetTrigger>
             <SheetContent side="left">
               <nav class="grid gap-6 py-6">
-                <RouterLink to="/info" class="text-lg font-medium uppercase"
-                  >Información</RouterLink
-                >
-                <RouterLink to="/membership" class="text-lg font-medium uppercase"
-                  >Hazte socio</RouterLink
-                >
+                <RouterLink to="/info" class="text-lg font-medium">Información</RouterLink>
+                <RouterLink to="/membership" class="text-lg font-medium">Hazte socio</RouterLink>
                 <template v-if="isAuthenticated">
-                  <RouterLink to="/reserves" class="text-lg font-medium">Mis Reservas</RouterLink>
+                  <RouterLink to="/reserve" class="text-lg font-medium">Mis Reservas</RouterLink>
                   <RouterLink to="/settings" class="text-lg font-medium">Ajustes</RouterLink>
                   <button class="text-lg font-medium text-left" @click="handleLogout">
                     Cerrar Sesión
@@ -98,7 +94,7 @@ const handleSettings = () => {
             <img src="/placeholder.svg" alt="Logo" class="h-16 w-auto" />
           </RouterLink>
         </div>
-        <nav class="hidden md:flex gap-4 uppercase">
+        <nav class="hidden md:flex gap-4">
           <RouterLink to="/info" class="text-white hover:text-white/80">Información</RouterLink>
           <RouterLink to="/membership" class="text-white hover:text-white/80"
             >Hazte socio</RouterLink

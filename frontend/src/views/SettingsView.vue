@@ -7,7 +7,7 @@ import { passwordSchema, settingsSchema } from "@/schemas/settings"
 import { useAuthStore } from "@/stores/auth"
 import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { toast } from "vue-sonner"
 
 const loading = ref(false)
@@ -17,13 +17,15 @@ const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 const authStore = useAuthStore()
 
+const user = computed(() => authStore.user)
+
 const profileForm = useForm({
   validationSchema: settingsSchema,
   initialValues: {
-    email: authStore.user?.email,
-    name: authStore.user?.name,
-    surname: authStore.user?.surname,
-    phone: authStore.user?.phone,
+    email: user.value?.email || "",
+    name: user.value?.name || "",
+    surname: user.value?.surname || "",
+    phone: user.value?.phone?.replace("+34 ", "") || "",
   },
 })
 
@@ -46,7 +48,10 @@ const onSubmitProfile = profileForm.handleSubmit(async (values) => {
 const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
   try {
     loadingPassword.value = true
-    await authStore.updatePassword(values.newPassword)
+    await authStore.updatePassword({
+      ...values,
+      email: user.value?.email || "",
+    })
     toast.success("Contraseña actualizada exitosamente")
     passwordForm.resetForm()
   } catch (error) {
@@ -69,42 +74,46 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
         <form @submit="onSubmitProfile" class="mt-6 max-w-xl space-y-6">
           <div class="grid gap-4">
             <div class="grid grid-cols-2 gap-4">
-              <FormField v-slot="{ componentField, errorMessage }" name="name">
+              <FormField v-slot="{ field, errorMessage }" name="name">
                 <FormItem>
                   <FormLabel>Nombre</FormLabel>
                   <FormControl>
-                    <Input v-bind="componentField" />
+                    <Input v-bind="field" :placeholder="user?.name || ''" />
                   </FormControl>
                   <FormMessage>{{ errorMessage }}</FormMessage>
                 </FormItem>
               </FormField>
 
-              <FormField v-slot="{ componentField, errorMessage }" name="surname">
+              <FormField v-slot="{ field, errorMessage }" name="surname">
                 <FormItem>
                   <FormLabel>Apellidos</FormLabel>
                   <FormControl>
-                    <Input v-bind="componentField" />
+                    <Input v-bind="field" :placeholder="user?.surname || ''" />
                   </FormControl>
                   <FormMessage>{{ errorMessage }}</FormMessage>
                 </FormItem>
               </FormField>
             </div>
 
-            <FormField v-slot="{ componentField, errorMessage }" name="phone">
+            <FormField v-slot="{ field, errorMessage }" name="phone">
               <FormItem>
                 <FormLabel>Teléfono</FormLabel>
                 <FormControl>
-                  <Input type="tel" v-bind="componentField" />
+                  <Input
+                    type="tel"
+                    v-bind="field"
+                    :placeholder="user?.phone?.replace('+34 ', '') || ''"
+                  />
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
               </FormItem>
             </FormField>
 
-            <FormField v-slot="{ componentField, errorMessage }" name="email">
+            <FormField v-slot="{ field, errorMessage }" name="email">
               <FormItem>
                 <FormLabel>Correo Electrónico</FormLabel>
                 <FormControl>
-                  <Input type="email" v-bind="componentField" />
+                  <Input type="email" v-bind="field" :placeholder="user?.email || ''" />
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
               </FormItem>
@@ -125,16 +134,12 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
         </div>
 
         <form @submit="onSubmitPassword" class="mt-6 max-w-xl space-y-6">
-          <FormField v-slot="{ componentField, errorMessage }" name="password">
+          <FormField v-slot="{ field, errorMessage }" name="password">
             <FormItem>
               <FormLabel>Contraseña Actual</FormLabel>
               <div class="relative">
                 <FormControl>
-                  <Input
-                    class="pr-10"
-                    :type="showPassword ? 'text' : 'password'"
-                    v-bind="componentField"
-                  />
+                  <Input class="pr-10" :type="showPassword ? 'text' : 'password'" v-bind="field" />
                 </FormControl>
                 <PasswordToggleButton v-model="showPassword" />
               </div>
@@ -142,7 +147,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
             </FormItem>
           </FormField>
 
-          <FormField v-slot="{ componentField, errorMessage }" name="newPassword">
+          <FormField v-slot="{ field, errorMessage }" name="newPassword">
             <FormItem>
               <FormLabel>Nueva Contraseña</FormLabel>
               <div class="relative">
@@ -150,7 +155,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
                   <Input
                     class="pr-10"
                     :type="showNewPassword ? 'text' : 'password'"
-                    v-bind="componentField"
+                    v-bind="field"
                   />
                 </FormControl>
                 <PasswordToggleButton v-model="showNewPassword" />
@@ -167,7 +172,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
             <li>Debe contener algún símbolo [!@#$%^&*]</li>
           </ul>
 
-          <FormField v-slot="{ componentField, errorMessage }" name="confirmPassword">
+          <FormField v-slot="{ field, errorMessage }" name="confirmPassword">
             <FormItem>
               <FormLabel>Confirmar Nueva Contraseña</FormLabel>
               <div class="relative">
@@ -175,7 +180,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
                   <Input
                     class="pr-10"
                     :type="showConfirmPassword ? 'text' : 'password'"
-                    v-bind="componentField"
+                    v-bind="field"
                   />
                 </FormControl>
                 <PasswordToggleButton v-model="showConfirmPassword" />
