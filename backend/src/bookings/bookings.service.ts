@@ -20,7 +20,7 @@ export class BookingsService {
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
     private readonly userService: UsersService,
-    private readonly venueService: VenuesService,
+    private readonly venueService: VenuesService
   ) {}
 
   public async create(createBookingDto: CreateBookingDto): Promise<Booking> {
@@ -56,11 +56,11 @@ export class BookingsService {
     return booking;
   }
 
-  public async findMany() { }
+  public async findMany() {}
 
-  public async findOne(id: string) { }
+  public async findOne(id: string) {}
 
-  public async update(id: string, updateBookingDto: UpdateBookingDto) { }
+  public async update(id: string, updateBookingDto: UpdateBookingDto) {}
 
-  public async remove(id: string) { }
+  public async remove(id: string) {}
 }
