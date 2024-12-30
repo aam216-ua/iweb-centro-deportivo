@@ -1,8 +1,9 @@
 import EmptyLayout from "@/layouts/EmptyLayout.vue"
 import MainLayout from "@/layouts/MainLayout.vue"
 import SecondaryLayout from "@/layouts/SecondaryLayout.vue"
-import { useAuthStore } from "@/stores/auth"
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
+import { authGuard } from "@/router/guard"
+import type { RouteRecordRaw } from "vue-router"
+import { createRouter, createWebHistory } from "vue-router"
 
 const publicRoutes: RouteRecordRaw = {
   path: "/",
@@ -24,13 +25,13 @@ const authRoutes: RouteRecordRaw = {
       path: "login",
       name: "login",
       component: () => import("@/views/auth/LoginView.vue"),
-      meta: { requiresGuest: true },
+      meta: { guestOnly: true },
     },
     {
       path: "register",
       name: "register",
       component: () => import("@/views/auth/RegisterView.vue"),
-      meta: { requiresGuest: true },
+      meta: { guestOnly: true },
     },
   ],
 }
@@ -70,20 +71,6 @@ const router = createRouter({
   routes: [publicRoutes, authRoutes, protectedRoutes, notFoundRoute],
 })
 
-router.beforeEach((to) => {
-  const authStore = useAuthStore()
-  const isAuthenticated = authStore.isAuthenticated
-
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    return {
-      name: "login",
-      query: { redirect: to.fullPath },
-    }
-  }
-
-  if (to.meta.requiresGuest && isAuthenticated) {
-    return { name: "home" }
-  }
-})
+router.beforeEach(authGuard)
 
 export default router

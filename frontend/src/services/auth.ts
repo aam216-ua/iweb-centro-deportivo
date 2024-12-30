@@ -1,6 +1,7 @@
 import type {
   LoginAuthResponse,
   LoginCredentials,
+  RegisterUserData,
   UpdatePasswordData,
   UpdateProfileData,
 } from "@/types/auth"

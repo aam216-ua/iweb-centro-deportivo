@@ -21,12 +21,6 @@ const user = computed(() => authStore.user)
 
 const profileForm = useForm({
   validationSchema: settingsSchema,
-  initialValues: {
-    email: user.value?.email || "",
-    name: user.value?.name || "",
-    surname: user.value?.surname || "",
-    phone: user.value?.phone?.replace("+34 ", "") || "",
-  },
 })
 
 const passwordForm = useForm({
@@ -34,6 +28,8 @@ const passwordForm = useForm({
 })
 
 const onSubmitProfile = profileForm.handleSubmit(async (values) => {
+  console.log(values)
+  return
   try {
     loading.value = true
     await authStore.updateProfile(values)
@@ -72,57 +68,52 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
         </div>
 
         <form @submit="onSubmitProfile" class="mt-6 max-w-xl space-y-6">
-          <div class="grid gap-4">
-            <div class="grid grid-cols-2 gap-4">
-              <FormField v-slot="{ field, errorMessage }" name="name">
-                <FormItem>
-                  <FormLabel>Nombre</FormLabel>
-                  <FormControl>
-                    <Input v-bind="field" :placeholder="user?.name || ''" />
-                  </FormControl>
-                  <FormMessage>{{ errorMessage }}</FormMessage>
-                </FormItem>
-              </FormField>
-
-              <FormField v-slot="{ field, errorMessage }" name="surname">
-                <FormItem>
-                  <FormLabel>Apellidos</FormLabel>
-                  <FormControl>
-                    <Input v-bind="field" :placeholder="user?.surname || ''" />
-                  </FormControl>
-                  <FormMessage>{{ errorMessage }}</FormMessage>
-                </FormItem>
-              </FormField>
-            </div>
-
-            <FormField v-slot="{ field, errorMessage }" name="phone">
+          <div class="grid grid-cols-2 gap-4">
+            <FormField v-slot="{ componentField, errorMessage }" name="name">
               <FormItem>
-                <FormLabel>Teléfono</FormLabel>
+                <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input
-                    type="tel"
-                    v-bind="field"
-                    :placeholder="user?.phone?.replace('+34 ', '') || ''"
-                  />
+                  <Input v-bind="componentField" />
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
               </FormItem>
             </FormField>
 
-            <FormField v-slot="{ field, errorMessage }" name="email">
+            <FormField v-slot="{ componentField, errorMessage }" name="surname">
               <FormItem>
-                <FormLabel>Correo Electrónico</FormLabel>
+                <FormLabel>Apellidos</FormLabel>
                 <FormControl>
-                  <Input type="email" v-bind="field" :placeholder="user?.email || ''" />
+                  <Input v-bind="componentField" />
                 </FormControl>
                 <FormMessage>{{ errorMessage }}</FormMessage>
               </FormItem>
             </FormField>
           </div>
 
+          <div class="grid grid-cols-2 gap-4">
+            <FormField v-slot="{ componentField, errorMessage }" name="phone">
+              <FormItem>
+                <FormLabel>Teléfono</FormLabel>
+                <FormControl>
+                  <Input type="tel" v-bind="componentField" />
+                </FormControl>
+                <FormMessage>{{ errorMessage }}</FormMessage>
+              </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ componentField, errorMessage }" name="email">
+              <FormItem>
+                <FormLabel>Correo Electrónico</FormLabel>
+                <FormControl>
+                  <Input type="email" v-bind="componentField" />
+                </FormControl>
+                <FormMessage>{{ errorMessage }}</FormMessage>
+              </FormItem>
+            </FormField>
+          </div>
           <Button type="submit" class="w-full" :disabled="loading">
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
-            {{ loading ? "Actualizando..." : "Guardar cambios" }}
+            {{ loading ? "Actualizando datos..." : "Guardar datos" }}
           </Button>
         </form>
       </section>
@@ -134,12 +125,16 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
         </div>
 
         <form @submit="onSubmitPassword" class="mt-6 max-w-xl space-y-6">
-          <FormField v-slot="{ field, errorMessage }" name="password">
+          <FormField v-slot="{ componentField, errorMessage }" name="password">
             <FormItem>
               <FormLabel>Contraseña Actual</FormLabel>
               <div class="relative">
                 <FormControl>
-                  <Input class="pr-10" :type="showPassword ? 'text' : 'password'" v-bind="field" />
+                  <Input
+                    class="pr-10"
+                    :type="showPassword ? 'text' : 'password'"
+                    v-bind="componentField"
+                  />
                 </FormControl>
                 <PasswordToggleButton v-model="showPassword" />
               </div>
@@ -147,7 +142,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
             </FormItem>
           </FormField>
 
-          <FormField v-slot="{ field, errorMessage }" name="newPassword">
+          <FormField v-slot="{ componentField, errorMessage }" name="newPassword">
             <FormItem>
               <FormLabel>Nueva Contraseña</FormLabel>
               <div class="relative">
@@ -155,7 +150,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
                   <Input
                     class="pr-10"
                     :type="showNewPassword ? 'text' : 'password'"
-                    v-bind="field"
+                    v-bind="componentField"
                   />
                 </FormControl>
                 <PasswordToggleButton v-model="showNewPassword" />
@@ -172,7 +167,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
             <li>Debe contener algún símbolo [!@#$%^&*]</li>
           </ul>
 
-          <FormField v-slot="{ field, errorMessage }" name="confirmPassword">
+          <FormField v-slot="{ componentField, errorMessage }" name="confirmPassword">
             <FormItem>
               <FormLabel>Confirmar Nueva Contraseña</FormLabel>
               <div class="relative">
@@ -180,7 +175,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
                   <Input
                     class="pr-10"
                     :type="showConfirmPassword ? 'text' : 'password'"
-                    v-bind="field"
+                    v-bind="componentField"
                   />
                 </FormControl>
                 <PasswordToggleButton v-model="showConfirmPassword" />

@@ -85,7 +85,6 @@ const handleSettings = () => {
             <DropdownMenuLabel>{{ user?.name }}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem @click="handleSettings">Ajustes</DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem @click="handleLogout">Cerrar Sesión</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

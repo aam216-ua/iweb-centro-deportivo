@@ -9,7 +9,7 @@ export const settingsSchema = toTypedSchema(
     phone: z
       .string()
       .trim()
-      .transform((phone) => phone),
+      .transform((phone) => "+34 " + phone),
   }),
 )
 
