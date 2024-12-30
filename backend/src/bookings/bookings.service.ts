@@ -8,9 +8,11 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Booking } from './entities/booking.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { VenuesService } from 'src/venues/venues.service';
+import { QueryBookingDto } from './dto/query-booking.dto';
+import { PaginatedResult } from 'src/common/type/paginated-result.type';
 
 @Injectable()
 export class BookingsService {
@@ -56,11 +58,73 @@ export class BookingsService {
     return booking;
   }
 
-  public async findMany() {}
+  public async findMany(
+    queryBookingDto: QueryBookingDto
+  ): Promise<PaginatedResult<Booking>> {
+    const {
+      page = 0,
+      size = 10,
+      appointeeId = undefined,
+      appointerId = undefined,
+      venueId = undefined,
+      after = undefined,
+      before = undefined,
+      sort = 'DESC',
+    } = queryBookingDto;
 
-  public async findOne(id: string) {}
+    const query = this.bookingRepository
+      .createQueryBuilder('booking')
+      .leftJoinAndSelect('booking.venue', 'venue')
+      .orderBy('booking.date', sort);
 
-  public async update(id: string, updateBookingDto: UpdateBookingDto) {}
+    if (appointeeId)
+      query.andWhere({
+        appointee: await this.userService.findOne(appointeeId),
+      });
 
-  public async remove(id: string) {}
+    if (appointerId)
+      query.andWhere({
+        appointer: await this.userService.findOne(appointerId) 
+      });
+
+    if (venueId)
+      query.andWhere({ venue: await this.venueService.findOne(venueId) });
+
+    if (after) query.andWhere('booking.date >= :after', after);
+
+    if (before) query.andWhere('booking.date <= :before', before);
+
+    const [data, total] = await query
+      .skip(page * size)
+      .take(size)
+      .getManyAndCount();
+
+    return {
+      data,
+      meta: { page, size, total },
+    } as PaginatedResult<Booking>;
+  }
+
+  public async findOne(id: string) {
+    return await this.bookingRepository.findOneBy({ id });
+  }
+
+  public async update(
+    id: string,
+    updateBookingDto: UpdateBookingDto
+  ): Promise<UpdateResult> {
+    if (this.findOne(id)) {
+      return await this.bookingRepository.update({ id }, updateBookingDto);
+    } else {
+      throw new NotFoundException('booking not found');
+    }
+  }
+
+  public async remove(id: string): Promise<DeleteResult> {
+    if (this.findOne(id)) {
+      return await this.bookingRepository.delete({ id });
+    } else {
+      throw new NotFoundException('booking not found');
+    }
+  }
 }

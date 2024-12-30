@@ -69,7 +69,7 @@ export class VenuesService {
 
       if (!activity) throw new NotFoundException('activity not found');
 
-      query.where({ activity: { id: activity.id } });
+      query.andWhere({ activity: { id: activity.id } });
     }
 
     if (maxFee) query.andWhere('venue.fee <= :maxFee', { maxFee });
