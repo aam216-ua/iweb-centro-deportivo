@@ -24,8 +24,15 @@ import { Session } from 'src/auth/decorators/session.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(
+    @Session() session: UserSession,
+    @Body() createUserDto: CreateUserDto
+  ) {
+    if (session.role == UserRole.CUSTOMER)
+      throw new UnauthorizedException('insufficient permissions');
+
     return this.usersService.create(createUserDto);
   }
 

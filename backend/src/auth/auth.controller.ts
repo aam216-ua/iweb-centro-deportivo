@@ -24,16 +24,11 @@ export class AuthController {
     return this.authService.signIn(authCredentialsDto);
   }
 
-  @Post('/signout')
-  signOut() {
-    throw new BadRequestException('unimplemented');
-  }
-
-  @Patch('/reset')
-  reset(
-    @Body() authCredentialsDto: AuthCredentialsDto,
-    @Body() updateCredentialsDto: UpdateCredentialsDto
-  ) {
-    return this.authService.reset(authCredentialsDto, updateCredentialsDto);
-  }
+  // @Patch('/:id')
+  // changePassword(
+  //   @Body() authCredentialsDto: AuthCredentialsDto,
+  //   @Body() updateCredentialsDto: UpdateCredentialsDto
+  // ) {
+  //   return this.authService.reset(authCredentialsDto, updateCredentialsDto);
+  // }
 }

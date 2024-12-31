@@ -20,7 +20,7 @@ import { VenuesModule } from './venues/venues.module';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       autoLoadEntities: true,
-      synchronize: true,
+      // synchronize: true,
     }),
     UsersModule,
     AuthModule,

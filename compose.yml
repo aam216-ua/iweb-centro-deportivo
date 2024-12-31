@@ -11,8 +11,8 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-    # volumes:
-      # - ./.data:/docker-entrypoint-initdb.d
+    volumes:
+      - ./.data:/docker-entrypoint-initdb.d
     networks:
       - iw-net
 

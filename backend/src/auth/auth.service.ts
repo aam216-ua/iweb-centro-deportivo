@@ -42,6 +42,8 @@ export class AuthService {
       },
     });
 
+    if (!user) throw new UnauthorizedException('invalid credentials');
+
     const password = await this.passwordRepository.findOne({
       where: {
         user: { id: user.id },
@@ -49,14 +51,13 @@ export class AuthService {
       },
     });
 
+    if (!password) throw new UnauthorizedException('invalid credentials');
+
     this.logger.debug(
       `Found user with email '${user?.email ?? undefined}' and ${password ? 'existing' : 'undefined'} password`
     );
 
-    if (
-      password &&
-      (await verify(password.password, authCredentialsDto.password))
-    ) {
+    if (await verify(password.password, authCredentialsDto.password)) {
       return {
         token: await this.jwtService.signAsync({
           id: user.id,
