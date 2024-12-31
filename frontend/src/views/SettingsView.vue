@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import PasswordToggleButton from "@/components/PasswordVisibility.vue"
 import { Button } from "@/components/ui/button"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { passwordSchema, settingsSchema } from "@/schemas/settings"
 import { useAuthStore } from "@/stores/auth"
 import { Loader2 } from "lucide-vue-next"
-import { useForm } from "vee-validate"
-import { computed, ref } from "vue"
+import { useField, useForm } from "vee-validate"
+import { computed, reactive, ref } from "vue"
 import { toast } from "vue-sonner"
 
 const loading = ref(false)
@@ -23,13 +23,57 @@ const profileForm = useForm({
   validationSchema: settingsSchema,
 })
 
+const nameField = reactive(
+  useField("name", undefined, {
+    form: profileForm,
+    initialValue: user.value?.name || "",
+  }),
+)
+
+const surnameField = reactive(
+  useField("surname", undefined, {
+    form: profileForm,
+    initialValue: user.value?.surname || "",
+  }),
+)
+
+const phoneField = reactive(
+  useField("phone", undefined, {
+    form: profileForm,
+    initialValue: user.value?.phone.replace("+34", "").trim() || "",
+  }),
+)
+
+const emailField = reactive(
+  useField("email", undefined, {
+    form: profileForm,
+    initialValue: user.value?.email || "",
+  }),
+)
+
 const passwordForm = useForm({
   validationSchema: passwordSchema,
 })
 
+const currentPasswordField = reactive(
+  useField("password", undefined, {
+    form: passwordForm,
+  }),
+)
+
+const newPasswordField = reactive(
+  useField("newPassword", undefined, {
+    form: passwordForm,
+  }),
+)
+
+const confirmPasswordField = reactive(
+  useField("confirmPassword", undefined, {
+    form: passwordForm,
+  }),
+)
+
 const onSubmitProfile = profileForm.handleSubmit(async (values) => {
-  console.log(values)
-  return
   try {
     loading.value = true
     await authStore.updateProfile(values)
@@ -69,48 +113,59 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
 
         <form @submit="onSubmitProfile" class="mt-6 max-w-xl space-y-6">
           <div class="grid grid-cols-2 gap-4">
-            <FormField v-slot="{ componentField, errorMessage }" name="name">
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <FormControl>
-                  <Input v-bind="componentField" />
-                </FormControl>
-                <FormMessage>{{ errorMessage }}</FormMessage>
-              </FormItem>
-            </FormField>
+            <FormItem>
+              <FormLabel>Nombre</FormLabel>
+              <FormControl>
+                <Input
+                  v-model="nameField.value"
+                  :name="nameField.name"
+                  @blur="nameField.handleBlur"
+                />
+              </FormControl>
+              <FormMessage>{{ nameField.errorMessage }}</FormMessage>
+            </FormItem>
 
-            <FormField v-slot="{ componentField, errorMessage }" name="surname">
-              <FormItem>
-                <FormLabel>Apellidos</FormLabel>
-                <FormControl>
-                  <Input v-bind="componentField" />
-                </FormControl>
-                <FormMessage>{{ errorMessage }}</FormMessage>
-              </FormItem>
-            </FormField>
+            <FormItem>
+              <FormLabel>Apellidos</FormLabel>
+              <FormControl>
+                <Input
+                  v-model="surnameField.value"
+                  :name="surnameField.name"
+                  @blur="surnameField.handleBlur"
+                />
+              </FormControl>
+              <FormMessage>{{ surnameField.errorMessage }}</FormMessage>
+            </FormItem>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
-            <FormField v-slot="{ componentField, errorMessage }" name="phone">
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input type="tel" v-bind="componentField" />
-                </FormControl>
-                <FormMessage>{{ errorMessage }}</FormMessage>
-              </FormItem>
-            </FormField>
+            <FormItem>
+              <FormLabel>Teléfono</FormLabel>
+              <FormControl>
+                <Input
+                  type="tel"
+                  v-model="phoneField.value"
+                  :name="phoneField.name"
+                  @blur="phoneField.handleBlur"
+                />
+              </FormControl>
+              <FormMessage>{{ phoneField.errorMessage }}</FormMessage>
+            </FormItem>
 
-            <FormField v-slot="{ componentField, errorMessage }" name="email">
-              <FormItem>
-                <FormLabel>Correo Electrónico</FormLabel>
-                <FormControl>
-                  <Input type="email" v-bind="componentField" />
-                </FormControl>
-                <FormMessage>{{ errorMessage }}</FormMessage>
-              </FormItem>
-            </FormField>
+            <FormItem>
+              <FormLabel>Correo Electrónico</FormLabel>
+              <FormControl>
+                <Input
+                  type="email"
+                  v-model="emailField.value"
+                  :name="emailField.name"
+                  @blur="emailField.handleBlur"
+                />
+              </FormControl>
+              <FormMessage>{{ emailField.errorMessage }}</FormMessage>
+            </FormItem>
           </div>
+
           <Button type="submit" class="w-full" :disabled="loading">
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
             {{ loading ? "Actualizando datos..." : "Guardar datos" }}
@@ -125,39 +180,39 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
         </div>
 
         <form @submit="onSubmitPassword" class="mt-6 max-w-xl space-y-6">
-          <FormField v-slot="{ componentField, errorMessage }" name="password">
-            <FormItem>
-              <FormLabel>Contraseña Actual</FormLabel>
-              <div class="relative">
-                <FormControl>
-                  <Input
-                    class="pr-10"
-                    :type="showPassword ? 'text' : 'password'"
-                    v-bind="componentField"
-                  />
-                </FormControl>
-                <PasswordToggleButton v-model="showPassword" />
-              </div>
-              <FormMessage>{{ errorMessage }}</FormMessage>
-            </FormItem>
-          </FormField>
+          <FormItem>
+            <FormLabel>Contraseña Actual</FormLabel>
+            <div class="relative">
+              <FormControl>
+                <Input
+                  class="pr-10"
+                  :type="showPassword ? 'text' : 'password'"
+                  v-model="currentPasswordField.value"
+                  :name="currentPasswordField.name"
+                  @blur="currentPasswordField.handleBlur"
+                />
+              </FormControl>
+              <PasswordToggleButton v-model="showPassword" />
+            </div>
+            <FormMessage>{{ currentPasswordField.errorMessage }}</FormMessage>
+          </FormItem>
 
-          <FormField v-slot="{ componentField, errorMessage }" name="newPassword">
-            <FormItem>
-              <FormLabel>Nueva Contraseña</FormLabel>
-              <div class="relative">
-                <FormControl>
-                  <Input
-                    class="pr-10"
-                    :type="showNewPassword ? 'text' : 'password'"
-                    v-bind="componentField"
-                  />
-                </FormControl>
-                <PasswordToggleButton v-model="showNewPassword" />
-              </div>
-              <FormMessage>{{ errorMessage }}</FormMessage>
-            </FormItem>
-          </FormField>
+          <FormItem>
+            <FormLabel>Nueva Contraseña</FormLabel>
+            <div class="relative">
+              <FormControl>
+                <Input
+                  class="pr-10"
+                  :type="showNewPassword ? 'text' : 'password'"
+                  v-model="newPasswordField.value"
+                  :name="newPasswordField.name"
+                  @blur="newPasswordField.handleBlur"
+                />
+              </FormControl>
+              <PasswordToggleButton v-model="showNewPassword" />
+            </div>
+            <FormMessage>{{ newPasswordField.errorMessage }}</FormMessage>
+          </FormItem>
 
           <ul class="list-inside list-disc text-xs text-muted-foreground">
             <li>Debe contener entre 8 y 64 caracteres</li>
@@ -167,22 +222,22 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
             <li>Debe contener algún símbolo [!@#$%^&*]</li>
           </ul>
 
-          <FormField v-slot="{ componentField, errorMessage }" name="confirmPassword">
-            <FormItem>
-              <FormLabel>Confirmar Nueva Contraseña</FormLabel>
-              <div class="relative">
-                <FormControl>
-                  <Input
-                    class="pr-10"
-                    :type="showConfirmPassword ? 'text' : 'password'"
-                    v-bind="componentField"
-                  />
-                </FormControl>
-                <PasswordToggleButton v-model="showConfirmPassword" />
-              </div>
-              <FormMessage>{{ errorMessage }}</FormMessage>
-            </FormItem>
-          </FormField>
+          <FormItem>
+            <FormLabel>Confirmar Nueva Contraseña</FormLabel>
+            <div class="relative">
+              <FormControl>
+                <Input
+                  class="pr-10"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  v-model="confirmPasswordField.value"
+                  :name="confirmPasswordField.name"
+                  @blur="confirmPasswordField.handleBlur"
+                />
+              </FormControl>
+              <PasswordToggleButton v-model="showConfirmPassword" />
+            </div>
+            <FormMessage>{{ confirmPasswordField.errorMessage }}</FormMessage>
+          </FormItem>
 
           <Button type="submit" class="w-full" :disabled="loadingPassword">
             <Loader2 v-if="loadingPassword" class="mr-2 h-4 w-4 animate-spin" />
