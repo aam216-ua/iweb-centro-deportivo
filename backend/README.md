@@ -209,3 +209,107 @@ enum VenueStatus {
   }
 ]
 ```
+
+## Bookings (`/bookings`)
+
+### Endpoints:
+
+#### POST `/`:
+* Requiere autenticación
+* Recibe `CreateBookingDto`
+* Responde `Booking`
+* Si el usuario tiene el rol `customer`, requiere que el `appointer`, `appointee` y el usuario que ha iniciado tengan todos la misma UUID
+* Si el usuario tiene un rol superior, no hay requisitos en cuanto a la creación
+* `appointer` es la persona que crea la reserva, y `appointee` la persona que atiende a ella
+
+#### GET `/`:
+* Requiere autenticación
+* Recibe `QueryBookingDto`
+* Responde con `QueryResults<Booking>`
+* Si el usuario tiene el rol `customer`, automaticamente filtrará para mostrar solo las reservas a las que deba atender él
+* No se aplican filtros automáticos de seguridad para ningún otro rol
+
+#### GET `/{uid}`:
+* Requiere autenticación con rol `receptionist` o superior
+* Responde con `Booking`
+
+#### PATCH `/{uid}`:
+* Requiere autenticación con rol `receptionist` o superior
+* Responde con `UpdateResults` 
+
+#### DELETE `/{uid}`:
+* Requiere autenticación con rol `receptionist` o superior
+* Responde con `DeleteResults`
+
+### DTOs:
+
+```ts
+export class CreateBookingDto {
+  @MinDate(new Date(new Date().setHours(0, 0, 0, 0)))
+  date: Date;
+
+  @IsEnum(BookingTurn)
+  turn: BookingTurn;
+
+  @IsUUID()
+  appointerId: string;
+
+  @IsUUID()
+  appointeeId: string;
+
+  @IsUUID()
+  venueId: string;
+}
+```
+
+```ts
+export class UpdateBookingDto extends PartialType(
+  PickType(CreateBookingDto, ['date', 'turn', 'venueId'] as const)
+) {}
+```
+
+```ts
+export class QueryBookingDto extends PaginatedQueryDto {
+  @IsOptional()
+  @IsUUID()
+  appointerId: string;
+
+  @IsOptional()
+  @IsUUID()
+  appointeeId: string;
+
+  @IsOptional()
+  @IsUUID()
+  venueId: string;
+
+  @IsOptional()
+  @IsDate()
+  @Transform(({ value }) => (value as Date).setHours(0, 0, 0, 0))
+  after: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Transform(({ value }) => (value as Date).setHours(0, 0, 0, 0))
+  before: Date;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['ASC', 'DESC'])
+  sort: 'ASC' | 'DESC';
+}
+```
+
+```ts
+export enum BookingTurn {
+  TURN_08_00 = '08:00',
+  TURN_09_30 = '09:30',
+  TURN_11_00 = '11:00',
+  TURN_12_30 = '12:30',
+  TURN_14_00 = '14:00',
+  TURN_15_30 = '15:30',
+  TURN_17_00 = '17:00',
+  TURN_18_30 = '18:30',
+  TURN_20_00 = '20:00',
+  TURN_21_30 = '21:30',
+}
+```
