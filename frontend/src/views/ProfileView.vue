@@ -15,13 +15,6 @@ const formatDate = (date: Date) => {
   }).format(new Date(date))
 }
 
-const formatBalance = (balance: number) => {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-  }).format(balance)
-}
-
 const roleLabels = {
   superadmin: "Super Administrador",
   admin: "Administrador",
@@ -77,7 +70,7 @@ const roleLabels = {
               </div>
               <div>
                 <p class="text-sm text-muted-foreground">Saldo</p>
-                <p class="font-medium">{{ user?.balance ? formatBalance(user.balance) : "-" }}</p>
+                <p class="font-medium">{{ user?.balance ? user.balance : "-" }}</p>
               </div>
               <div>
                 <p class="text-sm text-muted-foreground">Fecha de Registro</p>
