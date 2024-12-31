@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -13,6 +14,7 @@ import { Password } from './entities/password.entity';
 import { PaginatedQueryDto } from 'src/common/dto/paginated-query.dto';
 import { PaginatedResult } from 'src/common/type/paginated-result.type';
 import { hash } from 'argon2';
+import { UserRole } from './enums/user-role.enum';
 
 @Injectable()
 export class UsersService {
@@ -83,18 +85,24 @@ export class UsersService {
     id: string,
     updateUserDto: UpdateUserDto
   ): Promise<UpdateResult> {
-    if (this.findOne(id)) {
-      return await this.userRepository.update({ id }, updateUserDto);
-    } else {
-      throw new NotFoundException('user not found');
-    }
+    const user = await this.findOne(id);
+
+    if (!user) throw new NotFoundException('user not found');
+
+    if (user.role == UserRole.SUPERADMIN)
+      throw new UnauthorizedException('insufficient permissions');
+
+    return await this.userRepository.update({ id }, updateUserDto);
   }
 
   public async remove(id: string): Promise<void> {
-    if (this.findOne(id)) {
-      await this.userRepository.softDelete({ id });
-    } else {
-      throw new NotFoundException('user not found');
-    }
+    const user = await this.findOne(id);
+
+    if (!user) throw new NotFoundException('user not found');
+
+    if (user.role == UserRole.SUPERADMIN)
+      throw new UnauthorizedException('insufficient permissions');
+
+    await this.userRepository.softDelete({ id });
   }
 }

@@ -74,7 +74,8 @@ export class VenuesService {
 
     if (maxFee) query.andWhere('venue.fee <= :maxFee', { maxFee });
     // eslint-disable-next-line prettier/prettier
-    if (minCapacity) query.andWhere('venue.capacity >= :minCapacity', { minCapacity });
+    if (minCapacity)
+      query.andWhere('venue.capacity >= :minCapacity', { minCapacity });
     if (status) query.andWhere({ status });
 
     const [data, total] = await query
