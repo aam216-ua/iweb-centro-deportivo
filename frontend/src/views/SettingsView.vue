@@ -41,7 +41,7 @@ const surnameField = reactive(
 const phoneField = reactive(
   useField<string>("phone", undefined, {
     form: profileForm,
-    initialValue: user.value?.phone || "",
+    initialValue: user.value?.phone.replace("+34", "").trim() || "",
   }),
 )
 
