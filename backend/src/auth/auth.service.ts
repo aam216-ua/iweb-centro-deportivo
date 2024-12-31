@@ -13,6 +13,7 @@ import { Password } from '../users/entities/password.entity';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { JwtService } from '@nestjs/jwt';
 import { hash, verify } from 'argon2';
+import { CreateAccountDto } from './dto/create-account.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,12 @@ export class AuthService {
     private passwordRepository: Repository<Password>,
     private jwtService: JwtService
   ) {}
+
+  public async signUp(
+    createAccountDto: CreateAccountDto
+  ): Promise<{ token: string; user: User }> {
+    return;
+  }
 
   public async signIn(
     authCredentialsDto: AuthCredentialsDto
@@ -53,7 +60,7 @@ export class AuthService {
       return {
         token: await this.jwtService.signAsync({
           id: user.id,
-          email: user.email,
+          role: user.role,
         }),
         user,
       };
@@ -62,7 +69,7 @@ export class AuthService {
     throw new UnauthorizedException('invalid credentials');
   }
 
-  public async signOut() {}
+  public async signOut(): Promise<void> {}
 
   public async reset(
     authCredentialsDto: AuthCredentialsDto,

@@ -1,14 +1,23 @@
 import {
+  IsEmail,
+  IsPhoneNumber,
   IsStrongPassword,
   Length,
   MaxLength,
-  IsEmail,
-  IsPhoneNumber,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class CreateAccountDto {
   @IsEmail()
   email: string;
+
+  @IsPhoneNumber('ES')
+  phone: string;
+
+  @Length(2, 256)
+  name: string;
+
+  @Length(2, 256)
+  surname: string;
 
   @IsStrongPassword({
     minLength: 8,
@@ -19,13 +28,4 @@ export class CreateUserDto {
   })
   @MaxLength(64)
   password: string;
-
-  @Length(2, 256)
-  name: string;
-
-  @Length(2, 256)
-  surname: string;
-
-  @IsPhoneNumber('ES')
-  phone: string;
 }

@@ -9,5 +9,6 @@ import { Password } from './entities/password.entity';
   imports: [TypeOrmModule.forFeature([User, Password])],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}

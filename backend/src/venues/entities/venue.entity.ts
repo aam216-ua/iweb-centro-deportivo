@@ -1,12 +1,16 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { VenueStatus } from '../enums/venue-status.enum';
 import { Activity } from './activity.entity';
+import { Booking } from 'src/bookings/entities/booking.entity';
 
 @Entity()
 export class Venue {
@@ -42,4 +46,13 @@ export class Venue {
   })
   @JoinColumn()
   activity: Activity;
+
+  @OneToMany(() => Booking, (booking) => booking.venue)
+  bookings: Booking[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
