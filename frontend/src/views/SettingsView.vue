@@ -19,56 +19,58 @@ const authStore = useAuthStore()
 
 const user = computed(() => authStore.user)
 
+// Profile form setup
 const profileForm = useForm({
   validationSchema: settingsSchema,
 })
 
 const nameField = reactive(
-  useField("name", undefined, {
+  useField<string>("name", undefined, {
     form: profileForm,
     initialValue: user.value?.name || "",
   }),
 )
 
 const surnameField = reactive(
-  useField("surname", undefined, {
+  useField<string>("surname", undefined, {
     form: profileForm,
     initialValue: user.value?.surname || "",
   }),
 )
 
 const phoneField = reactive(
-  useField("phone", undefined, {
+  useField<string>("phone", undefined, {
     form: profileForm,
-    initialValue: user.value?.phone.replace("+34", "").trim() || "",
+    initialValue: user.value?.phone || "",
   }),
 )
 
 const emailField = reactive(
-  useField("email", undefined, {
+  useField<string>("email", undefined, {
     form: profileForm,
     initialValue: user.value?.email || "",
   }),
 )
 
+// Password form setup
 const passwordForm = useForm({
   validationSchema: passwordSchema,
 })
 
 const currentPasswordField = reactive(
-  useField("password", undefined, {
+  useField<string>("password", undefined, {
     form: passwordForm,
   }),
 )
 
 const newPasswordField = reactive(
-  useField("newPassword", undefined, {
+  useField<string>("newPassword", undefined, {
     form: passwordForm,
   }),
 )
 
 const confirmPasswordField = reactive(
-  useField("confirmPassword", undefined, {
+  useField<string>("confirmPassword", undefined, {
     form: passwordForm,
   }),
 )
