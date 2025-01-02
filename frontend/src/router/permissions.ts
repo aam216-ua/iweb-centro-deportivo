@@ -18,4 +18,8 @@ export const routePermissions: Record<string, RouteMetaPermissions> = {
     requiredPermissions: [],
     allowedRoles: [Role.SUPERADMIN, Role.ADMIN, Role.RECEPTIONIST, Role.CUSTOMER],
   },
+  dashboard: {
+    requiredPermissions: [],
+    allowedRoles: [Role.SUPERADMIN, Role.ADMIN, Role.RECEPTIONIST],
+  },
 }
