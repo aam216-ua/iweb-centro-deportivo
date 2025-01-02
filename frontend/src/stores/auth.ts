@@ -44,7 +44,6 @@ export const useAuthStore = defineStore("auth", () => {
     error.value = null
     try {
       delete userData["confirmPassword"]
-      console.log(userData)
       return await authService.register(userData)
     } finally {
       loading.value = false
