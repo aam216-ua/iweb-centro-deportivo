@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { roleLabels } from "@/lib/role"
 import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
 import { computed } from "vue"
@@ -13,13 +14,6 @@ const formatDate = (date: Date) => {
     month: "long",
     year: "numeric",
   }).format(new Date(date))
-}
-
-const roleLabels = {
-  superadmin: "Super Administrador",
-  admin: "Administrador",
-  receptionist: "Recepcionista",
-  customer: "Cliente",
 }
 </script>
 

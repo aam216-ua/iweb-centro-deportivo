@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { usePermissions } from "@/lib/permissions"
+import { roleLabels } from "@/lib/role"
 import { useAuthStore } from "@/stores/auth"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
@@ -66,6 +68,9 @@ const userInitials = computed(() => {
           <p class="text-xs leading-none text-muted-foreground">
             {{ user?.email }}
           </p>
+          <Badge v-show="isStaff" class="w-fit" variant="outline">
+            {{ roleLabels[user?.role || "admin"] }}
+          </Badge>
         </div>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
