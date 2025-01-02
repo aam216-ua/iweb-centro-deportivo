@@ -7,6 +7,7 @@ import type {
   UpdateProfileData,
 } from "@/types/auth"
 import type { User } from "@/types/user"
+import type { AxiosError } from "axios"
 import { defineStore } from "pinia"
 import { computed, ref } from "vue"
 
@@ -109,6 +110,21 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  async function refreshUser() {
+    if (!userId.value || !isAuthenticated.value) return
+
+    try {
+      const userData = await userService.get(userId.value)
+      user.value = userData
+    } catch (err) {
+      const error = err as AxiosError
+      if (error.response?.status === 401) {
+        logout()
+      }
+      throw error
+    }
+  }
+
   return {
     user,
     token,
@@ -122,5 +138,6 @@ export const useAuthStore = defineStore("auth", () => {
     checkAuth,
     updateProfile,
     updatePassword,
+    refreshUser,
   }
 })

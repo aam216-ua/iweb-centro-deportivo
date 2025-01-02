@@ -15,7 +15,7 @@ export const routePermissions: Record<string, RouteMetaPermissions> = {
     allowedRoles: [Role.SUPERADMIN, Role.ADMIN, Role.RECEPTIONIST, Role.CUSTOMER],
   },
   profile: {
-    requiredPermissions: [], // Everyone can access their own profile
+    requiredPermissions: [],
     allowedRoles: [Role.SUPERADMIN, Role.ADMIN, Role.RECEPTIONIST, Role.CUSTOMER],
   },
 }

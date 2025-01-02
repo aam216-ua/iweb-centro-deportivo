@@ -24,6 +24,9 @@ export async function authGuard(
     }
   }
 
+  if (to.name !== from.name) {
+    await authStore.refreshUser()
+  }
   if (to.meta.guestOnly && authStore.isAuthenticated) {
     next("/")
     return
