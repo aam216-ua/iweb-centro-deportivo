@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SecondHeader from "@/components/SecondHeader.vue"
+import SecondHeader from "@/components/header/SecondHeader.vue"
 import TheFooter from "@/components/TheFooter.vue"
 </script>
 
