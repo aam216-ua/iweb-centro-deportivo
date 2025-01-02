@@ -19,7 +19,6 @@ const authStore = useAuthStore()
 
 const user = computed(() => authStore.user)
 
-// Profile form setup
 const profileForm = useForm({
   validationSchema: settingsSchema,
 })
@@ -52,7 +51,6 @@ const emailField = reactive(
   }),
 )
 
-// Password form setup
 const passwordForm = useForm({
   validationSchema: passwordSchema,
 })
