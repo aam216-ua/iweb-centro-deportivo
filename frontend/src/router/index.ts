@@ -74,14 +74,14 @@ const protectedRoutes: RouteRecordRaw = {
       meta: {
         requiresAuth: true,
       },
-      },
-     {
+    },
+    {
       path: "dashboard",
       name: "dashboard",
       component: () => import("@/views/DashboardView.vue"),
       meta: {
         requiresAuth: true,
-        permissions: routePermissions.dashboard
+        permissions: routePermissions.dashboard,
       },
     },
     //{

@@ -10,6 +10,7 @@ export interface RegisterUserData {
   name: string
   surname: string
   password: string
+  confirmPassword?: string
   phone: string
 }
 

@@ -14,9 +14,9 @@ import {
 import { usePermissions } from "@/lib/permissions"
 import { roleLabels } from "@/lib/role"
 import { useAuthStore } from "@/stores/auth"
+import { Shield } from "lucide-vue-next"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
-import {Shield} from "lucide-vue-next"
 
 const props = defineProps<{
   buttonClass?: string
@@ -76,7 +76,9 @@ const userInitials = computed(() => {
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
-        <DropdownMenuItem v-show="isStaff" @click="handleDashboard"> Panel de Control <Shield /></DropdownMenuItem>
+        <DropdownMenuItem v-show="isStaff" @click="handleDashboard">
+          Panel de Control <Shield
+        /></DropdownMenuItem>
         <DropdownMenuItem @click="handleProfile"> Perfil </DropdownMenuItem>
         <DropdownMenuItem @click="handleSettings"> Ajustes de Usuario </DropdownMenuItem>
       </DropdownMenuGroup>
