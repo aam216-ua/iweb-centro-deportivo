@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@vee-validate/zod": "^4.15.0",
-    "@vueuse/core": "^12.2.0",
+    "@vueuse/core": "^12.3.0",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
-    "@types/node": "^22.10.3",
+    "@types/node": "^22.10.4",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.2.0",
@@ -52,7 +52,7 @@
     "svgo": "^3.3.2",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.6.3",
-    "vite": "^6.0.6",
+    "vite": "^6.0.7",
     "vite-plugin-image-optimizer": "^1.1.8",
     "vite-plugin-vue-devtools": "^7.6.8",
     "vue-tsc": "^2.2.0"
