@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { usePermissions } from "@/lib/permissions"
 import { useAuthStore } from "@/stores/auth"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
@@ -18,6 +19,7 @@ const props = defineProps<{
   buttonClass?: string
 }>()
 
+const { isStaff } = usePermissions()
 const router = useRouter()
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
@@ -33,6 +35,10 @@ const handleSettings = () => {
 
 const handleProfile = () => {
   router.push({ name: "profile" })
+}
+
+const handleDashboard = () => {
+  router.push({ name: "dashboard" })
 }
 
 const userInitials = computed(() => {
@@ -64,6 +70,7 @@ const userInitials = computed(() => {
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
+        <DropdownMenuItem v-show="isStaff" @click="handleDashboard"> Dashboard </DropdownMenuItem>
         <DropdownMenuItem @click="handleProfile"> Perfil </DropdownMenuItem>
         <DropdownMenuItem @click="handleSettings"> Ajustes de Usuario </DropdownMenuItem>
       </DropdownMenuGroup>
