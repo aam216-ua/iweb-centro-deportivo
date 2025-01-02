@@ -77,7 +77,7 @@ const userInitials = computed(() => {
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuItem v-show="isStaff" @click="handleDashboard">
-          Panel de Control <Shield
+          Panel de Administración <Shield
         /></DropdownMenuItem>
         <DropdownMenuItem @click="handleProfile"> Perfil </DropdownMenuItem>
         <DropdownMenuItem @click="handleSettings"> Ajustes de Usuario </DropdownMenuItem>
