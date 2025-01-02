@@ -1,5 +1,5 @@
+import { usePermissions } from "@/lib/permissions"
 import { useAuthStore } from "@/stores/auth"
-import { storeToRefs } from "pinia"
 import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router"
 
 export async function authGuard(
@@ -8,14 +8,25 @@ export async function authGuard(
   next: NavigationGuardNext,
 ) {
   const authStore = useAuthStore()
-  const { initialized } = storeToRefs(authStore)
+  const { hasAllPermissions } = usePermissions()
 
-  if (!initialized.value) {
+  if (!authStore.initialized) {
     try {
       await authStore.checkAuth()
     } catch (error) {
       console.error("Auth check failed:", error)
+      authStore.logout()
+      next({
+        path: "/login",
+        query: { redirect: to.fullPath },
+      })
+      return
     }
+  }
+
+  if (to.meta.guestOnly && authStore.isAuthenticated) {
+    next("/")
+    return
   }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
@@ -26,9 +37,28 @@ export async function authGuard(
     return
   }
 
-  if (to.meta.guestOnly && authStore.isAuthenticated) {
-    next("/")
-    return
+  if (to.meta.permissions && authStore.isAuthenticated && authStore.user) {
+    const { allowedRoles, requiredPermissions } = to.meta.permissions
+
+    if (allowedRoles && !allowedRoles.includes(authStore.user.role)) {
+      next({
+        path: "/",
+        query: {
+          error: "insufficient_permissions",
+        },
+      })
+      return
+    }
+
+    if (requiredPermissions && !hasAllPermissions(requiredPermissions)) {
+      next({
+        path: "/",
+        query: {
+          error: "insufficient_permissions",
+        },
+      })
+      return
+    }
   }
 
   next()
