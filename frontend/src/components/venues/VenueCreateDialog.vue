@@ -10,15 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { venueSchema } from "@/schemas/venue"
 import { activitiesService } from "@/services/activity"
 import { venuesService } from "@/services/venue"
 import type { Activity } from "@/types/activity"
-import { toTypedSchema } from "@vee-validate/zod"
 import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { onMounted, ref } from "vue"
 import { toast } from "vue-sonner"
-import { z } from "zod"
 
 const props = defineProps<{
   open: boolean
@@ -31,16 +30,6 @@ const emit = defineEmits<{
 
 const loading = ref(false)
 const activities = ref<Activity[]>([])
-
-const venueSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "El nombre es requerido"),
-    description: z.string().optional(),
-    capacity: z.number().min(1, "La capacidad debe ser mayor a 0"),
-    fee: z.number().min(0.01, "El precio debe ser mayor a 0"),
-    activityId: z.string().uuid("Actividad inválida"),
-  }),
-)
 
 const form = useForm({
   validationSchema: venueSchema,
@@ -102,7 +91,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormItem>
               <FormLabel>Capacidad</FormLabel>
               <FormControl>
-                <Input type="number" v-bind="componentField" :min="1" :max="200" />
+                <Input type="number" v-bind="componentField" />
               </FormControl>
               <FormMessage>{{ errorMessage }}</FormMessage>
             </FormItem>
@@ -112,13 +101,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormItem>
               <FormLabel>Precio</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  v-bind="componentField"
-                  step="0.01"
-                  :min="0.01"
-                  :max="9999.99"
-                />
+                <Input type="number" v-bind="componentField" step="0.01" />
               </FormControl>
               <FormMessage>{{ errorMessage }}</FormMessage>
             </FormItem>

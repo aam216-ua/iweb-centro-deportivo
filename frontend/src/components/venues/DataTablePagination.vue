@@ -7,9 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import type { Venue } from "@/types/venue"
 import type { Table } from "@tanstack/vue-table"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-vue-next"
-import type { Venue } from "@/types/venue"
 
 interface DataTablePaginationProps {
   table: Table<Venue>

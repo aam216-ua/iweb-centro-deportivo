@@ -14,7 +14,7 @@ import { venuesService } from "@/services/venue"
 import type { Activity } from "@/types/activity"
 import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
-import { ref, watch ,onMounted} from "vue"
+import { onMounted, ref, watch } from "vue"
 
 const currentTab = ref("venues")
 const activities = ref<Activity[]>([])
@@ -65,7 +65,7 @@ async function fetchVenues() {
   }
 }
 
-const updateTabInfo = async (tab) => {
+const updateTabInfo = async (tab: string) => {
   if (tab === "activities") await fetchActivities()
   if (tab === "users") await fetchUsers()
   if (tab === "venues") await fetchVenues()

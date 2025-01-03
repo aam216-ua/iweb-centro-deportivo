@@ -1,19 +1,6 @@
 <script setup lang="ts">
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-} from "@tanstack/vue-table"
-import { ref } from "vue"
-import {
-  FlexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useVueTable,
-} from "@tanstack/vue-table"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -22,11 +9,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-vue-next"
-import DataTablePagination from "./DataTablePagination.vue"
 import type { Venue } from "@/types/venue"
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+} from "@tanstack/vue-table"
+import {
+  FlexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useVueTable,
+} from "@tanstack/vue-table"
+import { Plus } from "lucide-vue-next"
+import { ref } from "vue"
+import DataTablePagination from "./DataTablePagination.vue"
 
 interface DataTableProps {
   columns: ColumnDef<Venue, unknown>[]
@@ -35,7 +35,7 @@ interface DataTableProps {
 
 const props = defineProps<DataTableProps>()
 const emit = defineEmits<{
-  'create': []
+  create: []
 }>()
 
 const sorting = ref<SortingState>([])
@@ -67,7 +67,8 @@ const table = useVueTable({
     columnFilters.value = typeof updater === "function" ? updater(columnFilters.value) : updater
   },
   onColumnVisibilityChange: (updater) => {
-    columnVisibility.value = typeof updater === "function" ? updater(columnVisibility.value) : updater
+    columnVisibility.value =
+      typeof updater === "function" ? updater(columnVisibility.value) : updater
   },
   getCoreRowModel: getCoreRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
@@ -110,10 +111,7 @@ const table = useVueTable({
         </TableHeader>
         <TableBody>
           <template v-if="table.getRowModel().rows?.length">
-            <TableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-            >
+            <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-2">
                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
               </TableCell>

@@ -71,12 +71,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { TUser } from "@/types/user"
-import { Table } from "@tanstack/vue-table"
+import type { User } from "@/types/user"
+import type { Table } from "@tanstack/vue-table"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-vue-next"
 
 interface DataTablePaginationProps {
-  table: Table<TUser>
+  table: Table<User>
 }
 
 defineProps<DataTablePaginationProps>()

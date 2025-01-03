@@ -15,7 +15,7 @@ export const columns: ColumnDef<Venue>[] = [
     accessorKey: "activity.name",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Actividad" }),
     cell: ({ row }) => {
-      const activity = row.original.activity?.name || 'Sin actividad'
+      const activity = row.original.activity?.name || "Sin actividad"
       return h(Badge, { variant: "outline" }, () => activity)
     },
   },
@@ -29,16 +29,20 @@ export const columns: ColumnDef<Venue>[] = [
     cell: ({ row }) => {
       const fee = row.getValue("fee") as number
       return h("div", {}, `$${fee.toFixed(2)}`)
-    }
+    },
   },
   {
     accessorKey: "status",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Estado" }),
     cell: ({ row }) => {
       const status = row.getValue("status") as string
-      return h(Badge, {
-        variant: status === "available" ? "default" : "secondary",
-      }, () => status === "available" ? "Disponible" : "No disponible")
+      return h(
+        Badge,
+        {
+          variant: status === "available" ? "default" : "secondary",
+        },
+        () => (status === "available" ? "Disponible" : "No disponible"),
+      )
     },
   },
   {
