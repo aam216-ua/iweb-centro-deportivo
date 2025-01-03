@@ -1,23 +1,30 @@
 <script setup lang="ts">
 import { columns as activityColumns } from "@/components/activities/columns"
-import { columns as userColumns } from "@/components/users/columns"
-import UserCreateDialog from "@/components/users/UserCreateDialog.vue"
 import ActivitiesDataTable from "@/components/activities/DataTable.vue"
-import UsersDataTable from "@/components/users/DataTable.vue"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { columns as userColumns } from "@/components/users/columns"
+import UsersDataTable from "@/components/users/DataTable.vue"
+import UserCreateDialog from "@/components/users/UserCreateDialog.vue"
+import { columns as venueColumns } from "@/components/venues/columns"
+import VenuesDataTable from "@/components/venues/DataTable.vue"
+import VenueCreateDialog from "@/components/venues/VenueCreateDialog.vue"
 import { activitiesService } from "@/services/activity"
 import { usersService } from "@/services/user"
+import { venuesService } from "@/services/venue"
 import type { Activity } from "@/types/activity"
 import type { User } from "@/types/user"
-import { ref, watch } from "vue"
-
+import type { Venue } from "@/types/venue"
+import { ref, watch ,onMounted} from "vue"
 
 const currentTab = ref("venues")
 const activities = ref<Activity[]>([])
 const users = ref<User[]>([])
+const venues = ref<Venue[]>([])
 const isLoadingActivities = ref(false)
 const isLoadingUsers = ref(false)
-const showCreateDialog = ref(false)
+const isLoadingVenues = ref(false)
+const showCreateUserDialog = ref(false)
+const showCreateVenueDialog = ref(false)
 
 async function fetchActivities() {
   if (currentTab.value !== "activities") return
@@ -45,9 +52,31 @@ async function fetchUsers() {
   }
 }
 
-watch(currentTab, async (newTab) => {
-  if (newTab === "activities") await fetchActivities()
-  if (newTab === "users") await fetchUsers()
+async function fetchVenues() {
+  if (currentTab.value !== "venues") return
+  isLoadingVenues.value = true
+  try {
+    const response = await venuesService.getAll()
+    venues.value = response.data
+  } catch (error) {
+    console.error("Failed to fetch venues:", error)
+  } finally {
+    isLoadingVenues.value = false
+  }
+}
+
+const updateTabInfo = async (tab) => {
+  if (tab === "activities") await fetchActivities()
+  if (tab === "users") await fetchUsers()
+  if (tab === "venues") await fetchVenues()
+}
+
+watch(currentTab, (newTab) => {
+  updateTabInfo(newTab)
+})
+
+onMounted(() => {
+  updateTabInfo(currentTab.value)
 })
 </script>
 
@@ -65,7 +94,14 @@ watch(currentTab, async (newTab) => {
       </TabsList>
 
       <TabsContent value="venues" class="space-y-4">
-        <!-- VenuesTable component will go here -->
+        <div v-if="isLoadingVenues">Cargando pistas...</div>
+        <VenuesDataTable
+          v-else
+          :columns="venueColumns"
+          :data="venues"
+          @create="showCreateVenueDialog = true"
+        />
+        <VenueCreateDialog v-model:open="showCreateVenueDialog" @venue-created="fetchVenues" />
       </TabsContent>
 
       <TabsContent value="users" class="space-y-4">
@@ -74,12 +110,9 @@ watch(currentTab, async (newTab) => {
           v-else
           :columns="userColumns"
           :data="users"
-          @create="showCreateDialog = true"
+          @create="showCreateUserDialog = true"
         />
-        <UserCreateDialog
-          v-model:open="showCreateDialog"
-          @user-created="fetchUsers"
-        />
+        <UserCreateDialog v-model:open="showCreateUserDialog" @user-created="fetchUsers" />
       </TabsContent>
 
       <TabsContent value="activities" class="space-y-4">

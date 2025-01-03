@@ -1,21 +1,11 @@
 <script setup lang="ts">
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import type { User } from "@/types/user"
 import type {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
 } from "@tanstack/vue-table"
+import { ref } from "vue"
 import {
   FlexRender,
   getCoreRowModel,
@@ -24,18 +14,28 @@ import {
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-vue-next"
-import { ref } from "vue"
 import DataTablePagination from "./DataTablePagination.vue"
+import type { Venue } from "@/types/venue"
 
 interface DataTableProps {
-  columns: ColumnDef<User, unknown>[]
-  data: User[]
+  columns: ColumnDef<Venue, unknown>[]
+  data: Venue[]
 }
 
 const props = defineProps<DataTableProps>()
 const emit = defineEmits<{
-  create: []
+  'create': []
 }>()
 
 const sorting = ref<SortingState>([])
@@ -67,8 +67,7 @@ const table = useVueTable({
     columnFilters.value = typeof updater === "function" ? updater(columnFilters.value) : updater
   },
   onColumnVisibilityChange: (updater) => {
-    columnVisibility.value =
-      typeof updater === "function" ? updater(columnVisibility.value) : updater
+    columnVisibility.value = typeof updater === "function" ? updater(columnVisibility.value) : updater
   },
   getCoreRowModel: getCoreRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
@@ -84,16 +83,16 @@ const table = useVueTable({
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center justify-between py-4">
+    <div class="flex items-center justify-between py-4 space-x-4">
       <Input
-        placeholder="Filtrar usuarios..."
+        placeholder="Filtrar pistas..."
         :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
         class="max-w-sm"
         @input="table.getColumn('name')?.setFilterValue(($event.target as HTMLInputElement).value)"
       />
       <Button @click="$emit('create')">
         <Plus class="mr-2 h-4 w-4" />
-        Nuevo Usuario
+        Nueva Pista
       </Button>
     </div>
     <div class="rounded-md border">
@@ -114,7 +113,6 @@ const table = useVueTable({
             <TableRow
               v-for="row in table.getRowModel().rows"
               :key="row.id"
-              :data-state="row.getIsSelected() && 'selected'"
             >
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-2">
                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />

@@ -1,3 +1,23 @@
+<script setup lang="ts">
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import type { Table } from "@tanstack/vue-table"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-vue-next"
+import type { Venue } from "@/types/venue"
+
+interface DataTablePaginationProps {
+  table: Table<Venue>
+}
+
+defineProps<DataTablePaginationProps>()
+</script>
+
 <template>
   <div class="flex items-center justify-between px-2">
     <div class="flex items-center space-x-6 lg:space-x-8">
@@ -61,23 +81,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import type { TUser } from "@/types/user"
-import { Table } from "@tanstack/vue-table"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-vue-next"
-
-interface DataTablePaginationProps {
-  table: Table<TUser>
-}
-
-defineProps<DataTablePaginationProps>()
-</script>

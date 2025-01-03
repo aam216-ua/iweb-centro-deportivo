@@ -1,5 +1,5 @@
+import type { GetAllParams, PaginatedResponse } from "@/types/api"
 import type { User } from "@/types/user"
-import type { GetAllParams,PaginatedResponse} from "@/types/api"
 import { api } from "./api"
 
 export const usersService = {
@@ -12,9 +12,9 @@ export const usersService = {
     const { data } = await api.get<PaginatedResponse<User>>("/users", {
       params: {
         page: params?.page ?? 0,
-        size: params?.size ?? 10
-      }
+        size: params?.size ?? 10,
+      },
     })
     return data
-  }
+  },
 }

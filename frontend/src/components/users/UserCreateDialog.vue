@@ -104,20 +104,15 @@
 </template>
 
 <script setup lang="ts">
+import PasswordToggleButton from "@/components/PasswordVisibility.vue"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { registerSchema } from "@/schemas/auth"
 import { useAuthStore } from "@/stores/auth"
-import { useForm } from "vee-validate"
 import { Loader2 } from "lucide-vue-next"
-import PasswordToggleButton from "@/components/PasswordVisibility.vue"
+import { useForm } from "vee-validate"
 import { ref } from "vue"
 import { toast } from "vue-sonner"
 

@@ -24,5 +24,3 @@ export interface User {
   updatedAt: Date
   deletedAt: Date | null
 }
-
-

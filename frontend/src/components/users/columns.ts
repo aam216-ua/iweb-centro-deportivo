@@ -1,25 +1,29 @@
-import type { ColumnDef } from "@tanstack/vue-table"
-import {roleLabels} from "@/lib/role"
-import { h } from "vue"
-import type { User } from "@/types/user"
+import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { roleLabels } from "@/lib/role"
+import type { User } from "@/types/user"
+import type { ColumnDef } from "@tanstack/vue-table"
+import { h } from "vue"
 import DataTableColumnHeader from "./DataTableColumnHeader.vue"
 import DataTableRowActions from "./DataTableRowActions.vue"
-import { Badge } from "@/components/ui/badge"
 
 export const columns: ColumnDef<User>[] = [
   {
     id: "select",
-    header: ({ table }) => h(Checkbox, {
-      "checked": table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate"),
-      "onUpdate:checked": value => table.toggleAllPageRowsSelected(!!value),
-      "ariaLabel": "Seleccionar todo",
-    }),
-    cell: ({ row }) => h(Checkbox, {
-      "checked": row.getIsSelected(),
-      "onUpdate:checked": value => row.toggleSelected(!!value),
-      "ariaLabel": "Seleccionar fila",
-    }),
+    header: ({ table }) =>
+      h(Checkbox, {
+        checked:
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate"),
+        "onUpdate:checked": (value) => table.toggleAllPageRowsSelected(!!value),
+        ariaLabel: "Seleccionar todo",
+      }),
+    cell: ({ row }) =>
+      h(Checkbox, {
+        checked: row.getIsSelected(),
+        "onUpdate:checked": (value) => row.toggleSelected(!!value),
+        ariaLabel: "Seleccionar fila",
+      }),
     enableSorting: false,
     enableHiding: false,
   },
@@ -52,9 +56,7 @@ export const columns: ColumnDef<User>[] = [
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Rol" }),
     cell: ({ row }) => {
       const role = roleLabels[row.getValue("role") as keyof typeof roleLabels]
-      return h("div", { class: "w-[150px]" }, [
-        h(Badge, {variant: "outline"}, role)
-      ])
+      return h("div", { class: "w-[150px]" }, [h(Badge, { variant: "outline" }, role)])
     },
     enableHiding: false,
   },

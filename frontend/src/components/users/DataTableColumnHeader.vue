@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import type { Column } from "@tanstack/vue-table"
-import type { User } from "@/types/user"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
-import { ArrowDown, ArrowUp, EyeOff, ArrowDownUp } from "lucide-vue-next"
+import type { User } from "@/types/user"
+import type { Column } from "@tanstack/vue-table"
+import { ArrowDown, ArrowDownUp, ArrowUp } from "lucide-vue-next"
 
 interface DataTableColumnHeaderProps<TData> {
   column: Column<TData, unknown>

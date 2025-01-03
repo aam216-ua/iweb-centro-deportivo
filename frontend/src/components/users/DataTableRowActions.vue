@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Row } from "@tanstack/vue-table"
-import type { User } from "@/types/user"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -9,6 +7,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import type { User } from "@/types/user"
+import type { Row } from "@tanstack/vue-table"
 import { MoreHorizontal } from "lucide-vue-next"
 
 interface DataTableRowActionsProps {
@@ -27,16 +27,10 @@ defineProps<DataTableRowActionsProps>()
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuItem>
-        Editar
-      </DropdownMenuItem>
-      <DropdownMenuItem>
-        Ver detalles
-      </DropdownMenuItem>
+      <DropdownMenuItem> Editar </DropdownMenuItem>
+      <DropdownMenuItem> Ver detalles </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem class="text-red-600">
-        Eliminar
-      </DropdownMenuItem>
+      <DropdownMenuItem class="text-red-600"> Eliminar </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
