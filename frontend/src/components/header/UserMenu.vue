@@ -69,15 +69,15 @@ const userInitials = computed(() => {
           <p class="text-xs leading-none text-muted-foreground">
             {{ user?.email }}
           </p>
-          <Badge v-show="isStaff" class="w-fit" variant="outline">
-            {{ roleLabels[user?.role || "admin"] }}
-          </Badge>
         </div>
+        <Badge v-show="isStaff" class="w-fit mt-2" variant="outline">
+          {{ roleLabels[user?.role || "admin"] }}
+        </Badge>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuItem v-show="isStaff" @click="handleDashboard">
-          Panel de Control <Shield
+          Panel de Administración <Shield
         /></DropdownMenuItem>
         <DropdownMenuItem @click="handleProfile"> Perfil </DropdownMenuItem>
         <DropdownMenuItem @click="handleSettings"> Ajustes de Usuario </DropdownMenuItem>
