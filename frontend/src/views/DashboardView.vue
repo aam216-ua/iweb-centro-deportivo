@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { columns as activityColumns } from "@/components/activities/columns"
 import ActivitiesDataTable from "@/components/activities/DataTable.vue"
+import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { columns as userColumns } from "@/components/users/columns"
 import UsersDataTable from "@/components/users/DataTable.vue"
@@ -14,6 +15,7 @@ import { venuesService } from "@/services/venue"
 import type { Activity } from "@/types/activity"
 import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
+import { RefreshCcw } from "lucide-vue-next"
 import { onMounted, ref, watch } from "vue"
 
 const currentTab = ref("venues")
@@ -25,6 +27,7 @@ const isLoadingUsers = ref(false)
 const isLoadingVenues = ref(false)
 const showCreateUserDialog = ref(false)
 const showCreateVenueDialog = ref(false)
+const refreshTriggered = ref(false)
 
 async function fetchActivities() {
   if (currentTab.value !== "activities") return
@@ -78,6 +81,12 @@ watch(currentTab, (newTab) => {
 onMounted(() => {
   updateTabInfo(currentTab.value)
 })
+
+const triggerRefresh = async () => {
+  refreshTriggered.value = true
+  await updateTabInfo(currentTab.value)
+  refreshTriggered.value = false
+}
 </script>
 
 <template>
@@ -92,6 +101,14 @@ onMounted(() => {
         <TabsTrigger value="users">Usuarios</TabsTrigger>
         <TabsTrigger value="activities">Actividades</TabsTrigger>
       </TabsList>
+      <Button
+        @click="triggerRefresh"
+        :disabled="isLoadingVenues || isLoadingUsers || isLoadingActivities"
+        variant="outline"
+        size="icon"
+        class="ml-4 translate-y-0.5 size-10"
+        ><RefreshCcw :class="refreshTriggered ?? 'animate-spin'" class="w-4 h-4"
+      /></Button>
 
       <TabsContent value="venues" class="space-y-4">
         <div v-if="isLoadingVenues">Cargando pistas...</div>
