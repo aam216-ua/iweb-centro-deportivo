@@ -114,7 +114,6 @@ const table = useVueTable({
             <TableRow
               v-for="row in table.getRowModel().rows"
               :key="row.id"
-              :data-state="row.getIsSelected() && 'selected'"
             >
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-2">
                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />

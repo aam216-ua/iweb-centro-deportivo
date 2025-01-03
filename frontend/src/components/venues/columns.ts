@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import type { Venue } from "@/types/venue"
 import type { ColumnDef } from "@tanstack/vue-table"
 import { h } from "vue"
-import DataTableColumnHeader from "./DataTableColumnHeader.vue"
+import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import DataTableRowActions from "./DataTableRowActions.vue"
 
 export const columns: ColumnDef<Venue>[] = [

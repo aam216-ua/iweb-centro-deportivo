@@ -1,36 +1,18 @@
 import type { Activity } from "@/types/activity"
 import type { ColumnDef } from "@tanstack/vue-table"
 import { h } from "vue"
-import DataTableColumnHeader from "./DataTableColumnHeader.vue"
+import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 
 export const columns: ColumnDef<Activity>[] = [
   {
     accessorKey: "id",
-    header: ({ column }) => {
-      return h(DataTableColumnHeader, {
-        column,
-        title: "ID",
-      })
-    },
-    cell: ({ row }) => {
-      const id = row.getValue("id") as string
-      return id
-    },
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "ID" }),
     enableSorting: false,
+    cell: ({ row }) => h("div", { class: "font-medium" }, row.getValue("id")),
   },
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return h(DataTableColumnHeader, {
-        column,
-        title: "Nombre",
-      })
-    },
-    filterFn: (row, id, value) => {
-      const val = row.getValue(id)
-      return typeof val === "string"
-        ? val.toLowerCase().includes((value as string).toLowerCase())
-        : false
-    },
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Nombre" }),
+    cell: ({ row }) => h("div", { class: "font-medium" }, row.getValue("name")),
   },
 ]

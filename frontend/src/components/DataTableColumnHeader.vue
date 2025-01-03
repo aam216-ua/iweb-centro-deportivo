@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button"
-import type { Venue } from "@/types/venue"
 import type { Column } from "@tanstack/vue-table"
 import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-vue-next"
 
-interface DataTableColumnHeaderProps {
-  column: Column<Venue, unknown>
+interface DataTableColumnHeaderProps<TData> {
+  column: Column<TData, unknown>
   title: string
 }
 
-defineProps<DataTableColumnHeaderProps>()
+defineProps<DataTableColumnHeaderProps<any>>()
 </script>
 
 <template>
   <div class="flex items-center space-x-2">
     <Button
+      v-if="column.getCanSort()"
       variant="ghost"
       size="sm"
       class="-ml-3 h-8 data-[state=open]:bg-accent"
@@ -31,5 +31,6 @@ defineProps<DataTableColumnHeaderProps>()
         <ChevronsUpDown class="ml-2 h-4 w-4" />
       </template>
     </Button>
+    <span v-else class="text-xs font-medium">{{ title }}</span>
   </div>
 </template>
