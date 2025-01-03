@@ -13,22 +13,24 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import type { User } from "@/types/user"
 import type { Column } from "@tanstack/vue-table"
 import { Check, Plus } from "lucide-vue-next"
 import { computed } from "vue"
 
-interface DataTableFacetedFilterProps {
-  column?: Column<User, any>
-  title?: string
-  options: {
-    label: string
-    value: string
-    icon?: any
-  }[]
+interface Option {
+  label: string
+  value: string
+  icon?: unknown
 }
 
-const props = defineProps<DataTableFacetedFilterProps>()
+interface DataTableFacetedFilterProps<TData> {
+  column?: Column<TData, unknown>
+  title?: string
+  options: Option[]
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const props = defineProps<DataTableFacetedFilterProps<any>>()
 const selectedValues = computed(() => new Set(props.column?.getFilterValue() as string[]))
 </script>
 
@@ -41,7 +43,7 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
         <Separator v-if="selectedValues.size > 0" orientation="vertical" class="mx-2 h-4" />
         <div v-if="selectedValues.size > 0" class="flex space-x-1">
           <Badge
-            v-for="option in options.filter((option) => selectedValues.has(option.value))"
+            v-for="option in options.filter((option: Option) => selectedValues.has(option.value))"
             :key="option.value"
             variant="secondary"
             class="rounded-sm px-1 font-normal"
@@ -93,6 +95,7 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
           <CommandGroup v-if="selectedValues.size > 0">
             <CommandItem
               class="justify-center text-center"
+              value="undefined"
               @select="column?.setFilterValue(undefined)"
             >
               Limpiar filtros

@@ -1,5 +1,5 @@
 import type { GetAllParams, PaginatedResponse } from "@/types/api"
-import type { CreateVenueData, UpdateVenueData, Venue } from "@/types/venue"
+import type { CreateVenueData, Venue } from "@/types/venue"
 import { api } from "./api"
 
 export interface VenueQueryParams extends GetAllParams {
@@ -34,7 +34,7 @@ export const venuesService = {
     return data
   },
 
-  async update(id: string, venueData: UpdateVenueData) {
+  async update(id: string, venueData: Partial<CreateVenueData>) {
     const { data } = await api.patch<Venue>(`/venues/${id}`, venueData)
     return data
   },

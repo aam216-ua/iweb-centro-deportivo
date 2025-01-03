@@ -17,4 +17,8 @@ export const usersService = {
     })
     return data
   },
+
+  async delete(id: string) {
+    return api.delete(`/users/${id}`)
+  },
 }

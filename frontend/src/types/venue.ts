@@ -24,5 +24,3 @@ export interface CreateVenueData {
   activityId: string
   status?: VenueStatus
 }
-
-export interface UpdateVenueData extends Partial<CreateVenueData> {}

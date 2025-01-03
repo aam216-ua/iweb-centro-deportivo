@@ -76,6 +76,7 @@ const confirmPasswordField = reactive(
 const onSubmitProfile = profileForm.handleSubmit(async (values) => {
   try {
     loading.value = true
+    if (!user.value?.id) throw {}
     await authStore.updateProfile(values, user?.value.id)
     toast.success("Perfil actualizado exitosamente")
   } catch (error) {
