@@ -23,6 +23,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-vue-next"
 import DataTablePagination from "./DataTablePagination.vue"
 import type { User } from "@/types/user"
 
@@ -32,6 +34,9 @@ interface DataTableProps {
 }
 
 const props = defineProps<DataTableProps>()
+const emit = defineEmits<{
+  'create': []
+}>()
 
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
@@ -78,13 +83,17 @@ const table = useVueTable({
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center py-4">
+    <div class="flex items-center justify-between py-4">
       <Input
         placeholder="Filtrar usuarios..."
         :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
         class="max-w-sm"
         @input="table.getColumn('name')?.setFilterValue(($event.target as HTMLInputElement).value)"
       />
+      <Button @click="$emit('create')">
+        <Plus class="mr-2 h-4 w-4" />
+        Nuevo Usuario
+      </Button>
     </div>
     <div class="rounded-md border">
       <Table>

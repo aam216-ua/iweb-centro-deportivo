@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { columns as activityColumns } from "@/components/activities/columns"
 import { columns as userColumns } from "@/components/users/columns"
+import UserCreateDialog from "@/components/users/UserCreateDialog.vue"
 import ActivitiesDataTable from "@/components/activities/DataTable.vue"
 import UsersDataTable from "@/components/users/DataTable.vue"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,11 +11,13 @@ import type { Activity } from "@/types/activity"
 import type { User } from "@/types/user"
 import { ref, watch } from "vue"
 
+
 const currentTab = ref("venues")
 const activities = ref<Activity[]>([])
 const users = ref<User[]>([])
 const isLoadingActivities = ref(false)
 const isLoadingUsers = ref(false)
+const showCreateDialog = ref(false)
 
 async function fetchActivities() {
   if (currentTab.value !== "activities") return
@@ -66,18 +69,17 @@ watch(currentTab, async (newTab) => {
       </TabsContent>
 
       <TabsContent value="users" class="space-y-4">
-        <div class="flex justify-end gap-4">
-          <Button @click="showCreateDialog = true">
-            <Plus class="mr-2 h-4 w-4" />
-            Nuevo Usuario
-          </Button>
-          <UserCreateDialog
-            v-model:open="showCreateDialog"
-            @user-created="fetchUsers"
-          />
-        </div>
         <div v-if="isLoadingUsers">Cargando usuarios...</div>
-        <UsersDataTable v-else :columns="userColumns" :data="users" />
+        <UsersDataTable
+          v-else
+          :columns="userColumns"
+          :data="users"
+          @create="showCreateDialog = true"
+        />
+        <UserCreateDialog
+          v-model:open="showCreateDialog"
+          @user-created="fetchUsers"
+        />
       </TabsContent>
 
       <TabsContent value="activities" class="space-y-4">
