@@ -1,25 +1,38 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+import { columns } from "@/components/activities/columns"
+import DataTable from "@/components/activities/DataTable.vue"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { Activity } from "@/types/activity"
+import { ref, watch } from "vue"
 
-// import VenuesTable from './components/VenuesTable.vue'
-// import UsersTable from './components/UsersTable.vue'
-// import ActivitiesTable from './components/ActivitiesTable.vue'
+const currentTab = ref("venues")
+const activities = ref<Activity[]>([])
+const isLoading = ref(false)
+
+async function fetchActivities() {
+  if (currentTab.value !== "activities") return
+
+  isLoading.value = true
+  try {
+    const response = await fetch("http://localhost:3000/api/activities")
+    activities.value = await response.json()
+  } catch (error) {
+    console.error("Failed to fetch activities:", error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+watch(currentTab, fetchActivities)
 </script>
 
 <template>
   <div class="container mx-auto py-8">
     <div class="flex items-center justify-between space-y-2">
       <h2 class="text-3xl font-bold tracking-tight">Panel de Administración</h2>
-      <div class="flex items-center space-x-2"></div>
     </div>
 
-    <Tabs default-value="venues" class="mt-6 space-y-4">
+    <Tabs v-model="currentTab" class="mt-6 space-y-4">
       <TabsList>
         <TabsTrigger value="venues">Pistas</TabsTrigger>
         <TabsTrigger value="users">Usuarios</TabsTrigger>
@@ -27,45 +40,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
       </TabsList>
 
       <TabsContent value="venues" class="space-y-4">
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader class="space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium"> Total Pistas </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div class="text-2xl font-bold">0</div>
-              <p class="text-xs text-muted-foreground">Pistas registradas en el sistema</p>
-            </CardContent>
-          </Card>
-        </div>
+        <!-- VenuesTable component will go here -->
       </TabsContent>
 
       <TabsContent value="users" class="space-y-4">
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader class="space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium"> Total Usuarios </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div class="text-2xl font-bold">0</div>
-              <p class="text-xs text-muted-foreground">Usuarios registrados en el sistema</p>
-            </CardContent>
-          </Card>
-        </div>
+        <!-- UsersTable component will go here -->
       </TabsContent>
 
       <TabsContent value="activities" class="space-y-4">
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader class="space-y-0 pb-2">
-              <CardTitle class="text-sm font-medium"> Total Actividades </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div class="text-2xl font-bold">0</div>
-              <p class="text-xs text-muted-foreground">Actividades disponibles en el sistema</p>
-            </CardContent>
-          </Card>
-        </div>
+        <div v-if="isLoading">Cargando actividades...</div>
+        <DataTable v-else :columns="columns" :data="activities" />
       </TabsContent>
     </Tabs>
   </div>

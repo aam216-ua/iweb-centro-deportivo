@@ -22,6 +22,7 @@ export type Permission =
 
   // Activity management
   | "activities:view"
+  | "activities:create"
 
 export const rolePermissions: Record<Role, Permission[]> = {
   [Role.SUPERADMIN]: [
@@ -39,6 +40,7 @@ export const rolePermissions: Record<Role, Permission[]> = {
     "bookings:delete",
     "bookings:view-all",
     "activities:view",
+    "activities:create",
   ],
   [Role.ADMIN]: [
     "users:view",
@@ -54,6 +56,7 @@ export const rolePermissions: Record<Role, Permission[]> = {
     "bookings:delete",
     "bookings:view-all",
     "activities:view",
+    "activities:create",
   ],
   [Role.RECEPTIONIST]: [
     "users:view",
