@@ -1,7 +1,7 @@
+import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import type { Activity } from "@/types/activity"
 import type { ColumnDef } from "@tanstack/vue-table"
 import { h } from "vue"
-import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 
 export const columns: ColumnDef<Activity>[] = [
   {

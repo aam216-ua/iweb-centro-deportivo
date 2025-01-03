@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, computed } from "vue"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,16 +10,13 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { Check, Plus } from "lucide-vue-next"
-import type { Column } from "@tanstack/vue-table"
 import type { User } from "@/types/user"
+import type { Column } from "@tanstack/vue-table"
+import { Check, Plus } from "lucide-vue-next"
+import { computed } from "vue"
 
 interface DataTableFacetedFilterProps {
   column?: Column<User, any>
@@ -45,7 +41,7 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
         <Separator v-if="selectedValues.size > 0" orientation="vertical" class="mx-2 h-4" />
         <div v-if="selectedValues.size > 0" class="flex space-x-1">
           <Badge
-            v-for="option in options.filter(option => selectedValues.has(option.value))"
+            v-for="option in options.filter((option) => selectedValues.has(option.value))"
             :key="option.value"
             variant="secondary"
             class="rounded-sm px-1 font-normal"
@@ -65,27 +61,28 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
               v-for="option in options"
               :key="option.value"
               :value="option"
-              @select="() => {
-                const isSelected = selectedValues.has(option.value)
-                if (isSelected) {
-                  selectedValues.delete(option.value)
+              @select="
+                () => {
+                  const isSelected = selectedValues.has(option.value)
+                  if (isSelected) {
+                    selectedValues.delete(option.value)
+                  } else {
+                    selectedValues.add(option.value)
+                  }
+                  const filterValues = Array.from(selectedValues)
+                  column?.setFilterValue(filterValues.length ? filterValues : undefined)
                 }
-                else {
-                  selectedValues.add(option.value)
-                }
-                const filterValues = Array.from(selectedValues)
-                column?.setFilterValue(
-                  filterValues.length ? filterValues : undefined,
-                )
-              }"
+              "
             >
               <div
-                :class="cn(
-                  'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-                  selectedValues.has(option.value)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'opacity-50 [&_svg]:invisible',
-                )"
+                :class="
+                  cn(
+                    'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                    selectedValues.has(option.value)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'opacity-50 [&_svg]:invisible',
+                  )
+                "
               >
                 <Check :class="cn('h-4 w-4')" />
               </div>

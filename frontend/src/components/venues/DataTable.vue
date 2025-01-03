@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DataTableFacetedFilter from "@/components/DataTableFacetedFilter.vue"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -9,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { activitiesService } from "@/services/activity"
+import type { Activity } from "@/types/activity"
 import type { Venue } from "@/types/venue"
 import type {
   ColumnDef,
@@ -19,13 +22,15 @@ import type {
 import {
   FlexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table"
 import { Plus } from "lucide-vue-next"
-import { ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import DataTablePagination from "./DataTablePagination.vue"
 
 interface DataTableProps {
@@ -41,6 +46,7 @@ const emit = defineEmits<{
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
+const activities = ref<Activity[]>([])
 
 const table = useVueTable({
   get data() {
@@ -74,23 +80,46 @@ const table = useVueTable({
   getFilteredRowModel: getFilteredRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   getSortedRowModel: getSortedRowModel(),
+  getFacetedRowModel: getFacetedRowModel(),
+  getFacetedUniqueValues: getFacetedUniqueValues(),
   initialState: {
     pagination: {
       pageSize: 5,
     },
   },
 })
+
+const activityOptions = computed(() =>
+  activities.value.map((activity) => ({
+    label: activity.name,
+    value: activity.id,
+  })),
+)
+
+onMounted(async () => {
+  activities.value = await activitiesService.getAll()
+})
 </script>
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center justify-between py-4 space-x-4">
-      <Input
-        placeholder="Filtrar pistas..."
-        :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
-        class="max-w-sm"
-        @input="table.getColumn('name')?.setFilterValue(($event.target as HTMLInputElement).value)"
-      />
+    <div class="flex items-center justify-between py-4">
+      <div class="flex items-center gap-2">
+        <Input
+          placeholder="Filtrar pistas..."
+          :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
+          class="max-w-sm"
+          @input="
+            table.getColumn('name')?.setFilterValue(($event.target as HTMLInputElement).value)
+          "
+        />
+        <DataTableFacetedFilter
+          v-if="table.getColumn('activity')"
+          :column="table.getColumn('activity')"
+          title="Actividad"
+          :options="activityOptions"
+        />
+      </div>
       <Button @click="$emit('create')">
         <Plus class="mr-2 h-4 w-4" />
         Nueva Pista

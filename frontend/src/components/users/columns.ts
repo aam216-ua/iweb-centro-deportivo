@@ -1,9 +1,9 @@
+import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import { Badge } from "@/components/ui/badge"
 import { roleLabels } from "@/lib/role"
 import type { User } from "@/types/user"
 import type { ColumnDef } from "@tanstack/vue-table"
 import { h } from "vue"
-import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import DataTableRowActions from "./DataTableRowActions.vue"
 
 export const columns: ColumnDef<User>[] = [

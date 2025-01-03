@@ -1,8 +1,8 @@
+import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import { Badge } from "@/components/ui/badge"
 import type { Venue } from "@/types/venue"
 import type { ColumnDef } from "@tanstack/vue-table"
 import { h } from "vue"
-import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import DataTableRowActions from "./DataTableRowActions.vue"
 
 export const columns: ColumnDef<Venue>[] = [
@@ -12,11 +12,15 @@ export const columns: ColumnDef<Venue>[] = [
   },
   {
     id: "activity",
-    accessorKey: "activity.name",
+    accessorFn: (row) => row.activity?.id,
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Actividad" }),
     cell: ({ row }) => {
       const activity = row.original.activity?.name || "Sin actividad"
       return h(Badge, { variant: "outline" }, () => activity)
+    },
+    filterFn: (row, id, value: string[]) => {
+      if (!value.length) return true
+      return value.includes(row.original.activity?.id || "")
     },
   },
   {

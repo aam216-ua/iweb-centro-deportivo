@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DataTableFacetedFilter from "@/components/DataTableFacetedFilter.vue"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -9,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { roleLabels } from "@/lib/role"
 import type { User } from "@/types/user"
 import type {
   ColumnDef,
@@ -19,9 +21,9 @@ import type {
 import {
   FlexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useVueTable,
@@ -29,8 +31,6 @@ import {
 import { Plus } from "lucide-vue-next"
 import { ref } from "vue"
 import DataTablePagination from "./DataTablePagination.vue"
-import DataTableFacetedFilter from "./DataTableFacetedFilter.vue"
-import { roleLabels } from "@/lib/role"
 
 interface DataTableProps {
   columns: ColumnDef<User, unknown>[]
@@ -71,7 +71,8 @@ const table = useVueTable({
     columnFilters.value = typeof updater === "function" ? updater(columnFilters.value) : updater
   },
   onColumnVisibilityChange: (updater) => {
-    columnVisibility.value = typeof updater === "function" ? updater(columnVisibility.value) : updater
+    columnVisibility.value =
+      typeof updater === "function" ? updater(columnVisibility.value) : updater
   },
   getCoreRowModel: getCoreRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
@@ -100,7 +101,9 @@ const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({
           placeholder="Filtrar usuarios..."
           :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
           class="max-w-sm"
-          @input="table.getColumn('name')?.setFilterValue(($event.target as HTMLInputElement).value)"
+          @input="
+            table.getColumn('name')?.setFilterValue(($event.target as HTMLInputElement).value)
+          "
         />
         <DataTableFacetedFilter
           v-if="table.getColumn('role')"
@@ -129,10 +132,7 @@ const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({
         </TableHeader>
         <TableBody>
           <template v-if="table.getRowModel().rows?.length">
-            <TableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-            >
+            <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-2">
                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
               </TableCell>
