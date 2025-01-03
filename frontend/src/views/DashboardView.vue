@@ -2,6 +2,7 @@
 import { columns } from "@/components/activities/columns"
 import DataTable from "@/components/activities/DataTable.vue"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { activitiesService } from "@/services/activity"
 import type { Activity } from "@/types/activity"
 import { ref, watch } from "vue"
 
@@ -14,8 +15,8 @@ async function fetchActivities() {
 
   isLoading.value = true
   try {
-    const response = await fetch("http://localhost:3000/api/activities")
-    activities.value = await response.json()
+    const response = await activitiesService.getAll()
+    activities.value = response
   } catch (error) {
     console.error("Failed to fetch activities:", error)
   } finally {
