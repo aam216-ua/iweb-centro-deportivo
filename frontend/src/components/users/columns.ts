@@ -51,7 +51,7 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "role",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Rol" }),
     cell: ({ row }) => {
-      const role = roleLabels[row.getValue("role") as keyof typeof roles]
+      const role = roleLabels[row.getValue("role") as keyof typeof roleLabels]
       return h("div", { class: "w-[150px]" }, [
         h(Badge, {variant: "outline"}, role)
       ])

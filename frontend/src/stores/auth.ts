@@ -1,5 +1,5 @@
 import { authService } from "@/services/auth"
-import { userService } from "@/services/user"
+import { usersService } from "@/services/user"
 import type {
   LoginCredentials,
   RegisterUserData,
@@ -100,7 +100,7 @@ export const useAuthStore = defineStore("auth", () => {
       loading.value = true
       token.value = storedToken
       userId.value = storedUserId
-      const userData = await userService.get(storedUserId)
+      const userData = await usersService.get(storedUserId)
       user.value = userData
     } catch (error) {
       logout()
@@ -115,7 +115,7 @@ export const useAuthStore = defineStore("auth", () => {
     if (!userId.value || !isAuthenticated.value) return
 
     try {
-      const userData = await userService.get(userId.value)
+      const userData = await usersService.get(userId.value)
       user.value = userData
     } catch (err) {
       const error = err as AxiosError

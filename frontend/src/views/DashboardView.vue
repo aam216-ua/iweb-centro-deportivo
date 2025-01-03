@@ -5,7 +5,7 @@ import ActivitiesDataTable from "@/components/activities/DataTable.vue"
 import UsersDataTable from "@/components/users/DataTable.vue"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { activitiesService } from "@/services/activity"
-import { userService } from "@/services/user"
+import { usersService } from "@/services/user"
 import type { Activity } from "@/types/activity"
 import type { User } from "@/types/user"
 import { ref, watch } from "vue"
@@ -33,7 +33,7 @@ async function fetchUsers() {
   if (currentTab.value !== "users") return
   isLoadingUsers.value = true
   try {
-    const response = await userService.getAll()
+    const response = await usersService.getAll()
     users.value = response.data
   } catch (error) {
     console.error("Failed to fetch users:", error)
@@ -66,6 +66,16 @@ watch(currentTab, async (newTab) => {
       </TabsContent>
 
       <TabsContent value="users" class="space-y-4">
+        <div class="flex justify-end gap-4">
+          <Button @click="showCreateDialog = true">
+            <Plus class="mr-2 h-4 w-4" />
+            Nuevo Usuario
+          </Button>
+          <UserCreateDialog
+            v-model:open="showCreateDialog"
+            @user-created="fetchUsers"
+          />
+        </div>
         <div v-if="isLoadingUsers">Cargando usuarios...</div>
         <UsersDataTable v-else :columns="userColumns" :data="users" />
       </TabsContent>
