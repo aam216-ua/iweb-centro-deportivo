@@ -12,6 +12,7 @@ import type { Row } from "@tanstack/vue-table"
 import { MoreHorizontal, Pencil, Trash } from "lucide-vue-next"
 import { ref } from "vue"
 import { toast } from "vue-sonner"
+import VenueEditDialog from "./VenueEditDialog.vue"
 
 interface DataTableRowActionsProps {
   row: Row<Venue>
@@ -24,6 +25,7 @@ const emit = defineEmits<{
 }>()
 
 const loading = ref(false)
+const showEditDialog = ref(false)
 
 async function onDelete(id: string) {
   try {
@@ -47,7 +49,7 @@ async function onDelete(id: string) {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
-      <DropdownMenuItem class="cursor-pointer">
+      <DropdownMenuItem class="cursor-pointer" @click="showEditDialog = true">
         <Pencil class="mr-2 h-4 w-4" />
         Editar
       </DropdownMenuItem>
@@ -61,4 +63,10 @@ async function onDelete(id: string) {
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
+
+  <VenueEditDialog
+    v-model:open="showEditDialog"
+    :venue="row.original"
+    @venue-edited="emit('refresh')"
+  />
 </template>
