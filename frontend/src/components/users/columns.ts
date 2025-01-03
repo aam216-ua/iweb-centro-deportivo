@@ -11,6 +11,7 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "email",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Email" }),
     cell: ({ row }) => h("div", { class: "w-[180px] truncate font-medium" }, row.getValue("email")),
+    enableSorting: false,
   },
   {
     accessorKey: "name",
@@ -26,13 +27,17 @@ export const columns: ColumnDef<User>[] = [
     accessorKey: "phone",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Teléfono" }),
     cell: ({ row }) => h("div", { class: "w-[120px]" }, row.getValue("phone")),
+    enableSorting: false,
   },
   {
     accessorKey: "role",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Rol" }),
     cell: ({ row }) => {
       const role = roleLabels[row.getValue("role") as keyof typeof roleLabels]
-      return h("div", { class: "w-[150px]" }, [h(Badge, { variant: "outline" }, role)])
+      return h("div", { class: "w-[150px]" }, [h(Badge, { variant: "outline" }, () => role)])
+    },
+    filterFn: (row, id, value: string[]) => {
+      return value.includes(row.getValue(id))
     },
   },
   {
