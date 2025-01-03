@@ -1,30 +1,51 @@
 <script setup lang="ts">
-import { columns } from "@/components/activities/columns"
-import DataTable from "@/components/activities/DataTable.vue"
+import { columns as activityColumns } from "@/components/activities/columns"
+import { columns as userColumns } from "@/components/users/columns"
+import ActivitiesDataTable from "@/components/activities/DataTable.vue"
+import UsersDataTable from "@/components/users/DataTable.vue"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { activitiesService } from "@/services/activity"
+import { userService } from "@/services/user"
 import type { Activity } from "@/types/activity"
+import type { User } from "@/types/user"
 import { ref, watch } from "vue"
 
 const currentTab = ref("venues")
 const activities = ref<Activity[]>([])
-const isLoading = ref(false)
+const users = ref<User[]>([])
+const isLoadingActivities = ref(false)
+const isLoadingUsers = ref(false)
 
 async function fetchActivities() {
   if (currentTab.value !== "activities") return
-
-  isLoading.value = true
+  isLoadingActivities.value = true
   try {
     const response = await activitiesService.getAll()
     activities.value = response
   } catch (error) {
     console.error("Failed to fetch activities:", error)
   } finally {
-    isLoading.value = false
+    isLoadingActivities.value = false
   }
 }
 
-watch(currentTab, fetchActivities)
+async function fetchUsers() {
+  if (currentTab.value !== "users") return
+  isLoadingUsers.value = true
+  try {
+    const response = await userService.getAll()
+    users.value = response.data
+  } catch (error) {
+    console.error("Failed to fetch users:", error)
+  } finally {
+    isLoadingUsers.value = false
+  }
+}
+
+watch(currentTab, async (newTab) => {
+  if (newTab === "activities") await fetchActivities()
+  if (newTab === "users") await fetchUsers()
+})
 </script>
 
 <template>
@@ -45,12 +66,13 @@ watch(currentTab, fetchActivities)
       </TabsContent>
 
       <TabsContent value="users" class="space-y-4">
-        <!-- UsersTable component will go here -->
+        <div v-if="isLoadingUsers">Cargando usuarios...</div>
+        <UsersDataTable v-else :columns="userColumns" :data="users" />
       </TabsContent>
 
       <TabsContent value="activities" class="space-y-4">
-        <div v-if="isLoading">Cargando actividades...</div>
-        <DataTable v-else :columns="columns" :data="activities" />
+        <div v-if="isLoadingActivities">Cargando actividades...</div>
+        <ActivitiesDataTable v-else :columns="activityColumns" :data="activities" />
       </TabsContent>
     </Tabs>
   </div>

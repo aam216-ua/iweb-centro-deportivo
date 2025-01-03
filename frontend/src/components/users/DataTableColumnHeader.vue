@@ -1,21 +1,23 @@
 <script setup lang="ts">
+import type { Column } from "@tanstack/vue-table"
+import type { User } from "@/types/user"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import type { Activity } from "@/types/activity"
-import type { Column } from "@tanstack/vue-table"
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next"
+import { cn } from "@/lib/utils"
+import { ArrowDown, ArrowUp, EyeOff, ArrowDownUp } from "lucide-vue-next"
 
-interface DataTableColumnHeaderProps {
-  column: Column<Activity, unknown>
+interface DataTableColumnHeaderProps<TData> {
+  column: Column<TData, unknown>
   title: string
 }
 
-defineProps<DataTableColumnHeaderProps>()
+defineProps<DataTableColumnHeaderProps<User>>()
 </script>
 
 <template>
@@ -26,7 +28,7 @@ defineProps<DataTableColumnHeaderProps>()
           <span>{{ title }}</span>
           <ArrowDown v-if="column.getIsSorted() === 'desc'" class="ml-2 h-4 w-4" />
           <ArrowUp v-else-if="column.getIsSorted() === 'asc'" class="ml-2 h-4 w-4" />
-          <ArrowUpDown v-else class="ml-2 h-4 w-4" />
+          <ArrowDownUp v-else class="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
@@ -37,6 +39,11 @@ defineProps<DataTableColumnHeaderProps>()
         <DropdownMenuItem @click="column.toggleSorting(true)">
           <ArrowDown class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
           Descendente
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem @click="column.toggleVisibility(false)">
+          <EyeOff class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+          Ocultar
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
