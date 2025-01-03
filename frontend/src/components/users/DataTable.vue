@@ -84,7 +84,7 @@ const table = useVueTable({
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center justify-between py-4">
+    <div class="flex items-center justify-between py-4 space-x-4">
       <Input
         placeholder="Filtrar usuarios..."
         :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
