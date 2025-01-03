@@ -26,7 +26,7 @@ const spanishErrorMap: z.ZodErrorMap = (issue, ctx) => {
   switch (issue.code) {
     case z.ZodIssueCode.invalid_type:
       if (issue.received === "undefined" || issue.received === "null") {
-        message = "El campo es requerido"
+        message = "Campo requerido"
       } else {
         const expectedType = typeMapping[issue.expected] || issue.expected
         const receivedType = typeMapping[issue.received] || issue.received
@@ -36,72 +36,68 @@ const spanishErrorMap: z.ZodErrorMap = (issue, ctx) => {
 
     case z.ZodIssueCode.invalid_string:
       if (issue.validation === "email") {
-        message = "El correo electrónico no es válido"
+        message = "Email inválido"
       } else if (issue.validation === "url") {
-        message = "La URL no es válida"
+        message = "URL inválida"
       } else if (issue.validation === "uuid") {
-        message = "El UUID no es válido"
+        message = "UUID inválido"
       } else if (issue.validation === "cuid") {
-        message = "El CUID no es válido"
+        message = "CUID inválido"
       } else if (issue.validation === "regex") {
-        message = "El formato no es válido"
+        message = "Formato inválido"
       } else if (issue.validation === "datetime") {
-        message = "La fecha/hora no es válida"
+        message = "Fecha/hora inválida"
       } else {
-        message = "El texto no es válido"
+        message = "Texto inválido"
       }
       break
 
     case z.ZodIssueCode.not_finite:
-      message = "El número no es válido"
+      message = "Número inválido"
       break
 
     case z.ZodIssueCode.invalid_date:
-      message = "La fecha no es válida"
+      message = "Fecha inválida"
       break
 
     case z.ZodIssueCode.too_small:
       if (issue.type === "string") {
         if (issue.minimum === 1) {
-          message = "El campo es requerido"
+          message = "Campo requerido"
         } else {
           message = issue.inclusive
-            ? `Debe tener al menos ${issue.minimum} caracteres`
-            : `Debe tener más de ${issue.minimum} caracteres`
+            ? `Mínimo ${issue.minimum} caracteres`
+            : `Más de ${issue.minimum} caracteres`
         }
       } else if (issue.type === "number") {
-        message = issue.inclusive
-          ? `Debe ser mayor o igual a ${issue.minimum}`
-          : `Debe ser mayor que ${issue.minimum}`
+        message = issue.inclusive ? `Mínimo ${issue.minimum}` : `Mayor que ${issue.minimum}`
       } else if (issue.type === "array") {
         message = issue.inclusive
-          ? `Debe tener al menos ${issue.minimum} elementos`
-          : `Debe tener más de ${issue.minimum} elementos`
+          ? `Mínimo ${issue.minimum} elementos`
+          : `Más de ${issue.minimum} elementos`
       } else {
-        message = "El valor es muy pequeño"
+        message = "Valor muy pequeño"
       }
       break
 
     case z.ZodIssueCode.too_big:
       if (issue.type === "string") {
         message = issue.inclusive
-          ? `Debe tener máximo ${issue.maximum} caracteres`
-          : `Debe tener menos de ${issue.maximum} caracteres`
+          ? `Máximo ${issue.maximum} caracteres`
+          : `Menos de ${issue.maximum} caracteres`
       } else if (issue.type === "number") {
-        message = issue.inclusive
-          ? `Debe ser menor o igual a ${issue.maximum}`
-          : `Debe ser menor que ${issue.maximum}`
+        message = issue.inclusive ? `Máximo ${issue.maximum}` : `Menor que ${issue.maximum}`
       } else if (issue.type === "array") {
         message = issue.inclusive
-          ? `Debe tener máximo ${issue.maximum} elementos`
-          : `Debe tener menos de ${issue.maximum} elementos`
+          ? `Máximo ${issue.maximum} elementos`
+          : `Menos de ${issue.maximum} elementos`
       } else {
-        message = "El valor es muy grande"
+        message = "Valor muy grande"
       }
       break
 
     case z.ZodIssueCode.custom:
-      message = issue.message || "El valor no es válido"
+      message = issue.message || "Valor inválido"
       break
     case z.ZodIssueCode.invalid_arguments:
       message = "Argumentos inválidos"
@@ -110,13 +106,13 @@ const spanishErrorMap: z.ZodErrorMap = (issue, ctx) => {
       message = "Tipo de retorno inválido"
       break
     case z.ZodIssueCode.invalid_enum_value:
-      message = `Valor inválido, opciones válidas: ${issue.options.join(", ")}`
+      message = `Valores válidos: ${issue.options.join(", ")}`
       break
     case z.ZodIssueCode.unrecognized_keys:
       message = `Campos no permitidos: ${issue.keys.join(", ")}`
       break
     case z.ZodIssueCode.invalid_union_discriminator:
-      message = `Valor inválido, opciones válidas: ${issue.options.join(", ")}`
+      message = `Valores válidos: ${issue.options.join(", ")}`
       break
     case z.ZodIssueCode.invalid_literal:
       message = "Valor literal inválido"
