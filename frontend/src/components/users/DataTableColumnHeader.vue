@@ -40,11 +40,6 @@ defineProps<DataTableColumnHeaderProps<User>>()
           <ArrowDown class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
           Descendente
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem @click="column.toggleVisibility(false)">
-          <EyeOff class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-          Ocultar
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   </div>
