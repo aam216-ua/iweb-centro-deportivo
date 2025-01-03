@@ -50,12 +50,12 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function updateProfile(userData: UpdateProfileData) {
+  async function updateProfile(userData: UpdateProfileData, id: string) {
     if (!user.value?.id) throw new Error("User not authenticated")
     loading.value = true
     error.value = null
     try {
-      await authService.updateProfile(String(user.value.id), userData)
+      await authService.updateProfile(id, userData)
     } catch (err) {
       error.value = "No se pudo actualizar el perfil"
       throw err
