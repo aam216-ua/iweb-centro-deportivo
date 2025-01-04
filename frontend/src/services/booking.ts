@@ -8,7 +8,7 @@ export interface BookingQueryParams extends GetAllParams {
   venueId?: string
   after?: string
   before?: string
-  sort?: 'ASC' | 'DESC'
+  sort?: "ASC" | "DESC"
 }
 
 export const bookingsService = {

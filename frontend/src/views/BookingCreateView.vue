@@ -12,11 +12,12 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper"
 import { bookingSchema } from "@/schemas/booking"
-import { bookingService } from "@/services/booking"
+import { bookingsService } from "@/services/booking"
 import { venuesService } from "@/services/venue"
 import { useAuthStore } from "@/stores/auth"
 import { BookingTurn } from "@/types/booking"
 import type { Venue } from "@/types/venue"
+import type { DateValue } from "@internationalized/date"
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date"
 import { CalendarDays, ChevronRight, Clock, DollarSign, MapPin, Users } from "lucide-vue-next"
 import { useForm } from "vee-validate"
@@ -85,12 +86,12 @@ const selectVenue = (venue: Venue) => {
   setFieldValue("venueId", venue.id)
 }
 
-const selectTimeSlot = (time: string) => {
+const selectTimeSlot = (time: BookingTurn) => {
   selectedTimeSlot.value = time
   setFieldValue("turn", time)
 }
 
-const selectDate = (date: any) => {
+const selectDate = (date: DateValue | undefined) => {
   if (date) {
     setFieldValue("date", date.toString())
   } else {
@@ -99,9 +100,9 @@ const selectDate = (date: any) => {
 }
 
 function convertToISOString(dateString: string): string {
-    const date = new Date(dateString);
-    date.setUTCHours(0, 0, 0, 0);
-    return date.toISOString();
+  const date = new Date(dateString)
+  date.setUTCHours(0, 0, 0, 0)
+  return date.toISOString()
 }
 
 const onSubmit = handleSubmit(async (values) => {
@@ -109,9 +110,9 @@ const onSubmit = handleSubmit(async (values) => {
     loading.value = true
     const formattedDate = convertToISOString(values.date)
     const payload = { ...values, date: formattedDate }
-    await bookingService.create(payload)
+    await bookingsService.create(payload)
     toast.success("Reserva creada exitosamente")
-    router.push("/bookings")
+    router.push("/")
   } catch {
     toast.error("Error al crear la reserva")
   } finally {
@@ -179,6 +180,7 @@ const canBook = computed(() => {
                       {{ s.title }}
                     </StepperTitle>
                     <StepperDescription
+                      :step="s.step"
                       :class="[state === 'active' && 'text-primary']"
                       class="sr-only text-xs text-muted-foreground transition md:not-sr-only lg:text-sm"
                     >

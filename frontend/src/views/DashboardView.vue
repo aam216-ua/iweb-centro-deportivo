@@ -145,11 +145,7 @@ const triggerRefresh = async () => {
 
       <TabsContent value="bookings" class="space-y-4">
         <div v-if="isLoadingBookings">Cargando reservas...</div>
-        <BookingsDataTable
-          v-else
-          :columns="bookingColumns"
-          :data="bookings"
-        />
+        <BookingsDataTable v-else :columns="bookingColumns" :data="bookings" />
       </TabsContent>
 
       <TabsContent value="users" class="space-y-4">

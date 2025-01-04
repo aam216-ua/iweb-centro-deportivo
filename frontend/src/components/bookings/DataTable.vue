@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/table"
 import { usersService } from "@/services/user"
 import { venuesService } from "@/services/venue"
+import type { Booking } from "@/types/booking"
 import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
-import type { Booking } from "@/types/booking"
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -43,6 +43,7 @@ interface DataTableProps {
 const props = defineProps<DataTableProps>()
 const emit = defineEmits<{
   create: []
+  refresh: []
 }>()
 
 const sorting = ref<SortingState>([])
@@ -71,9 +72,11 @@ const table = useVueTable({
   },
   onSortingChange: (updater) => {
     sorting.value = typeof updater === "function" ? updater(sorting.value) : updater
+    emit("refresh")
   },
   onColumnFiltersChange: (updater) => {
     columnFilters.value = typeof updater === "function" ? updater(columnFilters.value) : updater
+    emit("refresh")
   },
   onColumnVisibilityChange: (updater) => {
     columnVisibility.value =
@@ -85,11 +88,6 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getFacetedRowModel: getFacetedRowModel(),
   getFacetedUniqueValues: getFacetedUniqueValues(),
-  initialState: {
-    pagination: {
-      pageSize: 5,
-    },
-  },
 })
 
 const venueOptions = computed(() =>
@@ -107,7 +105,6 @@ const userOptions = computed(() =>
 )
 
 onMounted(async () => {
-  // Load venues and users for filters
   venues.value = (await venuesService.getAll()).data
   users.value = (await usersService.getAll()).data
 })
@@ -130,6 +127,12 @@ onMounted(async () => {
           :column="table.getColumn('venue')"
           title="Pista"
           :options="venueOptions"
+        />
+        <DataTableFacetedFilter
+          v-if="table.getColumn('appointee')"
+          :column="table.getColumn('appointee')"
+          title="Usuario"
+          :options="userOptions"
         />
       </div>
       <Button class="ml-auto" @click="$emit('create')">
