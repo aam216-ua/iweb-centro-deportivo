@@ -119,11 +119,11 @@ onMounted(async () => {
           title="Actividad"
           :options="activityOptions"
         />
+        <Button @click="$emit('create')">
+          <Plus class="mr-2 h-4 w-4" />
+          Nueva Pista
+        </Button>
       </div>
-      <Button @click="$emit('create')">
-        <Plus class="mr-2 h-4 w-4" />
-        Nueva Pista
-      </Button>
     </div>
     <div class="rounded-md border">
       <Table>

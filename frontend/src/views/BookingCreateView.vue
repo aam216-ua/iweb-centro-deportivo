@@ -126,7 +126,7 @@ const canBook = computed(() => {
 </script>
 
 <template>
-  <div class="container py-4 px-4 sm:py-8 sm:px-6">
+  <div class="container py-8 px-8">
     <div class="max-w-6xl mx-auto">
       <div class="mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold">Nueva Reserva</h1>
@@ -134,7 +134,6 @@ const canBook = computed(() => {
 
       <div class="grid gap-8 lg:grid-cols-[1fr_400px]">
         <div class="space-y-8">
-          <!-- Stepper -->
           <div class="mb-8">
             <Stepper v-model="step" class="block w-full">
               <div class="flex w-full flex-start gap-2">
@@ -183,9 +182,7 @@ const canBook = computed(() => {
             </Stepper>
           </div>
 
-          <!-- Step Content -->
           <div class="space-y-4">
-            <!-- Step 1: Venue Selection -->
             <div v-show="step === 1">
               <div class="grid gap-3">
                 <Card
@@ -219,7 +216,6 @@ const canBook = computed(() => {
               </div>
             </div>
 
-            <!-- Step 2: Time Selection -->
             <div v-show="step === 2">
               <div class="grid gap-3 sm:grid-cols-2">
                 <button
@@ -238,7 +234,6 @@ const canBook = computed(() => {
               </div>
             </div>
 
-            <!-- Step 3: Date Selection -->
             <div v-show="step === 3">
               <div class="flex justify-center">
                 <Calendar
@@ -255,7 +250,6 @@ const canBook = computed(() => {
           </div>
         </div>
 
-        <!-- Summary Card -->
         <div class="lg:sticky lg:top-4">
           <Card>
             <CardHeader>

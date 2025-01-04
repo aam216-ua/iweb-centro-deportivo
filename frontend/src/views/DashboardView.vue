@@ -92,7 +92,7 @@ const triggerRefresh = async () => {
 <template>
   <div class="container mx-auto py-8">
     <div class="flex items-center justify-between space-y-2">
-      <h2 class="text-3xl font-bold tracking-tight">Panel de Administración</h2>
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Panel de Administración</h2>
     </div>
 
     <Tabs v-model="currentTab" class="mt-6 space-y-4">

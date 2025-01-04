@@ -111,11 +111,11 @@ const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({
           title="Rol"
           :options="roleOptions"
         />
+        <Button @click="$emit('create')">
+          <Plus class="mr-2 h-4 w-4" />
+          Nuevo Usuario
+        </Button>
       </div>
-      <Button @click="$emit('create')">
-        <Plus class="mr-2 h-4 w-4" />
-        Nuevo Usuario
-      </Button>
     </div>
     <div class="rounded-md border">
       <Table>
