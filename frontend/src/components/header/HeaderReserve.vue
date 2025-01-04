@@ -15,7 +15,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 const buttonText = computed(() => (isAuthenticated.value ? "Mis Reservas" : "Reserva ahora"))
 
 const handleReservasClick = () => {
-  const route = isAuthenticated.value ? { name: "bookings" } : { name: "login" }
+  const route = isAuthenticated.value ? { name: "book" } : { name: "login" }
   router.push(route)
 }
 </script>

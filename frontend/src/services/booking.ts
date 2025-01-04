@@ -1,10 +1,19 @@
-import type { PaginatedResponse } from "@/types/api"
-import type { Booking, BookingQueryParams, CreateBookingData } from "@/types/booking"
+import type { GetAllParams, PaginatedResponse } from "@/types/api"
+import type { Booking, CreateBookingData } from "@/types/booking"
 import { api } from "./api"
 
-export const bookingService = {
-  async create(bookingData: CreateBookingData) {
-    const { data } = await api.post<Booking>("/bookings", bookingData)
+export interface BookingQueryParams extends GetAllParams {
+  appointeeId?: string
+  appointerId?: string
+  venueId?: string
+  after?: string
+  before?: string
+  sort?: 'ASC' | 'DESC'
+}
+
+export const bookingsService = {
+  async get(id: string) {
+    const { data } = await api.get<Booking>(`/bookings/${id}`)
     return data
   },
 
@@ -13,19 +22,19 @@ export const bookingService = {
       params: {
         page: params?.page ?? 0,
         size: params?.size ?? 10,
-        appointerId: params?.appointerId,
         appointeeId: params?.appointeeId,
+        appointerId: params?.appointerId,
         venueId: params?.venueId,
-        after: params?.after?.toISOString(),
-        before: params?.before?.toISOString(),
+        after: params?.after,
+        before: params?.before,
         sort: params?.sort,
       },
     })
     return data
   },
 
-  async get(id: string) {
-    const { data } = await api.get<Booking>(`/bookings/${id}`)
+  async create(bookingData: CreateBookingData) {
+    const { data } = await api.post<Booking>("/bookings", bookingData)
     return data
   },
 
