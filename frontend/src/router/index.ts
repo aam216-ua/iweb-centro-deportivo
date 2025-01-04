@@ -84,14 +84,14 @@ const protectedRoutes: RouteRecordRaw = {
         permissions: routePermissions.dashboard,
       },
     },
-    //{
-    //  path: "bookings",
-    //  name: "bookings",
-    //  component: () => import("@/views/bookings/BookingsView.vue"),
-    //  meta: {
-    //    permissions: routePermissions.bookings
-    //  }
-    //},
+    {
+      path: "bookings",
+      name: "bookings",
+      component: () => import("@/views/BookingCreateView.vue"),
+      meta: {
+        permissions: routePermissions.bookings,
+      },
+    },
     //{
     //  path: "bookings/:id",
     //  name: "booking-details",
