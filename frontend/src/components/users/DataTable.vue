@@ -95,7 +95,7 @@ const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center justify-between py-4">
+    <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
         <Input
           placeholder="Filtrar usuarios..."
@@ -111,11 +111,11 @@ const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({
           title="Rol"
           :options="roleOptions"
         />
-        <Button @click="$emit('create')">
-          <Plus class="mr-2 h-4 w-4" />
-          Nuevo Usuario
-        </Button>
       </div>
+      <Button class="ml-auto" @click="$emit('create')">
+        <Plus class="h-4 w-4" />
+        <span class="hidden md:inline-block ml-2">Nuevo Usuario</span>
+      </Button>
     </div>
     <div class="rounded-md border">
       <Table>

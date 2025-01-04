@@ -74,7 +74,7 @@ const table = useVueTable({
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center py-4">
+    <div class="flex items-center gap-4">
       <Input
         placeholder="Filtrar actividades..."
         :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
