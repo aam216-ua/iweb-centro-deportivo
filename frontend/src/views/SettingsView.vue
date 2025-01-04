@@ -108,7 +108,7 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
     <div class="grid gap-8">
       <section>
         <div class="grid gap-2">
-          <h1 class="text-3xl font-bold">Ajustes de Perfil</h1>
+          <h1 class="text-2xl sm:text-3xl font-bold">Ajustes de Perfil</h1>
           <p class="text-balance text-muted-foreground">Actualiza tu información personal</p>
         </div>
 

@@ -10,8 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { activitiesService } from "@/services/activity"
-import type { Activity } from "@/types/activity"
+import { usersService } from "@/services/user"
+import { venuesService } from "@/services/venue"
+import type { Booking } from "@/types/booking"
+import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
 import type {
   ColumnDef,
@@ -34,19 +36,21 @@ import { computed, onMounted, ref } from "vue"
 import DataTablePagination from "./DataTablePagination.vue"
 
 interface DataTableProps {
-  columns: ColumnDef<Venue, unknown>[]
-  data: Venue[]
+  columns: ColumnDef<Booking, unknown>[]
+  data: Booking[]
 }
 
 const props = defineProps<DataTableProps>()
 const emit = defineEmits<{
   create: []
+  refresh: []
 }>()
 
 const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
-const activities = ref<Activity[]>([])
+const venues = ref<Venue[]>([])
+const users = ref<User[]>([])
 
 const table = useVueTable({
   get data() {
@@ -68,9 +72,11 @@ const table = useVueTable({
   },
   onSortingChange: (updater) => {
     sorting.value = typeof updater === "function" ? updater(sorting.value) : updater
+    emit("refresh")
   },
   onColumnFiltersChange: (updater) => {
     columnFilters.value = typeof updater === "function" ? updater(columnFilters.value) : updater
+    emit("refresh")
   },
   onColumnVisibilityChange: (updater) => {
     columnVisibility.value =
@@ -82,22 +88,25 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getFacetedRowModel: getFacetedRowModel(),
   getFacetedUniqueValues: getFacetedUniqueValues(),
-  initialState: {
-    pagination: {
-      pageSize: 5,
-    },
-  },
 })
 
-const activityOptions = computed(() =>
-  activities.value.map((activity) => ({
-    label: activity.name,
-    value: activity.id,
+const venueOptions = computed(() =>
+  venues.value.map((venue) => ({
+    label: venue.name,
+    value: venue.id,
+  })),
+)
+
+const userOptions = computed(() =>
+  users.value.map((user) => ({
+    label: user.name,
+    value: user.id,
   })),
 )
 
 onMounted(async () => {
-  activities.value = await activitiesService.getAll()
+  venues.value = (await venuesService.getAll()).data
+  users.value = (await usersService.getAll()).data
 })
 </script>
 
@@ -106,23 +115,29 @@ onMounted(async () => {
     <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
         <Input
-          placeholder="Filtrar pistas..."
-          :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
+          placeholder="Filtrar reservas..."
+          :model-value="(table.getColumn('appointee')?.getFilterValue() as string) ?? ''"
           class="max-w-sm"
           @input="
-            table.getColumn('name')?.setFilterValue(($event.target as HTMLInputElement).value)
+            table.getColumn('appointee')?.setFilterValue(($event.target as HTMLInputElement).value)
           "
         />
         <DataTableFacetedFilter
-          v-if="table.getColumn('activity')"
-          :column="table.getColumn('activity')"
-          title="Actividad"
-          :options="activityOptions"
+          v-if="table.getColumn('venue')"
+          :column="table.getColumn('venue')"
+          title="Pista"
+          :options="venueOptions"
+        />
+        <DataTableFacetedFilter
+          v-if="table.getColumn('appointee')"
+          :column="table.getColumn('appointee')"
+          title="Usuario"
+          :options="userOptions"
         />
       </div>
       <Button class="ml-auto" @click="$emit('create')">
         <Plus class="h-4 w-4" />
-        <span class="hidden md:inline-block ml-2">Nueva Pista</span>
+        <span class="hidden md:inline-block ml-2">Nueva Reserva</span>
       </Button>
     </div>
     <div class="rounded-md border">

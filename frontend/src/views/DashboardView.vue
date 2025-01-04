@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { columns as activityColumns } from "@/components/activities/columns"
 import ActivitiesDataTable from "@/components/activities/DataTable.vue"
+import { columns as bookingColumns } from "@/components/bookings/columns"
+import BookingsDataTable from "@/components/bookings/DataTable.vue"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { columns as userColumns } from "@/components/users/columns"
@@ -10,9 +12,11 @@ import { columns as venueColumns } from "@/components/venues/columns"
 import VenuesDataTable from "@/components/venues/DataTable.vue"
 import VenueCreateDialog from "@/components/venues/VenueCreateDialog.vue"
 import { activitiesService } from "@/services/activity"
+import { bookingsService } from "@/services/booking"
 import { usersService } from "@/services/user"
 import { venuesService } from "@/services/venue"
 import type { Activity } from "@/types/activity"
+import type { Booking } from "@/types/booking"
 import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
 import { RefreshCcw } from "lucide-vue-next"
@@ -20,9 +24,11 @@ import { onMounted, ref, watch } from "vue"
 
 const currentTab = ref("venues")
 const activities = ref<Activity[]>([])
+const bookings = ref<Booking[]>([])
 const users = ref<User[]>([])
 const venues = ref<Venue[]>([])
 const isLoadingActivities = ref(false)
+const isLoadingBookings = ref(false)
 const isLoadingUsers = ref(false)
 const isLoadingVenues = ref(false)
 const showCreateUserDialog = ref(false)
@@ -39,6 +45,19 @@ async function fetchActivities() {
     console.error("Failed to fetch activities:", error)
   } finally {
     isLoadingActivities.value = false
+  }
+}
+
+async function fetchBookings() {
+  if (currentTab.value !== "bookings") return
+  isLoadingBookings.value = true
+  try {
+    const response = await bookingsService.getAll()
+    bookings.value = response.data
+  } catch (error) {
+    console.error("Failed to fetch bookings:", error)
+  } finally {
+    isLoadingBookings.value = false
   }
 }
 
@@ -72,6 +91,7 @@ const updateTabInfo = async (tab: string) => {
   if (tab === "activities") await fetchActivities()
   if (tab === "users") await fetchUsers()
   if (tab === "venues") await fetchVenues()
+  if (tab === "bookings") await fetchBookings()
 }
 
 watch(currentTab, (newTab) => {
@@ -92,23 +112,25 @@ const triggerRefresh = async () => {
 <template>
   <div class="container mx-auto py-8">
     <div class="flex items-center justify-between space-y-2">
-      <h2 class="text-3xl font-bold tracking-tight">Panel de Administración</h2>
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Panel de Administración</h2>
     </div>
 
     <Tabs v-model="currentTab" class="mt-6 space-y-4">
       <TabsList>
         <TabsTrigger value="venues">Pistas</TabsTrigger>
+        <TabsTrigger value="bookings">Reservas</TabsTrigger>
         <TabsTrigger value="users">Usuarios</TabsTrigger>
         <TabsTrigger value="activities">Actividades</TabsTrigger>
       </TabsList>
       <Button
         @click="triggerRefresh"
-        :disabled="isLoadingVenues || isLoadingUsers || isLoadingActivities"
+        :disabled="isLoadingVenues || isLoadingUsers || isLoadingActivities || isLoadingBookings"
         variant="outline"
         size="icon"
         class="ml-4 translate-y-0.5 size-10"
-        ><RefreshCcw :class="refreshTriggered ?? 'animate-spin'" class="w-4 h-4"
-      /></Button>
+      >
+        <RefreshCcw :class="refreshTriggered ?? 'animate-spin'" class="w-4 h-4" />
+      </Button>
 
       <TabsContent value="venues" class="space-y-4">
         <div v-if="isLoadingVenues">Cargando pistas...</div>
@@ -119,6 +141,11 @@ const triggerRefresh = async () => {
           @create="showCreateVenueDialog = true"
         />
         <VenueCreateDialog v-model:open="showCreateVenueDialog" @venue-created="fetchVenues" />
+      </TabsContent>
+
+      <TabsContent value="bookings" class="space-y-4">
+        <div v-if="isLoadingBookings">Cargando reservas...</div>
+        <BookingsDataTable v-else :columns="bookingColumns" :data="bookings" />
       </TabsContent>
 
       <TabsContent value="users" class="space-y-4">
