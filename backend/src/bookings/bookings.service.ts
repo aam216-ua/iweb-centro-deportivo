@@ -40,6 +40,7 @@ export class BookingsService {
       await this.bookingRepository.findOneBy({
         date: createBookingDto.date,
         turn: createBookingDto.turn,
+        fee: venue.fee,
         venue,
       })
     ) {
@@ -77,6 +78,8 @@ export class BookingsService {
     const query = this.bookingRepository
       .createQueryBuilder('booking')
       .leftJoinAndSelect('booking.venue', 'venue')
+      .leftJoinAndSelect('booking.appointer', 'user.booked')
+      .leftJoinAndSelect('booking.appointee', 'user.bookings')
       .orderBy('booking.date', sort);
 
     if (appointeeId)
@@ -115,18 +118,29 @@ export class BookingsService {
     id: string,
     updateBookingDto: UpdateBookingDto
   ): Promise<UpdateResult> {
-    if (this.findOne(id)) {
+    if (!this.findOne(id)) throw new NotFoundException('booking not found');
+
+    if (!updateBookingDto.venueId)
       return await this.bookingRepository.update({ id }, updateBookingDto);
-    } else {
-      throw new NotFoundException('booking not found');
-    }
+
+    const venue = await this.venueService.findOne(updateBookingDto.venueId);
+
+    if (!venue) throw new NotFoundException('venue not found');
+
+    delete updateBookingDto.venueId;
+
+    return await this.bookingRepository.update(
+      { id },
+      {
+        ...updateBookingDto,
+        venue,
+      }
+    );
   }
 
   public async remove(id: string): Promise<DeleteResult> {
-    if (this.findOne(id)) {
-      return await this.bookingRepository.delete({ id });
-    } else {
-      throw new NotFoundException('booking not found');
-    }
+    if (!this.findOne(id)) throw new NotFoundException('booking not found');
+
+    return await this.bookingRepository.delete({ id });
   }
 }
