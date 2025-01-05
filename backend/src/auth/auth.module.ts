@@ -12,7 +12,7 @@ import { Password } from 'src/users/entities/password.entity';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '300s' },
+      signOptions: { expiresIn: '3h' },
     }),
   ],
   providers: [AuthService],
