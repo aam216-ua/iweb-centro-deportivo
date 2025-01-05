@@ -20,7 +20,7 @@ import type { Booking } from "@/types/booking"
 import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
 import { RefreshCcw } from "lucide-vue-next"
-import { onMounted, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 
 const currentTab = ref("venues")
 const activities = ref<Activity[]>([])
@@ -94,6 +94,14 @@ const updateTabInfo = async (tab: string) => {
   if (tab === "bookings") await fetchBookings()
 }
 
+const somethingIsLoading = computed(
+  () =>
+    isLoadingVenues.value ||
+    isLoadingUsers.value ||
+    isLoadingActivities.value ||
+    isLoadingBookings.value,
+)
+
 watch(currentTab, (newTab) => {
   updateTabInfo(newTab)
 })
@@ -124,12 +132,12 @@ const triggerRefresh = async () => {
       </TabsList>
       <Button
         @click="triggerRefresh"
-        :disabled="isLoadingVenues || isLoadingUsers || isLoadingActivities || isLoadingBookings"
+        :disabled="somethingIsLoading || refreshTriggered"
         variant="outline"
         size="icon"
         class="ml-4 translate-y-0.5 size-10"
       >
-        <RefreshCcw :class="refreshTriggered ?? 'animate-spin'" class="w-4 h-4" />
+        <RefreshCcw :class="refreshTriggered && 'animate-spin'" class="w-4 h-4" />
       </Button>
 
       <TabsContent value="venues" class="space-y-4">
