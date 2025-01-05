@@ -9,8 +9,9 @@ import {
 import { usersService } from "@/services/user"
 import type { User } from "@/types/user"
 import type { Row } from "@tanstack/vue-table"
-import { MoreHorizontal, Pencil, Trash } from "lucide-vue-next"
+import { Eye, MoreHorizontal, Pencil, Trash } from "lucide-vue-next"
 import { ref } from "vue"
+import { useRouter } from "vue-router"
 import { toast } from "vue-sonner"
 import UserEditDialog from "./UserEditDialog.vue"
 
@@ -24,8 +25,13 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
+const router = useRouter()
 const loading = ref(false)
 const showEditDialog = ref(false)
+
+function viewDetails(id: string) {
+  router.push({ name: "profile", params: { id } })
+}
 
 async function onDelete(id: string) {
   try {
@@ -49,6 +55,10 @@ async function onDelete(id: string) {
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end">
+      <DropdownMenuItem class="cursor-pointer" @click="viewDetails(row.original.id)">
+        <Eye class="mr-2 h-4 w-4" />
+        Ver detalles
+      </DropdownMenuItem>
       <DropdownMenuItem class="cursor-pointer" @click="showEditDialog = true">
         <Pencil class="mr-2 h-4 w-4" />
         Editar

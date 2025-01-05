@@ -37,7 +37,7 @@ const handleSettings = () => {
 }
 
 const handleProfile = () => {
-  router.push({ name: "profile" })
+  router.push({ name: "profile", params: { id: user.value?.id } })
 }
 
 const handleDashboard = () => {
@@ -77,8 +77,8 @@ const userInitials = computed(() => {
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuItem v-show="isStaff" @click="handleDashboard">
-          Panel de Administración <Shield
-        /></DropdownMenuItem>
+          Panel de Administración <Shield class="ml-2 h-4 w-4" />
+        </DropdownMenuItem>
         <DropdownMenuItem @click="handleProfile"> Perfil </DropdownMenuItem>
         <DropdownMenuItem @click="handleSettings"> Ajustes de Usuario </DropdownMenuItem>
       </DropdownMenuGroup>

@@ -60,7 +60,7 @@ const protectedRoutes: RouteRecordRaw = {
   meta: { requiresAuth: true },
   children: [
     {
-      path: "profile",
+      path: "profile/:id?",
       name: "profile",
       component: () => import("@/views/ProfileView.vue"),
       meta: {

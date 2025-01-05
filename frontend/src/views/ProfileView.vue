@@ -1,12 +1,42 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { roleLabels } from "@/lib/role"
+import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
-import { computed } from "vue"
+import { computed, onMounted, ref } from "vue"
+import { useRoute } from "vue-router"
 
+const route = useRoute()
 const authStore = useAuthStore()
-const user = computed<User | null>(() => authStore.user)
+const loadedUser = ref<User | null>(null)
+
+const user = computed<User | null>(() => {
+  const id = route.params.id as string
+  if (!id || id === authStore.user?.id) {
+    return authStore.user
+  }
+  return loadedUser.value
+})
+
+const title = computed(() => {
+  const id = route.params.id as string
+  if (!id || id === authStore.user?.id) {
+    return "Mi Perfil"
+  }
+  return "Perfil de Usuario"
+})
+
+onMounted(async () => {
+  const id = route.params.id as string
+  if (id && id !== authStore.user?.id) {
+    try {
+      loadedUser.value = await usersService.get(id)
+    } catch (error) {
+      console.error("Error fetching user data:", error)
+    }
+  }
+})
 
 const formatDate = (date: Date) => {
   return new Intl.DateTimeFormat("es-ES", {
@@ -22,8 +52,8 @@ const formatDate = (date: Date) => {
     <div class="grid gap-8">
       <section>
         <div class="grid gap-2">
-          <h1 class="text-2xl sm:text-3xl font-bold">Mi Perfil</h1>
-          <p class="text-balance text-muted-foreground">Información detallada de tu cuenta</p>
+          <h1 class="text-2xl sm:text-3xl font-bold">{{ title }}</h1>
+          <p class="text-balance text-muted-foreground">Información detallada de la cuenta</p>
         </div>
 
         <div class="mt-6 grid gap-6 md:grid-cols-2">

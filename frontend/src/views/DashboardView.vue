@@ -126,10 +126,18 @@ const triggerRefresh = async () => {
     <Tabs v-model="currentTab" class="mt-6 space-y-4">
       <div class="flex space-x-2 h-10">
         <TabsList class="min-w-0">
-          <TabsTrigger value="venues" class="min-w-0 truncate"><span class="truncate min-w-0">Pistas</span></TabsTrigger>
-          <TabsTrigger value="bookings" class="min-w-0 truncate"><span class="truncate min-w-0">Reservas</span></TabsTrigger>
-          <TabsTrigger value="users" class="min-w-0 truncate"><span class="truncate min-w-0">Usuarios</span></TabsTrigger>
-          <TabsTrigger value="activities" class="min-w-0 truncate"><span class="truncate min-w-0">Actividades</span></TabsTrigger>
+          <TabsTrigger value="venues" class="min-w-0 truncate"
+            ><span class="truncate min-w-0">Pistas</span></TabsTrigger
+          >
+          <TabsTrigger value="bookings" class="min-w-0 truncate"
+            ><span class="truncate min-w-0">Reservas</span></TabsTrigger
+          >
+          <TabsTrigger value="users" class="min-w-0 truncate"
+            ><span class="truncate min-w-0">Usuarios</span></TabsTrigger
+          >
+          <TabsTrigger value="activities" class="min-w-0 truncate"
+            ><span class="truncate min-w-0">Actividades</span></TabsTrigger
+          >
         </TabsList>
         <Button
           @click="triggerRefresh"
