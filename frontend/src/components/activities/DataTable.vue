@@ -69,6 +69,11 @@ const table = useVueTable({
   getFilteredRowModel: getFilteredRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
   getSortedRowModel: getSortedRowModel(),
+  initialState: {
+    pagination: {
+      pageSize: 5,
+    },
+  },
 })
 </script>
 
@@ -106,7 +111,7 @@ const table = useVueTable({
               :key="row.id"
               :data-state="row.getIsSelected() && 'selected'"
             >
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-2">
+              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="py-2.5">
                 <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
               </TableCell>
             </TableRow>

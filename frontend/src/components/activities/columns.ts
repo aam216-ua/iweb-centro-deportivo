@@ -8,11 +8,11 @@ export const columns: ColumnDef<Activity>[] = [
     accessorKey: "id",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "ID" }),
     enableSorting: false,
-    cell: ({ row }) => h("div", { class: "font-medium" }, row.getValue("id")),
+    cell: ({ row }) => h("div", { class: "w-[80px] truncate font-medium" }, row.getValue("id")),
   },
   {
     accessorKey: "name",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Nombre" }),
-    cell: ({ row }) => h("div", { class: "font-medium" }, row.getValue("name")),
+    cell: ({ row }) => h("div", { class: "w-full truncate font-medium" }, row.getValue("name")),
   },
 ]
