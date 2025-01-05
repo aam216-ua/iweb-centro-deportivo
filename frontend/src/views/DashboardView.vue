@@ -124,21 +124,23 @@ const triggerRefresh = async () => {
     </div>
 
     <Tabs v-model="currentTab" class="mt-6 space-y-4">
-      <TabsList>
-        <TabsTrigger value="venues">Pistas</TabsTrigger>
-        <TabsTrigger value="bookings">Reservas</TabsTrigger>
-        <TabsTrigger value="users">Usuarios</TabsTrigger>
-        <TabsTrigger value="activities">Actividades</TabsTrigger>
-      </TabsList>
-      <Button
-        @click="triggerRefresh"
-        :disabled="somethingIsLoading || refreshTriggered"
-        variant="outline"
-        size="icon"
-        class="ml-4 translate-y-0.5 size-10"
-      >
-        <RefreshCcw :class="refreshTriggered && 'animate-spin'" class="w-4 h-4" />
-      </Button>
+      <div class="flex space-x-2 h-10">
+        <TabsList class="min-w-0">
+          <TabsTrigger value="venues" class="min-w-0 truncate"><span class="truncate min-w-0">Pistas</span></TabsTrigger>
+          <TabsTrigger value="bookings" class="min-w-0 truncate"><span class="truncate min-w-0">Reservas</span></TabsTrigger>
+          <TabsTrigger value="users" class="min-w-0 truncate"><span class="truncate min-w-0">Usuarios</span></TabsTrigger>
+          <TabsTrigger value="activities" class="min-w-0 truncate"><span class="truncate min-w-0">Actividades</span></TabsTrigger>
+        </TabsList>
+        <Button
+          @click="triggerRefresh"
+          :disabled="somethingIsLoading || refreshTriggered"
+          variant="outline"
+          size="icon"
+          class="size-10 shrink-0"
+        >
+          <RefreshCcw :class="refreshTriggered && 'animate-spin'" class="w-4 h-4" />
+        </Button>
+      </div>
 
       <TabsContent value="venues" class="space-y-4">
         <div v-if="isLoadingVenues">Cargando pistas...</div>
