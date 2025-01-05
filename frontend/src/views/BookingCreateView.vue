@@ -109,7 +109,7 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true
     const formattedDate = convertToISOString(values.date)
-    const payload = { ...values, date: formattedDate }
+    const payload = { ...values, date: formattedDate, fee: selectedVenue.value?.fee }
     await bookingsService.create(payload)
     toast.success("Reserva creada exitosamente")
     router.push("/")
