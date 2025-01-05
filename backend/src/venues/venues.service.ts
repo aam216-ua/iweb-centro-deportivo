@@ -97,19 +97,32 @@ export class VenuesService {
     id: string,
     updateVenueDto: UpdateVenueDto
   ): Promise<UpdateResult> {
-    if (this.findOne(id)) {
+    if (!this.findOne(id)) throw new NotFoundException('venue not found');
+
+    if (!updateVenueDto.activityId)
       return await this.venueRepository.update({ id }, updateVenueDto);
-    } else {
-      throw new NotFoundException('venue not found');
-    }
+
+    const activity = await this.activityRepository.findOneBy({
+      id: updateVenueDto.activityId,
+    });
+
+    if (!activity) throw new NotFoundException('activity not found');
+
+    delete updateVenueDto.activityId;
+
+    return this.venueRepository.update(
+      { id },
+      {
+        ...updateVenueDto,
+        activity,
+      }
+    );
   }
 
   public async remove(id: string): Promise<DeleteResult> {
-    if (this.findOne(id)) {
-      return await this.venueRepository.delete({ id });
-    } else {
-      throw new NotFoundException('venue not found');
-    }
+    if (this.findOne(id)) throw new NotFoundException('venue not found');
+
+    return await this.venueRepository.delete({ id });
   }
 
   public async findActivities(): Promise<Activity[]> {

@@ -38,24 +38,21 @@ export class AuthService {
     });
 
     if (user) {
-      const password = await this.passwordRepository.findOne({
-        where: {
-          user: { id: user.id },
-          isActive: true,
-        },
+      const password = await this.passwordRepository.findOneBy({
+        user: { id: user.id },
       });
 
       if (password) throw new ForbiddenException('this account already exists');
     }
 
     await this.userRepository.manager.transaction(async (manager) => {
-      this.logger.debug('Creating and saving user data');
-
       const params = user
         ? { id: user.id, ...createAccountDto }
         : createAccountDto;
 
-      const created = await manager.save(manager.create(User, params));
+      const created = await manager.save(
+        manager.create(User, { ...params, passwords: [] })
+      );
 
       await manager.save(
         manager.create(Password, {
@@ -82,11 +79,8 @@ export class AuthService {
 
     if (!user) throw new UnauthorizedException('invalid credentials');
 
-    const password = await this.passwordRepository.findOne({
-      where: {
-        user: { id: user.id },
-        isActive: true,
-      },
+    const password = await this.passwordRepository.findOneBy({
+      user: { id: user.id },
     });
 
     if (!password) throw new UnauthorizedException('invalid credentials');
@@ -128,15 +122,16 @@ export class AuthService {
     if (!user) throw new NotFoundException('user not found');
 
     if (user.role == UserRole.SUPERADMIN)
-      throw new UnauthorizedException('insufficient permissioins');
+      throw new UnauthorizedException('insufficient permissions');
 
     const password = await this.passwordRepository.findOneBy({
       user: { id: user.id },
-      isActive: true,
     });
 
-    if (!password) return;
+    if (!password) throw new NotFoundException('password not found');
 
-    await this.passwordRepository.update(password, { isActive: false });
+    this.logger.debug(`Disabling password ${password.id}`);
+
+    await this.passwordRepository.softDelete({ id: password.id });
   }
 }

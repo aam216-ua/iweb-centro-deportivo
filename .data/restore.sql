@@ -119,8 +119,8 @@ ALTER TABLE public.booking OWNER TO "user";
 CREATE TABLE public.password (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     password character varying NOT NULL,
-    "isActive" boolean DEFAULT true NOT NULL,
     "createdAt" timestamp without time zone DEFAULT now() NOT NULL,
+    "deletedAt" timestamp without time zone,
     "userId" uuid
 );
 
@@ -192,11 +192,11 @@ COPY public.booking (id, date, turn, fee, "createdAt", "updatedAt", "appointerId
 -- Data for Name: password; Type: TABLE DATA; Schema: public; Owner: user
 --
 
-COPY public.password (id, password, "isActive", "createdAt", "userId") FROM stdin;
-69c8c3d1-b62c-4e52-b7c6-69c1df4b869a	$argon2id$v=19$m=65536,t=3,p=4$zXByy6rTEVp/3sl7i29AbQ$j2H6qBhvMgotEe9vAJ/c7Lxcsv9dzQZZlXb5blWF+8k	t	2024-12-30 23:37:08.427862	ca0be172-c368-4771-88db-545ac8fa7a7f
-08a5c4ff-f1a8-4bbd-b48f-f1fa9b86ddfd	$argon2id$v=19$m=65536,t=3,p=4$Ogkw4qSAFDMPNK+YkRaQ7w$vM+qRJ8+f0JINOmCUrlDjihupIOyaeFADApXvP7uzmg	t	2024-12-30 23:37:56.423025	500fcbd6-42c5-4e27-8f4d-604ab83509d0
-8da7d749-8997-4115-a896-1301d2d19da5	$argon2id$v=19$m=65536,t=3,p=4$W9pBnWQk8bVwQ1++ylmfkA$he37fipogNiahJNzkZOSO05uEKOxfZBBrxi+imtbhY8	t	2024-12-30 23:38:29.012537	1eaf5e0e-bb26-4279-8a6f-8ecbe74bd2f4
-380dea2d-f492-47a8-ba34-a966f33407e4	$argon2id$v=19$m=65536,t=3,p=4$7AM9lnBKQz0lvqBf++2ypA$CnLRa3B16vfRJmBTk6dpwZzisypzCcxEMqMqvJHN5Uk	t	2024-12-30 23:38:49.648643	281f1361-ce49-4d4b-88aa-cb8025fe9a0a
+COPY public.password (id, password, "createdAt", "userId") FROM stdin;
+69c8c3d1-b62c-4e52-b7c6-69c1df4b869a	$argon2id$v=19$m=65536,t=3,p=4$zXByy6rTEVp/3sl7i29AbQ$j2H6qBhvMgotEe9vAJ/c7Lxcsv9dzQZZlXb5blWF+8k	2024-12-30 23:37:08.427862	ca0be172-c368-4771-88db-545ac8fa7a7f
+08a5c4ff-f1a8-4bbd-b48f-f1fa9b86ddfd	$argon2id$v=19$m=65536,t=3,p=4$Ogkw4qSAFDMPNK+YkRaQ7w$vM+qRJ8+f0JINOmCUrlDjihupIOyaeFADApXvP7uzmg	2024-12-30 23:37:56.423025	500fcbd6-42c5-4e27-8f4d-604ab83509d0
+8da7d749-8997-4115-a896-1301d2d19da5	$argon2id$v=19$m=65536,t=3,p=4$W9pBnWQk8bVwQ1++ylmfkA$he37fipogNiahJNzkZOSO05uEKOxfZBBrxi+imtbhY8	2024-12-30 23:38:29.012537	1eaf5e0e-bb26-4279-8a6f-8ecbe74bd2f4
+380dea2d-f492-47a8-ba34-a966f33407e4	$argon2id$v=19$m=65536,t=3,p=4$7AM9lnBKQz0lvqBf++2ypA$CnLRa3B16vfRJmBTk6dpwZzisypzCcxEMqMqvJHN5Uk	2024-12-30 23:38:49.648643	281f1361-ce49-4d4b-88aa-cb8025fe9a0a
 \.
 
 
