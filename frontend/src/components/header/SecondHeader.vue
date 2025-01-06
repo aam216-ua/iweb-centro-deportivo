@@ -16,7 +16,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
       <div class="flex flex-1 items-center">
         <MobileMenu buttonClass="md:hidden mr-2" />
         <RouterLink to="/" class="mr-6 flex items-center">
-          <img src="/placeholder.svg" alt="Logo" class="h-6 w-auto" />
+          <img src="/birdt.png" alt="Logo" class="h-8 w-auto" />
         </RouterLink>
         <NavigationLinks class="hidden md:flex items-center space-x-6 text-sm font-medium" />
       </div>

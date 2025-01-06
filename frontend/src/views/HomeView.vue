@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuthStore } from "@/stores/auth"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
@@ -31,8 +31,7 @@ const handleLoginClick = () => {
     <section v-if="isAuthenticated" class="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Welcome back, {{ user?.name }}!</CardTitle>
-          <CardDescription>Here's what's new for you</CardDescription>
+          <CardTitle>{{ user?.name }}!</CardTitle>
         </CardHeader>
       </Card>
     </section>
@@ -40,12 +39,8 @@ const handleLoginClick = () => {
     <!-- Unauthenticated CTA -->
     <section v-else class="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Get More from Our Platform</CardTitle>
-          <CardDescription> Sign in to access personalized features and content </CardDescription>
-        </CardHeader>
         <CardContent>
-          <Button @click="handleLoginClick" size="lg"> Sign In Now </Button>
+          <Button @click="handleLoginClick" size="lg"> Sign In </Button>
         </CardContent>
       </Card>
     </section>

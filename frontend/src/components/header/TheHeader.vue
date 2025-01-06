@@ -17,7 +17,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
     <div class="absolute inset-0 overflow-hidden">
       <img :src="bgImg" alt="" class="h-80 w-full object-cover brightness-[0.6]" />
       <div
-        class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 via-30% to-transparent to-50%"
+        class="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 via-30% to-transparent to-60%"
       ></div>
     </div>
     <div class="relative z-10 flex flex-col h-full">
@@ -34,7 +34,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
       <div class="container">
         <div class="mb-4">
           <RouterLink to="/">
-            <img src="/placeholder.svg" alt="Logo" class="h-16 w-auto" />
+            <img src="/logoc.png" alt="Logo" class="h-36 w-auto" />
           </RouterLink>
         </div>
         <NavigationLinks class="hidden md:flex gap-4" linkClass="text-white hover:text-white/80" />
