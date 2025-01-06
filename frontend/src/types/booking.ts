@@ -13,6 +13,7 @@ export enum BookingTurn {
 
 export interface CreateBookingData {
   date: string
+  fee: number
   turn: BookingTurn
   appointerId: string
   appointeeId: string

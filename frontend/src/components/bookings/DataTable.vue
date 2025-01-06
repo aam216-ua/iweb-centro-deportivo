@@ -135,7 +135,7 @@ onMounted(async () => {
           :options="userOptions"
         />
       </div>
-      <Button class="ml-auto" @click="$emit('create')">
+      <Button disabled class="ml-auto" @click="$emit('create')">
         <Plus class="h-4 w-4" />
         <span class="hidden md:inline-block ml-2">Nueva Reserva</span>
       </Button>
