@@ -10,10 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { usersService } from "@/services/user"
 import { venuesService } from "@/services/venue"
 import type { Booking } from "@/types/booking"
-import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
 import type {
   ColumnDef,
@@ -50,7 +48,6 @@ const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
 const venues = ref<Venue[]>([])
-const users = ref<User[]>([])
 
 const table = useVueTable({
   get data() {
@@ -76,7 +73,6 @@ const table = useVueTable({
   },
   onColumnFiltersChange: (updater) => {
     columnFilters.value = typeof updater === "function" ? updater(columnFilters.value) : updater
-    emit("refresh")
   },
   onColumnVisibilityChange: (updater) => {
     columnVisibility.value =
@@ -88,54 +84,57 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getFacetedRowModel: getFacetedRowModel(),
   getFacetedUniqueValues: getFacetedUniqueValues(),
+  initialState: {
+    pagination: {
+      pageSize: 5,
+    },
+  },
 })
 
 const venueOptions = computed(() =>
   venues.value.map((venue) => ({
     label: venue.name,
     value: venue.id,
-  })),
-)
-
-const userOptions = computed(() =>
-  users.value.map((user) => ({
-    label: user.name,
-    value: user.id,
-  })),
+  }))
 )
 
 onMounted(async () => {
-  venues.value = (await venuesService.getAll()).data
-  users.value = (await usersService.getAll()).data
+  const venuesResponse = await venuesService.getAll()
+  venues.value = venuesResponse.data
 })
+
+// Helper functions for filters
+const handleInputFilter = (column: string, value: string) => {
+  table.getColumn(column)?.setFilterValue(value)
+}
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex items-center gap-2">
-      <div class="flex items-center gap-2">
-        <Input
-          placeholder="Filtrar reservas..."
-          :model-value="(table.getColumn('appointee')?.getFilterValue() as string) ?? ''"
-          class="max-w-sm"
-          @input="
-            table.getColumn('appointee')?.setFilterValue(($event.target as HTMLInputElement).value)
-          "
-        />
+      <div class="flex items-center gap-2 flex-wrap">
         <DataTableFacetedFilter
           v-if="table.getColumn('venue')"
           :column="table.getColumn('venue')"
           title="Pista"
           :options="venueOptions"
         />
-        <DataTableFacetedFilter
-          v-if="table.getColumn('appointee')"
-          :column="table.getColumn('appointee')"
-          title="Usuario"
-          :options="userOptions"
-        />
+        <div class="flex flex-col gap-2 sm:flex-row">
+          <Input
+            placeholder="Filtrar por cliente..."
+            :value="(table.getColumn('appointee')?.getFilterValue() as string) ?? ''"
+            class="max-w-[200px]"
+            @input="(e) => handleInputFilter('appointee', (e.target as HTMLInputElement).value)"
+          />
+          <Input
+            placeholder="Filtrar por reservador..."
+            :value="(table.getColumn('appointer')?.getFilterValue() as string) ?? ''"
+            class="max-w-[200px]"
+            @input="(e) => handleInputFilter('appointer', (e.target as HTMLInputElement).value)"
+          />
+        </div>
       </div>
-      <Button disabled class="ml-auto" @click="$emit('create')">
+      <Button class="ml-auto whitespace-nowrap" @click="$emit('create')">
         <Plus class="h-4 w-4" />
         <span class="hidden md:inline-block ml-2">Nueva Reserva</span>
       </Button>

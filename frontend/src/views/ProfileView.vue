@@ -22,7 +22,7 @@ const user = computed<User | null>(() => {
 const title = computed(() => {
   const id = route.params.id as string
   if (!id || id === authStore.user?.id) {
-    return "Mi Perfil"
+    return "Perfil"
   }
   return "Perfil de Usuario"
 })
