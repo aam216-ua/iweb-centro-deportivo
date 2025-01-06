@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   UnauthorizedException,
+  Query,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -19,6 +20,10 @@ import { Session } from 'src/auth/decorators/session.decorator';
 import { UserSession } from 'src/auth/types/user-session.type';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { QueryBookingDto } from './dto/query-booking.dto';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { Booking } from './entities/booking.entity';
+import { PaginatedResult } from 'src/common/type/paginated-result.type';
+import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Controller('bookings')
 export class BookingsController {
@@ -33,7 +38,7 @@ export class BookingsController {
   create(
     @Session() session: UserSession,
     @Body() createBookingDto: CreateBookingDto
-  ) {
+  ): Promise<Booking> {
     if (session.role == UserRole.CUSTOMER) {
       if (
         createBookingDto.appointeeId != session.id ||
@@ -49,8 +54,8 @@ export class BookingsController {
   @Get()
   findMany(
     @Session() session: UserSession,
-    @Body() queryBookingDto: QueryBookingDto
-  ) {
+    @Query() queryBookingDto: QueryBookingDto
+  ): Promise<PaginatedResult<Booking>> {
     if (session.role == UserRole.CUSTOMER)
       queryBookingDto.appointeeId = session.id;
 
@@ -59,7 +64,10 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Session() session: UserSession, @Param('id') id: string) {
+  findOne(
+    @Session() session: UserSession,
+    @Param('id') id: string
+  ): Promise<Booking> {
     if (session.role == UserRole.CUSTOMER)
       throw new UnauthorizedException('insufficient permissions');
 
@@ -72,7 +80,7 @@ export class BookingsController {
     @Session() session: UserSession,
     @Param('id') id: string,
     @Body() updateBookingDto: UpdateBookingDto
-  ) {
+  ): Promise<UpdateResult> {
     if (session.role == UserRole.CUSTOMER)
       throw new UnauthorizedException('insufficient permissions');
 
@@ -81,7 +89,10 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Session() session: UserSession, @Param('id') id: string) {
+  remove(
+    @Session() session: UserSession,
+    @Param('id') id: string
+  ): Promise<DeleteResult> {
     if (session.role == UserRole.CUSTOMER)
       throw new UnauthorizedException('insufficient permissions');
 

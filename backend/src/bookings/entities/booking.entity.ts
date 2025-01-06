@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { BookingTurn } from '../enums/booking-turn.entity';
+import { BookingTurn } from '../enums/booking-turn.enum';
 
 @Entity()
 export class Booking {
