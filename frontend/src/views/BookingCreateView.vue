@@ -101,7 +101,6 @@ const selectDate = (date: DateValue | undefined) => {
 
 function convertToISOString(dateString: string): string {
   const date = new Date(dateString)
-  date.setUTCHours(0, 0, 0, 0)
   return date.toISOString()
 }
 
@@ -109,7 +108,7 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true
     const formattedDate = convertToISOString(values.date)
-    const payload = { ...values, date: formattedDate, fee: selectedVenue.value?.fee }
+    const payload = { ...values, date: formattedDate, fee: selectedVenue.value!.fee }
     await bookingsService.create(payload)
     toast.success("Reserva creada exitosamente")
     router.push("/")

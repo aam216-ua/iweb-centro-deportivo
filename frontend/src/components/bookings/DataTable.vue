@@ -31,6 +31,7 @@ import {
 } from "@tanstack/vue-table"
 import { Plus } from "lucide-vue-next"
 import { computed, onMounted, ref } from "vue"
+import BookingCreateDialog from "./BookingCreateDialog.vue"
 import DataTablePagination from "./DataTablePagination.vue"
 
 interface DataTableProps {
@@ -39,8 +40,9 @@ interface DataTableProps {
 }
 
 const props = defineProps<DataTableProps>()
+const showCreateDialog = ref(false)
+
 const emit = defineEmits<{
-  create: []
   refresh: []
 }>()
 
@@ -95,7 +97,7 @@ const venueOptions = computed(() =>
   venues.value.map((venue) => ({
     label: venue.name,
     value: venue.id,
-  }))
+  })),
 )
 
 onMounted(async () => {
@@ -103,9 +105,13 @@ onMounted(async () => {
   venues.value = venuesResponse.data
 })
 
-// Helper functions for filters
 const handleInputFilter = (column: string, value: string) => {
   table.getColumn(column)?.setFilterValue(value)
+}
+
+const onInput = (e: Event, column: string) => {
+  const target = e.target as HTMLInputElement
+  handleInputFilter(column, target.value)
 }
 </script>
 
@@ -124,20 +130,22 @@ const handleInputFilter = (column: string, value: string) => {
             placeholder="Filtrar por cliente..."
             :value="(table.getColumn('appointee')?.getFilterValue() as string) ?? ''"
             class="max-w-[200px]"
-            @input="(e) => handleInputFilter('appointee', (e.target as HTMLInputElement).value)"
+            @input="(e: Event) => onInput(e, 'appointee')"
           />
           <Input
             placeholder="Filtrar por reservador..."
             :value="(table.getColumn('appointer')?.getFilterValue() as string) ?? ''"
             class="max-w-[200px]"
-            @input="(e) => handleInputFilter('appointer', (e.target as HTMLInputElement).value)"
+            @input="(e: Event) => onInput(e, 'appointer')"
           />
         </div>
       </div>
-      <Button class="ml-auto whitespace-nowrap" @click="$emit('create')">
+      <Button class="ml-auto whitespace-nowrap" @click="showCreateDialog = true">
         <Plus class="h-4 w-4" />
         <span class="hidden md:inline-block ml-2">Nueva Reserva</span>
       </Button>
+
+      <BookingCreateDialog v-model:open="showCreateDialog" @refresh="emit('refresh')" />
     </div>
     <div class="rounded-md border">
       <Table>

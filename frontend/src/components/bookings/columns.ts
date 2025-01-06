@@ -1,10 +1,10 @@
 import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import { Badge } from "@/components/ui/badge"
 import type { Booking } from "@/types/booking"
-import type { ColumnDef, Row } from "@tanstack/vue-table"
-import { Clock,  BookUser} from "lucide-vue-next"
-import { RouterLink } from "vue-router"
+import type { ColumnDef } from "@tanstack/vue-table"
+import { BookUser, Clock } from "lucide-vue-next"
 import { h } from "vue"
+import { RouterLink } from "vue-router"
 import DataTableRowActions from "./DataTableRowActions.vue"
 
 export const columns: ColumnDef<Booking>[] = [
@@ -25,10 +25,7 @@ export const columns: ColumnDef<Booking>[] = [
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Turno" }),
     cell: ({ row }) => {
       const turn = row.getValue("turn")
-      return h(Badge, { variant: "outline" }, () => [
-        h(Clock, { class: "size-2.5 mr-1" }),
-        turn
-      ])
+      return h(Badge, { variant: "outline" }, () => [h(Clock, { class: "size-2.5 mr-1" }), turn])
     },
   },
   {
@@ -49,20 +46,22 @@ export const columns: ColumnDef<Booking>[] = [
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Cliente" }),
     cell: ({ row }) => {
       const appointee = row.original.appointee
-      return h('div', { class: 'flex items-center gap-2' }, [
-        h('span', {}, appointee?.name || 'N/A'),
-        appointee?.id && h(RouterLink,
-          {
-            to: `/profile/${appointee.id}`,
-            class: 'hover:text-primary'
-          },
-          () => h(BookUser, { class: 'size-3' })
-        )
+      return h("div", { class: "flex items-center gap-2" }, [
+        h("span", {}, appointee?.name || "N/A"),
+        appointee?.id &&
+          h(
+            RouterLink,
+            {
+              to: `/profile/${appointee.id}`,
+              class: "hover:text-primary",
+            },
+            () => h(BookUser, { class: "size-3" }),
+          ),
       ])
     },
     filterFn: (row, id, value: string) => {
       if (!value) return true
-      const name = row.original.appointee?.name || ''
+      const name = row.original.appointee?.name || ""
       return name.toLowerCase().includes(value.toLowerCase())
     },
   },
@@ -71,20 +70,22 @@ export const columns: ColumnDef<Booking>[] = [
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Reservado por" }),
     cell: ({ row }) => {
       const appointer = row.original.appointer
-      return h('div', { class: 'flex items-center gap-2' }, [
-        h('span', {}, appointer?.name || 'N/A'),
-        appointer?.id && h(RouterLink,
-          {
-            to: `/profile/${appointer.id}`,
-            class: 'hover:text-primary'
-          },
-          () => h(BookUser, { class: 'size-3' })
-        )
+      return h("div", { class: "flex items-center gap-2" }, [
+        h("span", {}, appointer?.name || "N/A"),
+        appointer?.id &&
+          h(
+            RouterLink,
+            {
+              to: `/profile/${appointer.id}`,
+              class: "hover:text-primary",
+            },
+            () => h(BookUser, { class: "size-3" }),
+          ),
       ])
     },
     filterFn: (row, id, value: string) => {
       if (!value) return true
-      const name = row.original.appointer?.name || ''
+      const name = row.original.appointer?.name || ""
       return name.toLowerCase().includes(value.toLowerCase())
     },
   },
