@@ -22,7 +22,7 @@ const handleReservasClick = () => {
 
 <template>
   <div :class="props.class">
-    <Button variant="outline" @click="handleReservasClick" class="hidden flex rounded-full">
+    <Button @click="handleReservasClick" class="hidden flex rounded-full">
       <Pen class="mr-2 h-5 w-5" />
       {{ buttonText }}
     </Button>
