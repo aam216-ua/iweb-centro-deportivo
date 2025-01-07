@@ -143,7 +143,7 @@ const canBook = computed(() => {
       <div class="grid gap-8 lg:grid-cols-[1fr_400px]">
         <div class="space-y-8">
           <div class="mb-8">
-            <Stepper v-model="step" class="block w-full">
+            <Stepper v-model="step" :linear="false" class="block w-full">
               <div class="flex w-full flex-start gap-2">
                 <StepperItem
                   v-for="s in steps"
