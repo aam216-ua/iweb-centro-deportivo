@@ -21,17 +21,18 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
       ></div>
     </div>
     <div class="relative z-10 flex flex-col h-full">
-      <div class="container flex h-16 items-center justify-end">
+      <div class="container flex h-16 items-center">
+        <div class="flex flex-1 items-center">
+          <MobileMenu buttonClass="md:hidden mr-2 text-white" />
+        </div>
+
         <div class="flex items-center gap-2">
-          <MobileMenu buttonClass="md:hidden text-white" />
-          <div class="hidden md:flex items-center gap-2">
-            <HeaderReserve class="text-white" />
-            <UserMenu v-if="isAuthenticated" buttonClass="text-white hover:text-white/90" />
-          </div>
+          <HeaderReserve class="text-white" />
+          <UserMenu v-if="isAuthenticated" buttonClass="text-white hover:text-white/90" />
         </div>
       </div>
 
-      <div class="container">
+      <div class="container flex-1 flex flex-col justify-start pb-4">
         <div class="mb-4">
           <RouterLink to="/">
             <img src="/logoc.png" alt="Logo" class="h-36 w-auto" />
