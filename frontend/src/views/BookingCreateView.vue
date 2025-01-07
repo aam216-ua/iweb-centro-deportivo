@@ -101,7 +101,7 @@ const selectDate = (date: DateValue | undefined) => {
 
 function convertToISOString(dateString: string): string {
   const date = new Date(dateString)
-  return date.toISOString()
+  return new Date(date.setHours(12)).toISOString()
 }
 
 const onSubmit = handleSubmit(async (values) => {

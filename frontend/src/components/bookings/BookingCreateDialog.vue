@@ -92,7 +92,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     const payload = {
       ...values,
-      date: toDate(dateValue.value).toISOString(),
+      date: new Date(toDate(dateValue.value).setHours(12)).toISOString(),
       fee: selectedVenue.value.fee,
     }
 
