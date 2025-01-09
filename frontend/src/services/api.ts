@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const isDev = import.meta.env.VITE_NODE_ENV === "prod" || true
+const isDev = import.meta.env.VITE_NODE_ENV === "dev" || false
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -52,7 +52,6 @@ api.interceptors.response.use(
       )
     }
 
-    // Only handle 401s from non-login endpoints
     if (error.response?.status === 401 && !error.config.url?.includes("/auth/signin")) {
       localStorage.removeItem("token")
       window.location.href = "/login"
