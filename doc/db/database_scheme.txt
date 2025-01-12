@@ -1,6 +1,6 @@
 Table pista{
-  id double [pk]
-  tipo varchar2 [not null]
+  id serial [pk]
+  tipo serial [not null]
   descripcion varchar2
   estado varchar2 [not null]
   precio float [not null]
@@ -8,17 +8,17 @@ Table pista{
 }
 
 Table reserva{
-  id double [pk]
-  id_usuario double [pk]
-  id_usuario_reserva double [pk]
-  id_pista double [pk]
+  id serial [pk]
+  id_usuario serial [pk]
+  id_usuario_reserva serial [pk]
+  id_pista serial [pk]
   horario horarios [not null]
   fecha date [not null]
   precio float [not null]
 }
 
 Table usuario{
-  id double [pk]
+  id serial [pk]
   email varchar2 [not null]
   nombre varchar2 [not null]
   apellidos varchar2
@@ -29,13 +29,13 @@ Table usuario{
 }
 
 Table pswd_usuario{
-  id double [pk]
-  id_usuario double [pk]
+  id serial [pk]
+  id_usuario serial [pk]
   fecha date [not null]
 }
 
 Table tipo{
-  id double [pk]
+  id serial [pk]
   nombre varchar2 [not null]
 }
 
