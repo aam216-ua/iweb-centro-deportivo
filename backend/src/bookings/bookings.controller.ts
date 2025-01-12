@@ -9,6 +9,7 @@ import {
   UseGuards,
   UnauthorizedException,
   Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -20,10 +21,11 @@ import { Session } from 'src/auth/decorators/session.decorator';
 import { UserSession } from 'src/auth/types/user-session.type';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { QueryBookingDto } from './dto/query-booking.dto';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Booking } from './entities/booking.entity';
 import { PaginatedResult } from 'src/common/type/paginated-result.type';
 import { DeleteResult, UpdateResult } from 'typeorm';
+
 
 @Controller('bookings')
 export class BookingsController {
@@ -35,6 +37,8 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Post()
+  @ApiOperation({ summary: 'Crear una reserva' })
+  @ApiResponse({ status: HttpStatus.CREATED, type: Booking })
   create(
     @Session() session: UserSession,
     @Body() createBookingDto: CreateBookingDto
@@ -52,6 +56,8 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Get()
+  @ApiOperation({ summary: 'Buscar reservas' })
+  // @ApiResponse({ status: HttpStatus.OK, type: PaginatedResult })
   findMany(
     @Session() session: UserSession,
     @Query() queryBookingDto: QueryBookingDto
