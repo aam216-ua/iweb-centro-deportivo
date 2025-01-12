@@ -74,15 +74,15 @@ const steps = [
   },
   {
     step: 2,
-    title: "Elige horario",
-    description: "Selecciona la hora",
-    icon: Clock,
-  },
-  {
-    step: 3,
     title: "Fecha",
     description: "Escoge el día",
     icon: CalendarIcon,
+  },
+  {
+    step: 3,
+    title: "Elige horario",
+    description: "Selecciona la hora",
+    icon: Clock,
   },
 ]
 
@@ -389,6 +389,20 @@ const canBook = computed(() => {
                 </div>
 
                 <div v-show="step === 2">
+                  <div class="flex justify-center">
+                    <Calendar
+                      v-model="selectedDate"
+                      class="border rounded-md w-fit"
+                      locale="es"
+                      :min-value="tomorrow"
+                      :max-value="maxDate"
+                      mode="single"
+                      @update:model-value="selectDate"
+                    />
+                  </div>
+                </div>
+
+                <div v-show="step === 3">
                   <div class="grid gap-3 sm:grid-cols-2">
                     <button
                       v-for="time in timeSlots"
@@ -403,20 +417,6 @@ const canBook = computed(() => {
                         {{ time }}
                       </div>
                     </button>
-                  </div>
-                </div>
-
-                <div v-show="step === 3">
-                  <div class="flex justify-center">
-                    <Calendar
-                      v-model="selectedDate"
-                      class="border rounded-md w-fit"
-                      locale="es"
-                      :min-value="tomorrow"
-                      :max-value="maxDate"
-                      mode="single"
-                      @update:model-value="selectDate"
-                    />
                   </div>
                 </div>
               </div>
