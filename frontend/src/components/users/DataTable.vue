@@ -98,7 +98,7 @@ const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({
     <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
         <Input
-          placeholder="Filtrar usuarios..."
+          placeholder="Filtrar por nombre..."
           :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
           class="max-w-sm"
           @input="

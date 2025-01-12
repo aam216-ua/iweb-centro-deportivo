@@ -32,6 +32,20 @@ interface DataTableFacetedFilterProps<TData> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const props = defineProps<DataTableFacetedFilterProps<any>>()
 const selectedValues = computed(() => new Set(props.column?.getFilterValue() as string[]))
+
+const handleSelect = (option: Option) => {
+  const isSelected = selectedValues.value.has(option.value)
+  const newSelectedValues = new Set(selectedValues.value)
+
+  if (isSelected) {
+    newSelectedValues.delete(option.value)
+  } else {
+    newSelectedValues.add(option.value)
+  }
+
+  const filterValues = Array.from(newSelectedValues)
+  props.column?.setFilterValue(filterValues.length ? filterValues : undefined)
+}
 </script>
 
 <template>
@@ -43,7 +57,7 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
         <Separator v-if="selectedValues.size > 0" orientation="vertical" class="mx-2 h-4" />
         <div v-if="selectedValues.size > 0" class="flex space-x-1">
           <Badge
-            v-for="option in options.filter((option: Option) => selectedValues.has(option.value))"
+            v-for="option in options.filter((option) => selectedValues.has(option.value))"
             :key="option.value"
             variant="secondary"
             class="rounded-sm px-1 font-normal"
@@ -55,26 +69,16 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
     </PopoverTrigger>
     <PopoverContent class="w-[200px] p-0" align="start">
       <Command>
-        <CommandInput :placeholder="title" />
+        <CommandInput placeholder="Buscar..." />
         <CommandList>
           <CommandEmpty>No hay resultados.</CommandEmpty>
           <CommandGroup>
             <CommandItem
               v-for="option in options"
               :key="option.value"
-              :value="option"
-              @select="
-                () => {
-                  const isSelected = selectedValues.has(option.value)
-                  if (isSelected) {
-                    selectedValues.delete(option.value)
-                  } else {
-                    selectedValues.add(option.value)
-                  }
-                  const filterValues = Array.from(selectedValues)
-                  column?.setFilterValue(filterValues.length ? filterValues : undefined)
-                }
-              "
+              :value="option.label"
+              textValue="{option.label}"
+              @select="() => handleSelect(option)"
             >
               <div
                 :class="
@@ -95,7 +99,7 @@ const selectedValues = computed(() => new Set(props.column?.getFilterValue() as 
           <CommandGroup v-if="selectedValues.size > 0">
             <CommandItem
               class="justify-center text-center"
-              value="undefined"
+              value="clear-filters"
               @select="column?.setFilterValue(undefined)"
             >
               Limpiar filtros
