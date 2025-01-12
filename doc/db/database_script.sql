@@ -25,8 +25,8 @@ CREATE TYPE "horarios" AS ENUM (
 );
 
 CREATE TABLE "pista" (
-  "id" serial PRIMARY KEY,
-  "tipo" serial NOT NULL,
+  "id" uuid PRIMARY KEY,
+  "tipo" uuid NOT NULL,
   "descripcion" varchar2,
   "estado" varchar2 NOT NULL,
   "precio" float NOT NULL,
@@ -34,10 +34,10 @@ CREATE TABLE "pista" (
 );
 
 CREATE TABLE "reserva" (
-  "id" serial,
-  "id_usuario" serial,
-  "id_usuario_reserva" serial,
-  "id_pista" serial,
+  "id" uuid,
+  "id_usuario" uuid,
+  "id_usuario_reserva" uuid,
+  "id_pista" uuid,
   "horario" horarios NOT NULL,
   "fecha" date NOT NULL,
   "precio" float NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE "reserva" (
 );
 
 CREATE TABLE "usuario" (
-  "id" serial PRIMARY KEY,
+  "id" uuid PRIMARY KEY,
   "email" varchar2 NOT NULL,
   "nombre" varchar2 NOT NULL,
   "apellidos" varchar2,
@@ -56,14 +56,14 @@ CREATE TABLE "usuario" (
 );
 
 CREATE TABLE "pswd_usuario" (
-  "id" serial,
-  "id_usuario" serial,
+  "id" uuid,
+  "id_usuario" uuid,
   "fecha" date NOT NULL,
   PRIMARY KEY ("id", "id_usuario")
 );
 
 CREATE TABLE "tipo" (
-  "id" serial PRIMARY KEY,
+  "id" uuid PRIMARY KEY,
   "nombre" varchar2 NOT NULL
 );
 
