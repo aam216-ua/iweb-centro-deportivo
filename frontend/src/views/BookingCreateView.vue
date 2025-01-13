@@ -57,15 +57,27 @@ const activeTab = ref("list")
 const step = ref(1)
 const deleteLoading = ref(false)
 
+const resetForm = () => {
+  selectedActivity.value = null
+  selectedDate.value = undefined
+  selectedTime.value = null
+  selectedVenue.value = null
+  step.value = 1
+}
+
+const refreshBookings = async () => {
+  const bookingsResponse = await bookingsService.getAll({
+    appointeeId: auth.user?.id,
+    sort: "DESC",
+  })
+  bookings.value = bookingsResponse.data
+}
+
 const handleDelete = async (bookingId: string) => {
   try {
     deleteLoading.value = true
     await bookingsService.delete(bookingId)
-    const bookingsResponse = await bookingsService.getAll({
-      appointeeId: auth.user?.id,
-      sort: "DESC",
-    })
-    bookings.value = bookingsResponse.data
+    await refreshBookings()
     toast.success("Reserva cancelada exitosamente")
   } catch (error) {
     toast.error("Error al cancelar la reserva")
@@ -148,10 +160,14 @@ const getBookingsForDate = (date: Date) => {
 const getUnavailableTurns = (date: Date) => {
   const dateBookings = getBookingsForDate(date)
   const unavailableTurns = new Set<BookingTurn>()
+  const availableVenues = venuesByActivity.value
 
-  dateBookings.forEach((booking) => {
-    if (venuesByActivity.value.some((venue) => venue.id === booking.venue?.id)) {
-      unavailableTurns.add(booking.turn)
+  Object.values(BookingTurn).forEach((turn) => {
+    const bookingsForTurn = dateBookings.filter((booking) => booking.turn === turn)
+    const bookedVenueIds = new Set(bookingsForTurn.map((booking) => booking.venue?.id))
+
+    if (availableVenues.every((venue) => bookedVenueIds.has(venue.id))) {
+      unavailableTurns.add(turn)
     }
   })
 
@@ -204,6 +220,8 @@ const handleSubmit = async () => {
     }
 
     await bookingsService.create(payload)
+    await refreshBookings()
+    resetForm()
     toast.success("Reserva creada exitosamente")
     activeTab.value = "list"
   } catch (error) {
