@@ -32,7 +32,7 @@ const auth = useAuthStore()
 const venues = ref<Venue[]>([])
 const bookings = ref<Booking[]>([])
 const activities = ref<Activity[]>([])
-const activeTab = ref('create')
+const activeTab = ref('list')
 const step = ref(1)
 
 const selectedActivity = ref<string | null>(null)
