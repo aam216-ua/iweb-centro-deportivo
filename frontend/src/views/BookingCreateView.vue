@@ -44,6 +44,60 @@ const bookings = ref<Booking[]>([])
 const activities = ref<Activity[]>([])
 const activeTab = ref("list")
 const step = ref(1)
+const deleteLoading = ref(false)
+
+const handleDelete = async (bookingId: string) => {
+  try {
+    deleteLoading.value = true
+    await bookingsService.delete(bookingId)
+    const bookingsResponse = await bookingsService.getAll({
+      appointeeId: auth.user?.id,
+      sort: "DESC",
+    })
+    bookings.value = bookingsResponse.data
+    toast.success("Reserva cancelada exitosamente")
+  } catch (error) {
+    toast.error("Error al cancelar la reserva")
+  } finally {
+    deleteLoading.value = false
+  }
+}
+
+const canCancelBooking = (date: string) => {
+  return new Date(date) > new Date()
+}
+
+const formatTime = (date: string) => {
+  return new Intl.DateTimeFormat("es-ES", {
+    hour: "numeric",
+    minute: "numeric",
+  }).format(new Date(date))
+}
+const deleteLoading = ref<string | null>(null)
+
+const selectedActivity = ref<string | null>(null)
+const selectedDate = ref<DateValue | undefined>(undefined)
+const selectedTime = ref<BookingTurn | null>(null)
+const selectedVenue = ref<Venue | null>(null)
+
+const handleDelete = async (bookingId: string) => {
+  try {
+    deleteLoading.value = bookingId
+    await bookingsService.delete(bookingId)
+    bookings.value = bookings.value.filter(b => b.id !== bookingId)
+    toast.success("Reserva cancelada exitosamente")
+  } catch (error) {
+    toast.error("Error al cancelar la reserva")
+  } finally {
+    deleteLoading.value = null
+  }
+}
+
+const canCancelBooking = (date: string) => {
+  return new Date(date) > new Date()
+}
+
+const timeSlots = Object.values(BookingTurn)
 
 const selectedActivity = ref<string | null>(null)
 const selectedDate = ref<DateValue | undefined>(undefined)
