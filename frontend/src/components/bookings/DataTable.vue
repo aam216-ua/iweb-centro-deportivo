@@ -119,12 +119,6 @@ const onInput = (e: Event, column: string) => {
   <div class="space-y-4">
     <div class="flex items-center gap-2">
       <div class="flex items-center gap-2 flex-wrap">
-        <DataTableFacetedFilter
-          v-if="table.getColumn('venue')"
-          :column="table.getColumn('venue')"
-          title="Pista"
-          :options="venueOptions"
-        />
         <div class="flex flex-col gap-2 sm:flex-row">
           <Input
             placeholder="Filtrar por cliente..."
@@ -139,6 +133,12 @@ const onInput = (e: Event, column: string) => {
             @input="(e: Event) => onInput(e, 'appointer')"
           />
         </div>
+        <DataTableFacetedFilter
+          v-if="table.getColumn('venue')"
+          :column="table.getColumn('venue')"
+          title="Pista"
+          :options="venueOptions"
+        />
       </div>
       <Button class="ml-auto whitespace-nowrap" @click="showCreateDialog = true">
         <Plus class="h-4 w-4" />
