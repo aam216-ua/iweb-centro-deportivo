@@ -15,7 +15,7 @@ export const authService = {
   },
 
   async register(userData: RegisterUserData) {
-    const { data } = await api.post<User>("/users", userData)
+    const { data } = await api.post<User>("/auth/signup", userData)
     return data
   },
 
