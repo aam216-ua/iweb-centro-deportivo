@@ -54,7 +54,7 @@ export class AuthController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() grantStatusDto: GrantStatusDto
   ) {
-    if (session.role != UserRole.SUPERADMIN && session.role != UserRole.ADMIN)
+    if (session.role == UserRole.CUSTOMER)
       throw new UnauthorizedException('insufficient permissions');
 
     return this.authService.grantStatus(id, grantStatusDto);
