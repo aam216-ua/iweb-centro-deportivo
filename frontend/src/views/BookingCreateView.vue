@@ -1,12 +1,10 @@
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-nocheck
-import { ref, computed, onMounted, watch } from 'vue'
+// @ts-nocheck
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Stepper,
   StepperDescription,
@@ -15,24 +13,36 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
-import { ChevronRight, Clock, CalendarDays, MapPin, Plus, CalendarIcon, Loader2, DollarSign, MoreHorizontal } from "lucide-vue-next"
-import { getLocalTimeZone, today, parseDate } from "@internationalized/date"
-import type { DateValue } from "@internationalized/date"
-import { toast } from "vue-sonner"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { activitiesService } from "@/services/activity"
 import { bookingsService } from "@/services/booking"
 import { venuesService } from "@/services/venue"
-import { activitiesService } from "@/services/activity"
-import type { Activity } from "@/types/activity"
-import { BookingTurn } from "@/types/booking"
-import type { Booking } from "@/types/booking"
-import type { Venue } from "@/types/venue"
 import { useAuthStore } from "@/stores/auth"
+import type { Activity } from "@/types/activity"
+import type { Booking } from "@/types/booking"
+import { BookingTurn } from "@/types/booking"
+import type { Venue } from "@/types/venue"
+import type { DateValue } from "@internationalized/date"
+import { getLocalTimeZone, today } from "@internationalized/date"
+import {
+  CalendarDays,
+  CalendarIcon,
+  ChevronRight,
+  Clock,
+  DollarSign,
+  Loader2,
+  MapPin,
+  MoreHorizontal,
+  Plus,
+} from "lucide-vue-next"
+import { computed, onMounted, ref, watch } from "vue"
+import { toast } from "vue-sonner"
 
 const auth = useAuthStore()
 const venues = ref<Venue[]>([])
 const bookings = ref<Booking[]>([])
 const activities = ref<Activity[]>([])
-const activeTab = ref('list')
+const activeTab = ref("list")
 const step = ref(1)
 
 const selectedActivity = ref<string | null>(null)
@@ -67,7 +77,6 @@ const steps = [
   },
 ]
 
-
 watch(step, (newStep, oldStep) => {
   if (newStep < oldStep) {
     if (newStep === 1) {
@@ -83,27 +92,25 @@ watch(step, (newStep, oldStep) => {
   }
 })
 
-
 const venuesByActivity = computed(() => {
   if (!selectedActivity.value) return []
-  return venues.value.filter(venue => venue.activity?.name === selectedActivity.value)
+  return venues.value.filter((venue) => venue.activity?.name === selectedActivity.value)
 })
 
-
 const getBookingsForDate = (date: Date) => {
-  return bookings.value.filter(booking =>
-    new Date(booking.date).toDateString() === date.toDateString() &&
-    venuesByActivity.value.some(venue => venue.id === booking.venue?.id)
+  return bookings.value.filter(
+    (booking) =>
+      new Date(booking.date).toDateString() === date.toDateString() &&
+      venuesByActivity.value.some((venue) => venue.id === booking.venue?.id),
   )
 }
-
 
 const getUnavailableTurns = (date: Date) => {
   const dateBookings = getBookingsForDate(date)
   const unavailableTurns = new Set<BookingTurn>()
 
-  dateBookings.forEach(booking => {
-    if (venuesByActivity.value.some(venue => venue.id === booking.venue?.id)) {
+  dateBookings.forEach((booking) => {
+    if (venuesByActivity.value.some((venue) => venue.id === booking.venue?.id)) {
       unavailableTurns.add(booking.turn)
     }
   })
@@ -111,35 +118,32 @@ const getUnavailableTurns = (date: Date) => {
   return unavailableTurns
 }
 
-
 const availableVenues = computed(() => {
   if (!selectedActivity.value || !selectedDate.value || !selectedTime.value) {
     return []
   }
 
-  return venuesByActivity.value.filter(venue => {
-    return !bookings.value.some(booking =>
-      booking.venue?.id === venue.id &&
-      selectedDate.value &&
-      new Date(booking.date).toDateString() === new Date(selectedDate.value.toString()).toDateString() &&
-      booking.turn === selectedTime.value
+  return venuesByActivity.value.filter((venue) => {
+    return !bookings.value.some(
+      (booking) =>
+        booking.venue?.id === venue.id &&
+        selectedDate.value &&
+        new Date(booking.date).toDateString() ===
+          new Date(selectedDate.value.toString()).toDateString() &&
+        booking.turn === selectedTime.value,
     )
   })
 })
 
-
 const isDateDisabled = (date: Date) => {
   if (!selectedActivity.value) return true
-
 
   const unavailableTurns = getUnavailableTurns(date)
   return unavailableTurns.size === Object.keys(BookingTurn).length
 }
 
-
 const isTimeSlotDisabled = (time: BookingTurn) => {
   if (!selectedActivity.value || !selectedDate.value) return true
-
 
   const unavailableTurns = getUnavailableTurns(new Date(selectedDate.value.toString()))
   return unavailableTurns.has(time)
@@ -156,12 +160,12 @@ const handleSubmit = async () => {
       turn: selectedTime.value,
       appointerId: auth.user?.id,
       appointeeId: auth.user?.id,
-      fee: selectedVenue.value!.fee
+      fee: selectedVenue.value!.fee,
     }
 
     await bookingsService.create(payload)
     toast.success("Reserva creada exitosamente")
-    activeTab.value = 'list'
+    activeTab.value = "list"
   } catch (error) {
     toast.error("Error al crear la reserva")
   } finally {
@@ -185,16 +189,15 @@ const canProceed = computed(() => {
 const getStepState = computed(() => (stepNumber: number) => {
   const currentStep = step.value
 
-  if (stepNumber === currentStep) return 'active'
-  if (stepNumber < currentStep) return 'completed'
-
+  if (stepNumber === currentStep) return "active"
+  if (stepNumber < currentStep) return "completed"
 
   if (stepNumber === currentStep + 1) {
-    if (currentStep === 1 && selectedActivity.value) return 'enabled'
-    if (currentStep === 2 && selectedDate.value && selectedTime.value) return 'enabled'
+    if (currentStep === 1 && selectedActivity.value) return "enabled"
+    if (currentStep === 2 && selectedDate.value && selectedTime.value) return "enabled"
   }
 
-  return 'disabled'
+  return "disabled"
 })
 
 const formatDate = (date: DateValue | string) => {
@@ -218,7 +221,7 @@ onMounted(async () => {
         appointeeId: auth.user?.id,
         sort: "DESC",
       }),
-      activitiesService.getAll()
+      activitiesService.getAll(),
     ])
     venues.value = venuesResponse.data
     bookings.value = bookingsResponse.data
@@ -241,7 +244,6 @@ onMounted(async () => {
           <TabsTrigger value="list">Mis Reservas</TabsTrigger>
           <TabsTrigger value="create">Hacer Reserva</TabsTrigger>
         </TabsList>
-
 
         <TabsContent value="list" class="space-y-8">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -372,11 +374,9 @@ onMounted(async () => {
           </div>
         </TabsContent>
 
-
         <TabsContent value="create">
           <div class="grid gap-8 lg:grid-cols-[1fr_400px]">
             <div class="space-y-8">
-
               <div class="mb-8">
                 <Stepper v-model="step" :linear="false" class="block w-full">
                   <div class="flex w-full flex-start gap-2">
@@ -393,12 +393,17 @@ onMounted(async () => {
 
                       <StepperTrigger as-child>
                         <Button
-                          :variant="['completed', 'active'].includes(getStepState(s.step)) ? 'default' : 'outline'"
+                          :variant="
+                            ['completed', 'active'].includes(getStepState(s.step))
+                              ? 'default'
+                              : 'outline'
+                          "
                           size="icon"
                           class="z-10 rounded-full shrink-0"
                           :class="[
-                            getStepState(s.step) === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background',
-                            getStepState(s.step) === 'disabled' && 'opacity-50 pointer-events-none'
+                            getStepState(s.step) === 'active' &&
+                              'ring-2 ring-ring ring-offset-2 ring-offset-background',
+                            getStepState(s.step) === 'disabled' && 'opacity-50 pointer-events-none',
                           ]"
                           @click="step = s.step"
                         >
@@ -410,7 +415,7 @@ onMounted(async () => {
                         <StepperTitle
                           :class="[
                             getStepState(s.step) === 'active' && 'text-primary',
-                            getStepState(s.step) === 'disabled' && 'text-muted-foreground'
+                            getStepState(s.step) === 'disabled' && 'text-muted-foreground',
                           ]"
                           class="text-sm font-semibold transition lg:text-base"
                         >
@@ -420,7 +425,7 @@ onMounted(async () => {
                           :step="s.step"
                           :class="[
                             getStepState(s.step) === 'active' && 'text-primary',
-                            getStepState(s.step) === 'disabled' && 'text-muted-foreground'
+                            getStepState(s.step) === 'disabled' && 'text-muted-foreground',
                           ]"
                           class="sr-only text-xs text-muted-foreground transition md:not-sr-only lg:text-sm"
                         >
@@ -432,9 +437,7 @@ onMounted(async () => {
                 </Stepper>
               </div>
 
-
               <div class="space-y-8">
-
                 <div v-show="step === 1">
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
@@ -458,10 +461,7 @@ onMounted(async () => {
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
                       <div class="flex justify-end w-full">
-                        <Button
-                          :disabled="!selectedActivity"
-                          @click="step = 2"
-                        >
+                        <Button :disabled="!selectedActivity" @click="step = 2">
                           Siguiente
                           <ChevronRight class="w-4 h-4 ml-2" />
                         </Button>
@@ -469,7 +469,6 @@ onMounted(async () => {
                     </CardFooter>
                   </Card>
                 </div>
-
 
                 <div v-show="step === 2">
                   <Card class="p-6">
@@ -483,7 +482,7 @@ onMounted(async () => {
                       <div class="grid md:grid-cols-[auto_300px] gap-6">
                         <div class="w-full flex flex-col items-center gap-2">
                           <h3 class="font-medium text-sm self-start">Selecciona una fecha</h3>
-// @ts-ignore
+                          // @ts-ignore
                           <Calendar
                             v-model="selectedDate"
                             mode="single"
@@ -496,25 +495,33 @@ onMounted(async () => {
 
                         <div class="space-y-4">
                           <h3 class="font-medium text-sm">Horas disponibles</h3>
-                          <div class="space-y-2 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-rounded-md scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent">
+                          <div
+                            class="space-y-2 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-rounded-md scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
+                          >
                             <Button
                               v-for="time in timeSlots"
                               :key="time"
                               :variant="selectedTime === time ? 'default' : 'outline'"
                               class="w-full h-12 justify-start transition-all duration-200"
                               :class="[
-                                (!selectedDate || isTimeSlotDisabled(time)) && 'opacity-50 pointer-events-none bg-muted',
-                                'relative'
+                                (!selectedDate || isTimeSlotDisabled(time)) &&
+                                  'opacity-50 pointer-events-none bg-muted',
+                                'relative',
                               ]"
                               @click="selectedTime = time"
                             >
-                              <Clock class="w-4 h-4 mr-2" :class="selectedTime === time ? 'text-primary-foreground' : 'text-primary'" />
+                              <Clock
+                                class="w-4 h-4 mr-2"
+                                :class="
+                                  selectedTime === time ? 'text-primary-foreground' : 'text-primary'
+                                "
+                              />
                               {{ time }}
                               <span
                                 v-if="!selectedDate || isTimeSlotDisabled(time)"
                                 class="ml-auto text-sm text-muted-foreground"
                               >
-                                {{ !selectedDate ? 'Selecciona fecha' : 'No disponible' }}
+                                {{ !selectedDate ? "Selecciona fecha" : "No disponible" }}
                               </span>
                             </Button>
                           </div>
@@ -523,16 +530,8 @@ onMounted(async () => {
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
                       <div class="flex justify-between w-full">
-                        <Button
-                          variant="outline"
-                          @click="step--"
-                        >
-                          Atrás
-                        </Button>
-                        <Button
-                          :disabled="!selectedDate || !selectedTime"
-                          @click="step = 3"
-                        >
+                        <Button variant="outline" @click="step--"> Atrás </Button>
+                        <Button :disabled="!selectedDate || !selectedTime" @click="step = 3">
                           Siguiente
                           <ChevronRight class="w-4 h-4 ml-2" />
                         </Button>
@@ -541,13 +540,10 @@ onMounted(async () => {
                   </Card>
                 </div>
 
-
                 <div v-show="step === 3">
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
-                      <CardTitle class="text-lg font-semibold">
-                        Pistas Disponibles
-                      </CardTitle>
+                      <CardTitle class="text-lg font-semibold"> Pistas Disponibles </CardTitle>
                     </CardHeader>
                     <CardContent class="px-0 pb-0">
                       <div class="grid gap-4">
@@ -571,21 +567,13 @@ onMounted(async () => {
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
                       <div class="flex justify-between w-full">
-                        <Button
-                          variant="outline"
-                          @click="step--"
-                        >
-                          Atrás
-                        </Button>
+                        <Button variant="outline" @click="step--"> Atrás </Button>
                         <Button
                           :disabled="!selectedVenue"
                           @click="handleSubmit"
                           :class="loading && 'opacity-50 pointer-events-none'"
                         >
-                          <Loader2
-                            v-if="loading"
-                            class="mr-2 h-4 w-4 animate-spin"
-                          />
+                          <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
                           {{ loading ? "Creando reserva..." : "Confirmar Reserva" }}
                           <ChevronRight v-if="!loading" class="ml-2 h-4 w-4" />
                         </Button>
@@ -595,7 +583,6 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-
 
             <div class="hidden lg:block lg:sticky lg:top-4">
               <Card>
