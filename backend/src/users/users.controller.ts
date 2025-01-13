@@ -97,7 +97,7 @@ export class UsersController {
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string
   ) {
-    if (session.role == UserRole.CUSTOMER)
+    if (session.role == UserRole.CUSTOMER && id != session.id)
       throw new UnauthorizedException('insufficient permissions');
 
     return this.usersService.remove(id);
