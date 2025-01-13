@@ -1,9 +1,21 @@
 <script setup lang="ts">
 import PasswordToggleButton from "@/components/PasswordVisibility.vue"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { passwordSchema, settingsSchema } from "@/schemas/settings"
+import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
 import { Loader2 } from "lucide-vue-next"
 import { useField, useForm } from "vee-validate"
@@ -12,6 +24,7 @@ import { toast } from "vue-sonner"
 
 const loading = ref(false)
 const loadingPassword = ref(false)
+const loadingDelete = ref(false)
 const showPassword = ref(false)
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -101,6 +114,19 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
     loadingPassword.value = false
   }
 })
+
+const onDeleteAccount = async () => {
+  try {
+    loadingDelete.value = true
+    if (!user.value?.id) throw new Error("No user ID")
+    await usersService.delete(user.value.id)
+    await authStore.logout()
+    toast.success("Cuenta eliminada exitosamente")
+  } catch (error) {
+    toast.error("No se pudo eliminar la cuenta. Intenta nuevamente.")
+    loadingDelete.value = false
+  }
+}
 </script>
 
 <template>
@@ -245,6 +271,43 @@ const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
             {{ loadingPassword ? "Actualizando contraseña..." : "Cambiar contraseña" }}
           </Button>
         </form>
+      </section>
+
+      <section class="border-t pt-8">
+        <div class="grid gap-2">
+          <h2 class="text-2xl font-bold">Eliminar Cuenta</h2>
+          <p class="text-balance text-muted-foreground">
+            Esta acción eliminará permanentemente tu cuenta y todos tus datos
+          </p>
+        </div>
+
+        <div class="mt-6">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" class="w-full max-w-xl"> Darse de baja </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción no se puede deshacer. Se eliminarán permanentemente todos tus datos y
+                  no podrás recuperar tu cuenta.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  :disabled="loadingDelete"
+                  @click="onDeleteAccount"
+                >
+                  <Loader2 v-if="loadingDelete" class="mr-2 h-4 w-4 animate-spin" />
+                  {{ loadingDelete ? "Eliminando cuenta..." : "Sí, eliminar cuenta" }}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </section>
     </div>
   </div>
