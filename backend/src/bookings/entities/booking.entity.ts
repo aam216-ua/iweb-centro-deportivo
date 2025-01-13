@@ -16,6 +16,7 @@ export class Booking {
   @ApiProperty({
     description: 'UUID de la reserva',
     type: 'string',
+    example: '08a5c4ff-f1a8-4bbd-b48f-f1fa9b86ddfd',
   })
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -23,6 +24,7 @@ export class Booking {
   @ApiProperty({
     description: 'Día en el que ocurre la reserva',
     type: 'string',
+    example: '2025-03-11',
   })
   @Column({ type: 'date', nullable: false })
   date: Date;
@@ -30,6 +32,7 @@ export class Booking {
   @ApiProperty({
     description: 'Turno en el que ocurre la reserva',
     enum: BookingTurn,
+    example: '09:30',
   })
   @Column({ type: 'enum', enum: BookingTurn, nullable: false })
   turn: BookingTurn;
@@ -37,6 +40,7 @@ export class Booking {
   @ApiProperty({
     description: 'Precio de la reserva',
     type: 'number',
+    example: 15.5,
   })
   @Column({
     type: 'decimal',
@@ -54,6 +58,7 @@ export class Booking {
   @ApiProperty({
     description: 'UUID del usuario que crea la reserva',
     type: 'string',
+    example: '08a5c4ff-f1a8-4bbd-b48f-f1fa9b86ddfd',
   })
   @ManyToOne(() => User, (appointer) => appointer, {
     nullable: false,
@@ -64,6 +69,7 @@ export class Booking {
   @ApiProperty({
     description: 'UUID del usuario que atiende a la reserva',
     type: 'string',
+    example: '08a5c4ff-f1a8-4bbd-b48f-f1fa9b86ddfd',
   })
   @ManyToOne(() => User, (appointee) => appointee.bookings, {
     nullable: false,
@@ -74,6 +80,7 @@ export class Booking {
   @ApiProperty({
     description: 'UUID de la pista en la que ocurre la reserva',
     type: 'string',
+    example: '08a5c4ff-f1a8-4bbd-b48f-f1fa9b86ddfd',
   })
   @ManyToOne(() => Venue, (venue) => venue.bookings, {
     nullable: false,
@@ -83,6 +90,7 @@ export class Booking {
   @ApiProperty({
     description: 'Fecha de creación de la reserva',
     type: 'string',
+    example: '2025-03-11T18:30:00.000Z',
   })
   @CreateDateColumn()
   createdAt: Date;
@@ -90,6 +98,7 @@ export class Booking {
   @ApiProperty({
     description: 'Fecha de actualización de la reserva',
     type: 'string',
+    example: '2025-03-11T18:30:00.000Z',
   })
   @UpdateDateColumn()
   updatedAt: Date;

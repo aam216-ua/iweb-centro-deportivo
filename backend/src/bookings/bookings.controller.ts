@@ -21,11 +21,10 @@ import { Session } from 'src/auth/decorators/session.decorator';
 import { UserSession } from 'src/auth/types/user-session.type';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { QueryBookingDto } from './dto/query-booking.dto';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Booking } from './entities/booking.entity';
 import { PaginatedResult } from 'src/common/type/paginated-result.type';
 import { DeleteResult, UpdateResult } from 'typeorm';
-
 
 @Controller('bookings')
 export class BookingsController {
@@ -70,6 +69,8 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar una reserva por id' })
+  @ApiResponse({ status: HttpStatus.OK, type: Booking })
   findOne(
     @Session() session: UserSession,
     @Param('id') id: string
@@ -82,6 +83,8 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
+  @ApiOperation({ summary: 'Actualizar una reserva' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateResult })
   update(
     @Session() session: UserSession,
     @Param('id') id: string,
@@ -95,6 +98,8 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar una reserva' })
+  @ApiResponse({ status: HttpStatus.OK, type: DeleteResult })
   remove(
     @Session() session: UserSession,
     @Param('id') id: string
