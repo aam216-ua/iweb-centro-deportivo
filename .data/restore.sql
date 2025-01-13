@@ -171,12 +171,12 @@ ALTER TABLE public.venue OWNER TO "user";
 --
 
 COPY public.activity (id, name) FROM stdin;
-84619cfc-2e12-47af-9df7-05dce103e9ea	padel
-8d4413cf-82d0-4b74-beb0-1ee0b0082e9e	basketball
-557eba62-c2ba-48b3-9117-4c703c7f787e	soccer
-968af143-2b03-411a-b5cd-e37a285ff403	badminton
-4cfa6c82-4f81-4846-8292-c86c502e0b19	voleyball
-6db20603-e31b-419f-96b6-32b232664890	tennis
+84619cfc-2e12-47af-9df7-05dce103e9ea	Pádel
+8d4413cf-82d0-4b74-beb0-1ee0b0082e9e	Baloncesto
+557eba62-c2ba-48b3-9117-4c703c7f787e	Fútbol
+968af143-2b03-411a-b5cd-e37a285ff403	Bádminton
+4cfa6c82-4f81-4846-8292-c86c502e0b19	Voleyball
+6db20603-e31b-419f-96b6-32b232664890	Tenis
 \.
 
 

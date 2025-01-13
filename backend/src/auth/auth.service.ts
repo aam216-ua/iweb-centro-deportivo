@@ -56,7 +56,7 @@ export class AuthService {
 
       await manager.save(
         manager.create(Password, {
-          created,
+          user: created,
           password: await hash(createAccountDto.password),
         })
       );
@@ -71,6 +71,10 @@ export class AuthService {
   public async signIn(
     authCredentialsDto: AuthCredentialsDto
   ): Promise<{ token: string; user: User }> {
+    this.logger.debug(
+      `Logging in as '${authCredentialsDto.email}' with password '${authCredentialsDto.password}'`
+    );
+
     const user = await this.userRepository.findOne({
       where: {
         email: authCredentialsDto.email,
