@@ -12,6 +12,7 @@ import { UserRole } from '../enums/user-role.enum';
 import { Exclude } from 'class-transformer';
 import { Booking } from 'src/bookings/entities/booking.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserStatus } from '../enums/user-status.enum';
 
 @Entity()
 export class User {
@@ -80,6 +81,18 @@ export class User {
     default: 0,
   })
   balance: number;
+
+  @ApiProperty({
+    description: 'Estado de actividad',
+    enum: UserStatus,
+    example: UserStatus.PENDING,
+  })
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.PENDING,
+  })
+  status: UserStatus;
 
   @ApiProperty({
     description: 'Contraseñas del usuario',
