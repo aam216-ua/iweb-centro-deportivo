@@ -10,6 +10,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
   UnauthorizedException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +20,8 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { UserRole } from './enums/user-role.enum';
 import { UserSession } from 'src/auth/types/user-session.type';
 import { Session } from 'src/auth/decorators/session.decorator';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -26,6 +29,8 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Post()
+  @ApiOperation({ summary: 'Crear un usuario' })
+  @ApiResponse({ status: HttpStatus.CREATED, type: User })
   create(
     @Session() session: UserSession,
     @Body() createUserDto: CreateUserDto
@@ -38,6 +43,8 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get()
+  @ApiOperation({ summary: 'Buscar usuarios' })
+  // @ApiResponse({ status: HttpStatus.OK, type: PaginatedResult })
   findMany(
     @Session() session: UserSession,
     @Query() paginatedQueryDto: PaginatedQueryDto
@@ -50,6 +57,8 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar un usuario' })
+  @ApiResponse({ status: HttpStatus.OK, type: User })
   findOne(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string
@@ -62,6 +71,8 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
+  @ApiOperation({ summary: 'Actualizar un usuario' })
+  @ApiResponse({ status: HttpStatus.OK, type: User })
   update(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -75,6 +86,8 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
+  @ApiOperation({ summary: 'Eliminar un usuario' })
+  @ApiResponse({ status: HttpStatus.OK })
   remove(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string
