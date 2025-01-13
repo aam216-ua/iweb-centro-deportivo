@@ -23,9 +23,10 @@ async function bootstrap() {
   });
 
   const swagger = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('IWEB Module')
     .setDescription('API Documentation')
-    .setVersion('0.0')
+    .setVersion('1.0')
     .build();
 
   SwaggerModule.setup('api', app, () =>

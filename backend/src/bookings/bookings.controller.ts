@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   UnauthorizedException,
+  Query,
+  HttpStatus,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -19,6 +21,10 @@ import { Session } from 'src/auth/decorators/session.decorator';
 import { UserSession } from 'src/auth/types/user-session.type';
 import { UserRole } from 'src/users/enums/user-role.enum';
 import { QueryBookingDto } from './dto/query-booking.dto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Booking } from './entities/booking.entity';
+import { PaginatedResult } from 'src/common/type/paginated-result.type';
+import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Controller('bookings')
 export class BookingsController {
@@ -30,10 +36,13 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Post()
+  @ApiOperation({ summary: 'Crear una reserva' })
+  @ApiResponse({ status: HttpStatus.CREATED, type: Booking })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   create(
     @Session() session: UserSession,
     @Body() createBookingDto: CreateBookingDto
-  ) {
+  ): Promise<Booking> {
     if (session.role == UserRole.CUSTOMER) {
       if (
         createBookingDto.appointeeId != session.id ||
@@ -47,10 +56,12 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Get()
+  @ApiOperation({ summary: 'Buscar reservas' })
+  @ApiResponse({ status: HttpStatus.OK, type: [Booking] })
   findMany(
     @Session() session: UserSession,
-    @Body() queryBookingDto: QueryBookingDto
-  ) {
+    @Query() queryBookingDto: QueryBookingDto
+  ): Promise<PaginatedResult<Booking>> {
     if (session.role == UserRole.CUSTOMER)
       queryBookingDto.appointeeId = session.id;
 
@@ -59,7 +70,13 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Session() session: UserSession, @Param('id') id: string) {
+  @ApiOperation({ summary: 'Buscar una reserva por id' })
+  @ApiResponse({ status: HttpStatus.OK, type: Booking })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  findOne(
+    @Session() session: UserSession,
+    @Param('id') id: string
+  ): Promise<Booking> {
     if (session.role == UserRole.CUSTOMER)
       throw new UnauthorizedException('insufficient permissions');
 
@@ -68,11 +85,14 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
+  @ApiOperation({ summary: 'Actualizar una reserva' })
+  @ApiResponse({ status: HttpStatus.OK, type: UpdateResult })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   update(
     @Session() session: UserSession,
     @Param('id') id: string,
     @Body() updateBookingDto: UpdateBookingDto
-  ) {
+  ): Promise<UpdateResult> {
     if (session.role == UserRole.CUSTOMER)
       throw new UnauthorizedException('insufficient permissions');
 
@@ -81,7 +101,13 @@ export class BookingsController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Session() session: UserSession, @Param('id') id: string) {
+  @ApiOperation({ summary: 'Eliminar una reserva' })
+  @ApiResponse({ status: HttpStatus.OK, type: DeleteResult })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  remove(
+    @Session() session: UserSession,
+    @Param('id') id: string
+  ): Promise<DeleteResult> {
     if (session.role == UserRole.CUSTOMER)
       throw new UnauthorizedException('insufficient permissions');
 
