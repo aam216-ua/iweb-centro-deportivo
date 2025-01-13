@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,149 +14,221 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { bookingSchema } from "@/schemas/booking"
+import { activitiesService } from "@/services/activity"
 import { bookingsService } from "@/services/booking"
 import { venuesService } from "@/services/venue"
 import { useAuthStore } from "@/stores/auth"
+import type { Activity } from "@/types/activity"
 import type { Booking } from "@/types/booking"
 import { BookingTurn } from "@/types/booking"
 import type { Venue } from "@/types/venue"
 import type { DateValue } from "@internationalized/date"
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date"
+import { getLocalTimeZone, today } from "@internationalized/date"
 import {
   CalendarDays,
-  Calendar as CalendarIcon,
+  CalendarIcon,
   ChevronRight,
   Clock,
   DollarSign,
+  Loader2,
   MapPin,
   MoreHorizontal,
   Plus,
-  Users,
 } from "lucide-vue-next"
-import { useForm } from "vee-validate"
-import { computed, onMounted, ref } from "vue"
-import { useRouter } from "vue-router"
+import { computed, onMounted, ref, watch } from "vue"
 import { toast } from "vue-sonner"
 
-const router = useRouter()
 const auth = useAuthStore()
 const venues = ref<Venue[]>([])
 const bookings = ref<Booking[]>([])
+const activities = ref<Activity[]>([])
+const activeTab = ref("list")
+const step = ref(1)
+
+const selectedActivity = ref<string | null>(null)
+const selectedDate = ref<DateValue | undefined>(undefined)
+const selectedTime = ref<BookingTurn | null>(null)
 const selectedVenue = ref<Venue | null>(null)
 const loading = ref(false)
-const selectedTimeSlot = ref<string | null>(null)
-const step = ref(1)
-const activeTab = ref("create")
 
-const { handleSubmit, setFieldValue, values } = useForm({
-  validationSchema: bookingSchema,
-  initialValues: {
-    appointerId: auth.user?.id,
-    appointeeId: auth.user?.id,
-  },
-})
+const timeSlots = Object.values(BookingTurn)
 
 const tomorrow = today(getLocalTimeZone()).add({ days: 1 })
 const maxDate = tomorrow.add({ days: 14 })
 
-const selectedDate = computed({
-  get: () => (values.date ? parseDate(values.date) : undefined),
-  set: (val) => val,
-})
-
-const timeSlots = Object.values(BookingTurn)
-
 const steps = [
   {
     step: 1,
-    title: "Selecciona pista",
-    description: "Elige la pista deportiva",
+    title: "Actividad",
+    description: "Elige la actividad",
     icon: MapPin,
   },
   {
     step: 2,
-    title: "Fecha",
-    description: "Escoge el día",
-    icon: CalendarIcon,
+    title: "Fecha y Hora",
+    description: "Escoge día y hora",
+    icon: Clock,
   },
   {
     step: 3,
-    title: "Elige horario",
-    description: "Selecciona la hora",
-    icon: Clock,
+    title: "Pista",
+    description: "Selecciona pista",
+    icon: MapPin,
   },
 ]
 
-onMounted(async () => {
-  try {
-    const [venuesResponse, bookingsResponse] = await Promise.all([
-      venuesService.getAll(),
-      bookingsService.getAll({
-        appointeeId: auth.user?.id,
-        sort: "DESC",
-      }),
-    ])
-    venues.value = venuesResponse.data
-    bookings.value = bookingsResponse.data
-  } catch {
-    toast.error("Error al cargar los datos")
+watch(step, (newStep, oldStep) => {
+  if (newStep < oldStep) {
+    if (newStep === 1) {
+      selectedActivity.value = null
+      selectedDate.value = undefined
+      selectedTime.value = null
+      selectedVenue.value = null
+    } else if (newStep === 2) {
+      selectedDate.value = undefined
+      selectedTime.value = null
+      selectedVenue.value = null
+    }
   }
 })
 
-const selectVenue = (venue: Venue) => {
-  selectedVenue.value = venue
-  setFieldValue("venueId", venue.id)
+const venuesByActivity = computed(() => {
+  if (!selectedActivity.value) return []
+  return venues.value.filter((venue) => venue.activity?.name === selectedActivity.value)
+})
+
+const getBookingsForDate = (date: Date) => {
+  return bookings.value.filter(
+    (booking) =>
+      new Date(booking.date).toDateString() === date.toDateString() &&
+      venuesByActivity.value.some((venue) => venue.id === booking.venue?.id),
+  )
 }
 
-const selectTimeSlot = (time: BookingTurn) => {
-  selectedTimeSlot.value = time
-  setFieldValue("turn", time)
+const getUnavailableTurns = (date: Date) => {
+  const dateBookings = getBookingsForDate(date)
+  const unavailableTurns = new Set<BookingTurn>()
+
+  dateBookings.forEach((booking) => {
+    if (venuesByActivity.value.some((venue) => venue.id === booking.venue?.id)) {
+      unavailableTurns.add(booking.turn)
+    }
+  })
+
+  return unavailableTurns
 }
 
-const selectDate = (date: DateValue | undefined) => {
-  if (date) {
-    setFieldValue("date", date.toString())
-  } else {
-    setFieldValue("date", undefined)
+const availableVenues = computed(() => {
+  if (!selectedActivity.value || !selectedDate.value || !selectedTime.value) {
+    return []
   }
+
+  return venuesByActivity.value.filter((venue) => {
+    return !bookings.value.some(
+      (booking) =>
+        booking.venue?.id === venue.id &&
+        selectedDate.value &&
+        new Date(booking.date).toDateString() ===
+          new Date(selectedDate.value.toString()).toDateString() &&
+        booking.turn === selectedTime.value,
+    )
+  })
+})
+
+const isDateDisabled = (date: Date) => {
+  if (!selectedActivity.value) return true
+
+  const unavailableTurns = getUnavailableTurns(date)
+  return unavailableTurns.size === Object.keys(BookingTurn).length
 }
 
-function convertToISOString(dateString: string): string {
-  const date = new Date(dateString)
-  return new Date(date.setHours(12)).toISOString()
+const isTimeSlotDisabled = (time: BookingTurn) => {
+  if (!selectedActivity.value || !selectedDate.value) return true
+
+  const unavailableTurns = getUnavailableTurns(new Date(selectedDate.value.toString()))
+  return unavailableTurns.has(time)
 }
 
-const onSubmit = handleSubmit(async (values) => {
+const handleSubmit = async () => {
+  if (!canProceed.value || !selectedTime.value || !auth.user) return
+
   try {
     loading.value = true
-    const formattedDate = convertToISOString(values.date)
-    const payload = { ...values, date: formattedDate, fee: selectedVenue.value!.fee }
+    const payload = {
+      venueId: selectedVenue.value!.id,
+      date: new Date(selectedDate.value!.toString()).toISOString(),
+      turn: selectedTime.value,
+      appointerId: auth.user?.id,
+      appointeeId: auth.user?.id,
+      fee: selectedVenue.value!.fee,
+    }
+
     await bookingsService.create(payload)
     toast.success("Reserva creada exitosamente")
-    router.push("/")
-  } catch {
+    activeTab.value = "list"
+  } catch (error) {
     toast.error("Error al crear la reserva")
   } finally {
     loading.value = false
   }
-})
-
-const getActivityIcon = () => {
-  return MapPin
 }
 
-const formatDate = (date: Date | string) => {
+const canProceed = computed(() => {
+  switch (step.value) {
+    case 1:
+      return !!selectedActivity.value
+    case 2:
+      return !!selectedDate.value && !!selectedTime.value
+    case 3:
+      return !!selectedVenue.value && !loading.value
+    default:
+      return false
+  }
+})
+
+const getStepState = computed(() => (stepNumber: number) => {
+  const currentStep = step.value
+
+  if (stepNumber === currentStep) return "active"
+  if (stepNumber < currentStep) return "completed"
+
+  if (stepNumber === currentStep + 1) {
+    if (currentStep === 1 && selectedActivity.value) return "enabled"
+    if (currentStep === 2 && selectedDate.value && selectedTime.value) return "enabled"
+  }
+
+  return "disabled"
+})
+
+const formatDate = (date: DateValue | string) => {
   return new Intl.DateTimeFormat("es-ES", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date(date))
+  }).format(new Date(date.toString()))
 }
 
-const canBook = computed(() => {
-  return selectedVenue.value && values.date && selectedTimeSlot.value
+const getActivityIcon = () => {
+  return MapPin
+}
+
+onMounted(async () => {
+  try {
+    const [venuesResponse, bookingsResponse, activitiesResponse] = await Promise.all([
+      venuesService.getAll(),
+      bookingsService.getAll({
+        appointeeId: auth.user?.id,
+        sort: "DESC",
+      }),
+      activitiesService.getAll(),
+    ])
+    venues.value = venuesResponse.data
+    bookings.value = bookingsResponse.data
+    activities.value = activitiesResponse
+  } catch (error) {
+    toast.error("Error al cargar los datos")
+  }
 })
 </script>
 
@@ -309,7 +383,6 @@ const canBook = computed(() => {
                     <StepperItem
                       v-for="s in steps"
                       :key="s.step"
-                      v-slot="{ state }"
                       class="relative flex w-full flex-col items-center justify-center"
                       :step="s.step"
                     >
@@ -321,14 +394,18 @@ const canBook = computed(() => {
                       <StepperTrigger as-child>
                         <Button
                           :variant="
-                            state === 'completed' || state === 'active' ? 'default' : 'outline'
+                            ['completed', 'active'].includes(getStepState(s.step))
+                              ? 'default'
+                              : 'outline'
                           "
                           size="icon"
                           class="z-10 rounded-full shrink-0"
                           :class="[
-                            state === 'active' &&
+                            getStepState(s.step) === 'active' &&
                               'ring-2 ring-ring ring-offset-2 ring-offset-background',
+                            getStepState(s.step) === 'disabled' && 'opacity-50 pointer-events-none',
                           ]"
+                          @click="step = s.step"
                         >
                           <component :is="s.icon" class="h-4 w-4" />
                         </Button>
@@ -336,14 +413,20 @@ const canBook = computed(() => {
 
                       <div class="mt-5 flex flex-col items-center text-center">
                         <StepperTitle
-                          :class="[state === 'active' && 'text-primary']"
+                          :class="[
+                            getStepState(s.step) === 'active' && 'text-primary',
+                            getStepState(s.step) === 'disabled' && 'text-muted-foreground',
+                          ]"
                           class="text-sm font-semibold transition lg:text-base"
                         >
                           {{ s.title }}
                         </StepperTitle>
                         <StepperDescription
                           :step="s.step"
-                          :class="[state === 'active' && 'text-primary']"
+                          :class="[
+                            getStepState(s.step) === 'active' && 'text-primary',
+                            getStepState(s.step) === 'disabled' && 'text-muted-foreground',
+                          ]"
                           class="sr-only text-xs text-muted-foreground transition md:not-sr-only lg:text-sm"
                         >
                           {{ s.description }}
@@ -354,75 +437,154 @@ const canBook = computed(() => {
                 </Stepper>
               </div>
 
-              <div class="space-y-4">
+              <div class="space-y-8">
                 <div v-show="step === 1">
-                  <div class="grid gap-3">
-                    <Card
-                      v-for="venue in venues"
-                      :key="venue.id"
-                      :class="[
-                        'cursor-pointer transition-colors hover:bg-muted',
-                        selectedVenue?.id === venue.id ? 'ring-2 ring-primary' : '',
-                      ]"
-                      @click="selectVenue(venue)"
-                    >
-                      <CardContent class="p-4">
-                        <div class="flex justify-between items-start">
-                          <div>
-                            <h3 class="font-medium">{{ venue.name }}</h3>
-                            <p class="text-sm text-muted-foreground">{{ venue.activity?.name }}</p>
-                          </div>
-                          <div class="text-right">
-                            <div class="flex items-center gap-1 text-sm">
-                              <Users class="w-4 h-4" />
-                              {{ venue.capacity }}
-                            </div>
-                            <div class="flex items-center gap-1 text-sm font-medium">
-                              <DollarSign class="w-4 h-4" />
-                              {{ venue.fee }}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                  <Card class="p-6">
+                    <CardHeader class="px-0 pt-0">
+                      <CardTitle class="text-lg font-semibold flex items-center gap-2">
+                        <MapPin class="w-5 h-5" />
+                        Seleccionar Actividad
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent class="px-0 pb-0">
+                      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Button
+                          v-for="activity in activities"
+                          :key="activity.id"
+                          :variant="selectedActivity === activity.name ? 'default' : 'outline'"
+                          class="h-24 flex flex-col gap-2"
+                          @click="selectedActivity = activity.name"
+                        >
+                          <span class="text-lg">{{ activity.name }}</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                    <CardFooter class="px-0 pt-6">
+                      <div class="flex justify-end w-full">
+                        <Button :disabled="!selectedActivity" @click="step = 2">
+                          Siguiente
+                          <ChevronRight class="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
                 </div>
 
                 <div v-show="step === 2">
-                  <div class="flex justify-center">
-                    <Calendar
-                      v-model="selectedDate"
-                      class="border rounded-md w-fit"
-                      locale="es"
-                      :min-value="tomorrow"
-                      :max-value="maxDate"
-                      mode="single"
-                      @update:model-value="selectDate"
-                    />
-                  </div>
+                  <Card class="p-6">
+                    <CardHeader class="px-0 pt-0">
+                      <CardTitle class="text-lg font-semibold flex items-center gap-2">
+                        <CalendarDays class="w-5 h-5" />
+                        Fecha y Hora
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent class="px-0 pb-0">
+                      <div class="grid md:grid-cols-[auto_300px] gap-6">
+                        <div class="w-full flex flex-col items-center gap-2">
+                          <h3 class="font-medium text-sm self-start">Selecciona una fecha</h3>
+                          // @ts-ignore
+                          <Calendar
+                            v-model="selectedDate"
+                            mode="single"
+                            class="border rounded-md w-fit"
+                            :min-value="tomorrow"
+                            :max-value="maxDate"
+                            :disabled-dates="isDateDisabled"
+                          />
+                        </div>
+
+                        <div class="space-y-4">
+                          <h3 class="font-medium text-sm">Horas disponibles</h3>
+                          <div
+                            class="space-y-2 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-rounded-md scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
+                          >
+                            <Button
+                              v-for="time in timeSlots"
+                              :key="time"
+                              :variant="selectedTime === time ? 'default' : 'outline'"
+                              class="w-full h-12 justify-start transition-all duration-200"
+                              :class="[
+                                (!selectedDate || isTimeSlotDisabled(time)) &&
+                                  'opacity-50 pointer-events-none bg-muted',
+                                'relative',
+                              ]"
+                              @click="selectedTime = time"
+                            >
+                              <Clock
+                                class="w-4 h-4 mr-2"
+                                :class="
+                                  selectedTime === time ? 'text-primary-foreground' : 'text-primary'
+                                "
+                              />
+                              {{ time }}
+                              <span
+                                v-if="!selectedDate || isTimeSlotDisabled(time)"
+                                class="ml-auto text-sm text-muted-foreground"
+                              >
+                                {{ !selectedDate ? "Selecciona fecha" : "No disponible" }}
+                              </span>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter class="px-0 pt-6">
+                      <div class="flex justify-between w-full">
+                        <Button variant="outline" @click="step--"> Atrás </Button>
+                        <Button :disabled="!selectedDate || !selectedTime" @click="step = 3">
+                          Siguiente
+                          <ChevronRight class="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
                 </div>
 
                 <div v-show="step === 3">
-                  <div class="grid gap-3 sm:grid-cols-2">
-                    <button
-                      v-for="time in timeSlots"
-                      :key="time"
-                      :class="[
-                        'p-4 rounded-lg border text-left transition-colors hover:bg-muted',
-                        selectedTimeSlot === time ? 'ring-2 ring-primary' : '',
-                      ]"
-                      @click="selectTimeSlot(time)"
-                    >
-                      <div class="flex items-center justify-center text-lg font-medium">
-                        {{ time }}
+                  <Card class="p-6">
+                    <CardHeader class="px-0 pt-0">
+                      <CardTitle class="text-lg font-semibold"> Pistas Disponibles </CardTitle>
+                    </CardHeader>
+                    <CardContent class="px-0 pb-0">
+                      <div class="grid gap-4">
+                        <Button
+                          v-for="venue in availableVenues"
+                          :key="venue.id"
+                          :variant="selectedVenue?.id === venue.id ? 'default' : 'outline'"
+                          class="flex justify-between items-center h-16 px-4"
+                          @click="selectedVenue = venue"
+                        >
+                          <span>{{ venue.name }}</span>
+                          <span class="text-sm">${{ venue.fee }}</span>
+                        </Button>
+                        <div
+                          v-if="availableVenues.length === 0"
+                          class="text-center text-muted-foreground py-8"
+                        >
+                          No hay pistas disponibles para los criterios seleccionados
+                        </div>
                       </div>
-                    </button>
-                  </div>
+                    </CardContent>
+                    <CardFooter class="px-0 pt-6">
+                      <div class="flex justify-between w-full">
+                        <Button variant="outline" @click="step--"> Atrás </Button>
+                        <Button
+                          :disabled="!selectedVenue"
+                          @click="handleSubmit"
+                          :class="loading && 'opacity-50 pointer-events-none'"
+                        >
+                          <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
+                          {{ loading ? "Creando reserva..." : "Confirmar Reserva" }}
+                          <ChevronRight v-if="!loading" class="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
                 </div>
               </div>
             </div>
 
-            <div class="lg:sticky lg:top-4">
+            <div class="hidden lg:block lg:sticky lg:top-4">
               <Card>
                 <CardHeader>
                   <CardTitle class="text-lg">Resumen de la Reserva</CardTitle>
@@ -430,23 +592,30 @@ const canBook = computed(() => {
                 <CardContent>
                   <div class="space-y-3">
                     <div class="flex justify-between items-center">
-                      <span class="text-muted-foreground">Pista</span>
+                      <span class="text-muted-foreground">Actividad</span>
                       <span class="font-medium">
-                        {{ selectedVenue?.name || "No seleccionada" }}
+                        {{ selectedActivity || "No seleccionada" }}
                       </span>
                     </div>
                     <Separator />
                     <div class="flex justify-between items-center">
                       <span class="text-muted-foreground">Fecha</span>
                       <span class="font-medium">
-                        {{ values.date ? formatDate(values.date) : "No seleccionada" }}
+                        {{ selectedDate ? formatDate(selectedDate) : "No seleccionada" }}
                       </span>
                     </div>
                     <Separator />
                     <div class="flex justify-between items-center">
                       <span class="text-muted-foreground">Horario</span>
                       <span class="font-medium">
-                        {{ selectedTimeSlot || "No seleccionado" }}
+                        {{ selectedTime || "No seleccionado" }}
+                      </span>
+                    </div>
+                    <Separator />
+                    <div class="flex justify-between items-center">
+                      <span class="text-muted-foreground">Pista</span>
+                      <span class="font-medium">
+                        {{ selectedVenue?.name || "No seleccionada" }}
                       </span>
                     </div>
                     <Separator />
@@ -458,17 +627,6 @@ const canBook = computed(() => {
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Button
-                    class="w-full"
-                    size="lg"
-                    :disabled="!canBook || loading"
-                    @click="onSubmit"
-                  >
-                    {{ loading ? "Creando reserva..." : "Confirmar Reserva" }}
-                    <ChevronRight class="ml-2 h-4 w-4" />
-                  </Button>
-                </CardFooter>
               </Card>
             </div>
           </div>

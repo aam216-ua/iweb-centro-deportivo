@@ -16,6 +16,7 @@ import { bookingsService } from "@/services/booking"
 import { usersService } from "@/services/user"
 import { venuesService } from "@/services/venue"
 import { useAuthStore } from "@/stores/auth"
+import type { Booking } from "@/types/booking"
 import { BookingTurn } from "@/types/booking"
 import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
@@ -39,39 +40,55 @@ const emit = defineEmits<{
 const loading = ref(false)
 const venues = ref<Venue[]>([])
 const users = ref<User[]>([])
+const bookings = ref<Booking[]>([])
 const auth = useAuthStore()
 const dateValue = ref<DateValue>()
+
+const tomorrow = today(getLocalTimeZone()).add({ days: 1 })
+const maxDate = tomorrow.add({ days: 14 })
+const timeSlots = Object.values(BookingTurn)
 
 const form = useForm({
   validationSchema: bookingSchema,
   initialValues: {
     appointerId: auth.user?.id,
     appointeeId: auth.user?.id,
+    venueId: undefined,
+    turn: undefined,
+    date: undefined,
   },
 })
 
 const { handleSubmit, setFieldValue, values } = form
 
-const tomorrow = today(getLocalTimeZone()).add({ days: 1 })
-const maxDate = tomorrow.add({ days: 14 })
-
-const timeSlots = Object.values(BookingTurn)
-
 const selectedVenue = computed(() => {
   return venues.value.find((v) => v.id === values.venueId)
 })
 
-onMounted(async () => {
-  try {
-    const [venuesResponse, usersResponse] = await Promise.all([
-      venuesService.getAll(),
-      usersService.getAll(),
-    ])
-    venues.value = venuesResponse.data
-    users.value = usersResponse.data
-  } catch (error) {
-    toast.error("Error al cargar los datos")
-  }
+const getBookingsForDate = (date: Date) => {
+  if (!date) return []
+  return bookings.value.filter(
+    (booking) => new Date(booking.date).toDateString() === date.toDateString(),
+  )
+}
+
+const isSlotAvailable = computed(() => {
+  if (!dateValue.value || !values.venueId || !values.turn) return true
+
+  const date = new Date(toDate(dateValue.value))
+  const dateBookings = getBookingsForDate(date)
+
+  return !dateBookings.some(
+    (booking) => booking.venue?.id === values.venueId && booking.turn === values.turn,
+  )
+})
+
+const isFormComplete = computed(() => {
+  return !!(values.venueId && dateValue.value && values.turn && values.appointeeId)
+})
+
+const canSubmit = computed(() => {
+  return isFormComplete.value && isSlotAvailable.value && !loading.value
 })
 
 const formatDate = (date: DateValue) => {
@@ -83,7 +100,24 @@ const formatDate = (date: DateValue) => {
   }).format(toDate(date))
 }
 
+onMounted(async () => {
+  try {
+    const [venuesResponse, usersResponse, bookingsResponse] = await Promise.all([
+      venuesService.getAll(),
+      usersService.getAll(),
+      bookingsService.getAll(),
+    ])
+    venues.value = venuesResponse.data
+    users.value = usersResponse.data
+    bookings.value = bookingsResponse.data
+  } catch (error) {
+    toast.error("Error al cargar los datos")
+  }
+})
+
 const onSubmit = handleSubmit(async (values) => {
+  if (!canSubmit.value) return
+
   try {
     loading.value = true
     if (!dateValue.value || !selectedVenue.value?.fee) {
@@ -217,9 +251,14 @@ const onSubmit = handleSubmit(async (values) => {
           <Button type="button" variant="outline" @click="$emit('update:open', false)">
             Cancelar
           </Button>
-          <Button type="submit" :disabled="loading">
-            <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
-            {{ loading ? "Creando reserva..." : "Crear reserva" }}
+          <Button type="submit" :disabled="!canSubmit">
+            <template v-if="loading">
+              <Loader2 class="mr-2 h-4 w-4 animate-spin" />
+              Creando reserva...
+            </template>
+            <template v-else-if="!isFormComplete"> Complete todos los campos </template>
+            <template v-else-if="!isSlotAvailable"> Horario no disponible </template>
+            <template v-else> Crear reserva </template>
           </Button>
         </div>
       </form>
