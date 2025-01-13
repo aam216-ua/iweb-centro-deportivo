@@ -49,12 +49,14 @@ export class UsersService {
         })
       );
 
-      await manager.save(
-        manager.create(Password, {
-          user,
-          password: await hash(createUserDto.password),
-        })
-      );
+      if (createUserDto.password) {
+        await manager.save(
+          manager.create(Password, {
+            user,
+            password: await hash(createUserDto.password),
+          })
+        );
+      }
 
       return user;
     });
