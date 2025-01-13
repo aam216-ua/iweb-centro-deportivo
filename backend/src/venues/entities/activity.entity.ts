@@ -20,7 +20,7 @@ export class Activity {
   @Column({ type: 'varchar' })
   name: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Listado de pistas de la actividad',
     type: 'array',
   })

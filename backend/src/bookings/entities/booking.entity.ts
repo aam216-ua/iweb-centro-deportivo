@@ -33,7 +33,7 @@ export class Booking {
     description: 'Turno en el que ocurre la reserva',
     type: 'string',
     enum: BookingTurn,
-    example: BookingTurn.TURN_09_30
+    example: BookingTurn.TURN_09_30,
   })
   @Column({ type: 'enum', enum: BookingTurn, nullable: false })
   turn: BookingTurn;
