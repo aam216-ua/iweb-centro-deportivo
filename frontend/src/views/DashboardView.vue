@@ -22,7 +22,7 @@ import type { Venue } from "@/types/venue"
 import { RefreshCcw } from "lucide-vue-next"
 import { computed, onMounted, ref, watch } from "vue"
 
-const currentTab = ref("venues")
+const currentTab = ref("bookings")
 const activities = ref<Activity[]>([])
 const bookings = ref<Booking[]>([])
 const users = ref<User[]>([])
@@ -126,11 +126,11 @@ const triggerRefresh = async () => {
     <Tabs v-model="currentTab" class="mt-6 space-y-4">
       <div class="flex space-x-2 h-10">
         <TabsList class="min-w-0">
-          <TabsTrigger value="venues" class="min-w-0 truncate"
-            ><span class="truncate min-w-0">Pistas</span></TabsTrigger
-          >
           <TabsTrigger value="bookings" class="min-w-0 truncate"
             ><span class="truncate min-w-0">Reservas</span></TabsTrigger
+          >
+          <TabsTrigger value="venues" class="min-w-0 truncate"
+            ><span class="truncate min-w-0">Pistas</span></TabsTrigger
           >
           <TabsTrigger value="users" class="min-w-0 truncate"
             ><span class="truncate min-w-0">Usuarios</span></TabsTrigger
