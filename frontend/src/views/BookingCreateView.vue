@@ -482,7 +482,6 @@ onMounted(async () => {
                       <div class="grid md:grid-cols-[auto_300px] gap-6">
                         <div class="w-full flex flex-col items-center gap-2">
                           <h3 class="font-medium text-sm self-start">Selecciona una fecha</h3>
-                          // @ts-ignore
                           <Calendar
                             v-model="selectedDate"
                             mode="single"
