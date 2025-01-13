@@ -1,6 +1,17 @@
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,8 +43,8 @@ import {
   DollarSign,
   Loader2,
   MapPin,
-  MoreHorizontal,
   Plus,
+  Trash2,
 } from "lucide-vue-next"
 import { computed, onMounted, ref, watch } from "vue"
 import { toast } from "vue-sonner"
@@ -44,8 +55,37 @@ const bookings = ref<Booking[]>([])
 const activities = ref<Activity[]>([])
 const activeTab = ref("list")
 const step = ref(1)
+const deleteLoading = ref(false)
 
-const selectedActivity = ref<string | null>(null)
+const handleDelete = async (bookingId: string) => {
+  try {
+    deleteLoading.value = true
+    await bookingsService.delete(bookingId)
+    const bookingsResponse = await bookingsService.getAll({
+      appointeeId: auth.user?.id,
+      sort: "DESC",
+    })
+    bookings.value = bookingsResponse.data
+    toast.success("Reserva cancelada exitosamente")
+  } catch (error) {
+    toast.error("Error al cancelar la reserva")
+  } finally {
+    deleteLoading.value = false
+  }
+}
+
+const canCancelBooking = (date: string) => {
+  return new Date(date) > new Date()
+}
+
+const formatTime = (date: string) => {
+  return new Intl.DateTimeFormat("es-ES", {
+    hour: "numeric",
+    minute: "numeric",
+  }).format(new Date(date))
+}
+
+const selectedAtivity = ref<string | null>(null)
 const selectedDate = ref<DateValue | undefined>(undefined)
 const selectedTime = ref<BookingTurn | null>(null)
 const selectedVenue = ref<Venue | null>(null)
@@ -280,13 +320,37 @@ onMounted(async () => {
                   ]"
                 >
                   <div class="absolute top-0 right-0 p-4">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      class="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <MoreHorizontal class="w-4 h-4" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          class="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                        >
+                          <Trash2 class="w-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Cancelar reserva?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            ¿Estás seguro de que quieres cancelar la reserva para
+                            {{ booking.venue?.name }}? Esta acción no se puede deshacer.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            :disabled="deleteLoading"
+                            @click="handleDelete(booking.id)"
+                          >
+                            <Loader2 v-if="deleteLoading" class="mr-2 h-4 w-4 animate-spin" />
+                            {{ deleteLoading ? "Cancelando..." : "Sí, cancelar reserva" }}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
 
                   <div class="grid gap-6">
