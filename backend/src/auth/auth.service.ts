@@ -86,6 +86,9 @@ export class AuthService {
     if (user.status == UserStatus.BLOCKED)
       throw new UnauthorizedException('blocked user');
 
+    if (user.status == UserStatus.PENDING)
+      throw new UnauthorizedException('pending user');
+
     const password = await this.passwordRepository.findOneBy({
       user: { id: user.id },
     });
@@ -101,6 +104,7 @@ export class AuthService {
         token: await this.jwtService.signAsync({
           id: user.id,
           role: user.role,
+          status: user.status,
         }),
         user,
       };
