@@ -1,103 +1,68 @@
 <script setup lang="ts">
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuthStore } from "@/stores/auth"
-import { Activity, Clock, MapPin, Users } from "lucide-vue-next"
-import { computed } from "vue"
-import { useRouter } from "vue-router"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import { Card, CardContent } from "@/components/ui/card"
+import { onMounted, ref } from "vue"
+import type { Venue } from "@/types/venue"
+import { venuesService } from "@/services/venue"
 
-const router = useRouter()
-const authStore = useAuthStore()
+const venues = ref<Venue[]>([])
+const isLoading = ref(true)
 
-const isAuthenticated = computed(() => authStore.isAuthenticated)
-const user = computed(() => authStore.user)
-
-const caracteristicas = [
-  {
-    icon: MapPin,
-    title: "Múltiples Instalaciones",
-    description: "Acceso a instalaciones deportivas premium en toda la ciudad",
-  },
-  {
-    icon: Clock,
-    title: "Horario Flexible",
-    description: "Reserva turnos desde las 8:00 hasta las 21:30",
-  },
-  {
-    icon: Users,
-    title: "Actividades Grupales",
-    description: "Instalaciones con capacidad de hasta 200 personas",
-  },
-  {
-    icon: Activity,
-    title: "Diversos Deportes",
-    description: "Fútbol, tenis, baloncesto y más",
-  },
-]
-
-const handleLoginClick = () => {
-  router.push({ name: "login", query: { redirect: "/" } })
+const getVenueImage = (activityId: string) => {
+  // This will be replaced with proper image paths later
+  return "/placeholder.svg"
 }
+
+onMounted(async () => {
+  try {
+    const response = await venuesService.getAll({
+      status: "available",
+      size: 10
+    })
+    venues.value = response.data
+  } catch (error) {
+    console.error('Error fetching venues:', error)
+  } finally {
+    isLoading.value = false
+  }
+})
 </script>
 
 <template>
-  <div class="container mx-auto py-8">
-    <section v-if="isAuthenticated" class="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>¡Bienvenido, {{ user?.name }}!</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button @click="router.push({ name: 'book' })" size="lg"> Reservar Ahora </Button>
-        </CardContent>
-      </Card>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card v-for="(feature, index) in caracteristicas" :key="index">
-          <CardContent class="pt-6">
-            <div
-              class="rounded-full bg-secondary p-3 w-12 h-12 flex items-center justify-center mb-4"
-            >
-              <component :is="feature.icon" class="h-6 w-6" />
-            </div>
-            <h3 class="font-semibold text-xl mb-2">{{ feature.title }}</h3>
-            <p class="text-muted-foreground">{{ feature.description }}</p>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
-
-    <section v-else class="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle class="text-2xl sm:text-3xl font-bold tracking-tight text-center">
-            Reserva tu Pista Deportiva Ideal
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="space-y-6">
-          <p class="text-muted-foreground text-center">
-            Encuentra y reserva las mejores instalaciones deportivas en tu zona. Simple, rápido y
-            fiable.
-          </p>
-          <div class="flex justify-center">
-            <Button @click="handleLoginClick" size="lg"> Iniciar Sesión </Button>
+  <div class="w-full py-6">
+    <Carousel class="w-full max-w-5xl mx-auto">
+      <CarouselContent>
+        <CarouselItem v-for="venue in venues" :key="venue.id" class="md:basis-1/2 lg:basis-1/3">
+          <div class="p-1">
+            <Card class="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardContent class="flex aspect-square items-center justify-center p-6">
+                <div class="space-y-4 text-center">
+                  <img
+                    :src="getVenueImage(venue.activity.id)"
+                    :alt="venue.activity.name"
+                    class="w-full h-48 object-cover rounded-lg mb-4"
+                  />
+                  <h3 class="font-semibold text-lg">{{ venue.name }}</h3>
+                  <div class="flex items-center justify-center space-x-4 text-sm text-muted-foreground">
+                    <span>{{ venue.activity.name }}</span>
+                    <span>•</span>
+                    <span>{{ venue.capacity }} personas</span>
+                  </div>
+                  <p class="font-semibold text-lg">€{{ venue.fee }}/hora</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card v-for="(feature, index) in caracteristicas" :key="index">
-          <CardContent class="pt-6">
-            <div
-              class="rounded-full bg-secondary p-3 w-12 h-12 flex items-center justify-center mb-4"
-            >
-              <component :is="feature.icon" class="h-6 w-6" />
-            </div>
-            <h3 class="font-semibold text-xl mb-2">{{ feature.title }}</h3>
-            <p class="text-muted-foreground">{{ feature.description }}</p>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+        </CarouselItem>
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
   </div>
 </template>

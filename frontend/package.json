@@ -23,6 +23,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
+    "embla-carousel-vue": "^8.5.2",
     "lucide-vue-next": "^0.469.0",
     "pinia": "^2.3.0",
     "radix-vue": "^1.9.12",
