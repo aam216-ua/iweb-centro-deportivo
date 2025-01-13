@@ -32,6 +32,7 @@ export class VenuesController {
   @Post('venues')
   @ApiOperation({ summary: 'Crear una pista' })
   @ApiResponse({ status: HttpStatus.CREATED, type: Venue })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   create(
     @Session() session: UserSession,
     @Body() createVenueDto: CreateVenueDto
@@ -44,7 +45,7 @@ export class VenuesController {
 
   @Get('venues')
   @ApiOperation({ summary: 'Buscar pistas' })
-  // @ApiResponse({ status: HttpStatus.OK, type: PaginatedResult })
+  @ApiResponse({ status: HttpStatus.OK, type: [Venue] })
   findMany(@Query() queryVenueDto: QueryVenueDto) {
     return this.venuesService.findMany(queryVenueDto);
   }
@@ -60,6 +61,7 @@ export class VenuesController {
   @Patch('venues/:id')
   @ApiOperation({ summary: 'Actualizar una pista' })
   @ApiResponse({ status: HttpStatus.OK, type: Venue })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   update(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -75,6 +77,7 @@ export class VenuesController {
   @Delete('venues/:id')
   @ApiOperation({ summary: 'Eliminar una pista' })
   @ApiResponse({ status: HttpStatus.OK, type: Venue })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   remove(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string

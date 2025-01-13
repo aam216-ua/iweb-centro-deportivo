@@ -31,6 +31,7 @@ export class UsersController {
   @Post()
   @ApiOperation({ summary: 'Crear un usuario' })
   @ApiResponse({ status: HttpStatus.CREATED, type: User })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   create(
     @Session() session: UserSession,
     @Body() createUserDto: CreateUserDto
@@ -44,7 +45,8 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Get()
   @ApiOperation({ summary: 'Buscar usuarios' })
-  // @ApiResponse({ status: HttpStatus.OK, type: PaginatedResult })
+  @ApiResponse({ status: HttpStatus.OK, type: [User] })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   findMany(
     @Session() session: UserSession,
     @Query() paginatedQueryDto: PaginatedQueryDto
@@ -59,6 +61,7 @@ export class UsersController {
   @Get(':id')
   @ApiOperation({ summary: 'Buscar un usuario' })
   @ApiResponse({ status: HttpStatus.OK, type: User })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   findOne(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string
@@ -73,6 +76,7 @@ export class UsersController {
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar un usuario' })
   @ApiResponse({ status: HttpStatus.OK, type: User })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   update(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -88,6 +92,7 @@ export class UsersController {
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar un usuario' })
   @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   remove(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string
