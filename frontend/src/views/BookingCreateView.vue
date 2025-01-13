@@ -85,7 +85,7 @@ const formatTime = (date: string) => {
   }).format(new Date(date))
 }
 
-const selectedAtivity = ref<string | null>(null)
+const selectedActivity = ref<string | null>(null)
 const selectedDate = ref<DateValue | undefined>(undefined)
 const selectedTime = ref<BookingTurn | null>(null)
 const selectedVenue = ref<Venue | null>(null)
