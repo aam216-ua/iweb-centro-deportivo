@@ -31,6 +31,7 @@ export class Booking {
 
   @ApiProperty({
     description: 'Turno en el que ocurre la reserva',
+    type: 'string',
     enum: BookingTurn,
     example: '09:30',
   })
