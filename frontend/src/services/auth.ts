@@ -24,8 +24,8 @@ export const authService = {
     return data
   },
 
-  async updatePassword(credentials: UpdatePasswordData) {
-    await api.patch<void>("/auth/reset", credentials)
+  async updatePassword(id: string, credentials: UpdatePasswordData) {
+    await api.post<void>(`/auth/reset/${id}`, credentials)
   },
 
   logout() {

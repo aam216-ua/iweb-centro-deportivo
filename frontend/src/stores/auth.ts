@@ -65,10 +65,11 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function updatePassword(credentials: UpdatePasswordData) {
+    if (!user.value?.id) throw new Error("User not authenticated")
     loading.value = true
     error.value = null
     try {
-      await authService.updatePassword(credentials)
+      await authService.updatePassword(user.value.id, credentials)
     } catch (err) {
       error.value = "No se pudo actualizar la contraseña"
       throw err
