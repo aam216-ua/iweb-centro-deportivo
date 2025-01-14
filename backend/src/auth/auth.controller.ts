@@ -27,7 +27,7 @@ export class AuthController {
 
   @Post('signup')
   @ApiOperation({ summary: 'Crear una cuenta' })
-  @ApiResponse({ status: HttpStatus.CREATED, type: Object })
+  @ApiResponse({ status: HttpStatus.CREATED })
   signUp(@Body() createAccountDto: CreateAccountDto) {
     return this.authService.signUp(createAccountDto);
   }
