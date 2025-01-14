@@ -15,6 +15,8 @@ import { hash, verify } from 'argon2';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { GrantRoleDto } from './dto/grant-role.dto';
 import { UserRole } from 'src/users/enums/user-role.enum';
+import { UserStatus } from 'src/users/enums/user-status.enum';
+import { GrantStatusDto } from './dto/grant-status.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,9 +30,7 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  public async signUp(
-    createAccountDto: CreateAccountDto
-  ): Promise<{ token: string; user: User }> {
+  public async signUp(createAccountDto: CreateAccountDto): Promise<void> {
     const user = await this.userRepository.findOne({
       where: {
         email: createAccountDto.email,
@@ -61,19 +61,12 @@ export class AuthService {
         })
       );
     });
-
-    return this.signIn({
-      email: createAccountDto.email,
-      password: createAccountDto.password,
-    });
   }
 
   public async signIn(
     authCredentialsDto: AuthCredentialsDto
   ): Promise<{ token: string; user: User }> {
-    this.logger.debug(
-      `Logging in as '${authCredentialsDto.email}' with password '${authCredentialsDto.password}'`
-    );
+    this.logger.debug(`Logging in as '${authCredentialsDto.email}'`);
 
     const user = await this.userRepository.findOne({
       where: {
@@ -82,6 +75,12 @@ export class AuthService {
     });
 
     if (!user) throw new UnauthorizedException('invalid credentials');
+
+    if (user.status == UserStatus.BLOCKED)
+      throw new UnauthorizedException('blocked user');
+
+    if (user.status == UserStatus.PENDING)
+      throw new UnauthorizedException('pending user');
 
     const password = await this.passwordRepository.findOneBy({
       user: { id: user.id },
@@ -98,6 +97,7 @@ export class AuthService {
         token: await this.jwtService.signAsync({
           id: user.id,
           role: user.role,
+          status: user.status,
         }),
         user,
       };
@@ -117,7 +117,27 @@ export class AuthService {
     if (user.role == UserRole.SUPERADMIN)
       throw new UnauthorizedException('insufficient permissions');
 
-    return this.userRepository.update(user, { role: grantRoleDto.role });
+    return this.userRepository.update(
+      { id: user.id },
+      { role: grantRoleDto.role }
+    );
+  }
+
+  public async grantStatus(
+    id: string,
+    grantStatusDto: GrantStatusDto
+  ): Promise<UpdateResult> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) throw new NotFoundException('user not found');
+
+    if (user.role == UserRole.SUPERADMIN)
+      throw new UnauthorizedException('insufficient permissions');
+
+    return this.userRepository.update(
+      { id: user.id },
+      { status: grantStatusDto.status }
+    );
   }
 
   public async resetPassword(id: string) {

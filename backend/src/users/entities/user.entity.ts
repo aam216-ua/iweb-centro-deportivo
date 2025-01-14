@@ -12,6 +12,7 @@ import { UserRole } from '../enums/user-role.enum';
 import { Exclude } from 'class-transformer';
 import { Booking } from 'src/bookings/entities/booking.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserStatus } from '../enums/user-status.enum';
 
 @Entity()
 export class User {
@@ -26,7 +27,7 @@ export class User {
   @ApiProperty({
     description: 'Correo del usuario',
     type: 'string',
-    example: 'customer@ua.es'
+    example: 'customer@ua.es',
   })
   @Column({ type: 'varchar', unique: true, nullable: false })
   email: string;
@@ -34,7 +35,7 @@ export class User {
   @ApiProperty({
     description: 'Nombre real del usuario',
     type: 'string',
-    example: 'Juan'
+    example: 'Juan',
   })
   @Column({ type: 'varchar', nullable: false })
   name: string;
@@ -42,7 +43,7 @@ export class User {
   @ApiProperty({
     description: 'Apellidos del usuario',
     type: 'string',
-    example: 'Rodríguez Bartolomeo'
+    example: 'Rodríguez Bartolomeo',
   })
   @Column({ type: 'varchar', nullable: false })
   surname: string;
@@ -50,7 +51,7 @@ export class User {
   @ApiProperty({
     description: 'Numero de teléfono español',
     type: 'string',
-    example: '+34 966 00 00 00'
+    example: '+34 966 00 00 00',
   })
   @Column({ type: 'varchar', unique: true, nullable: false })
   phone: string;
@@ -59,7 +60,7 @@ export class User {
     description: 'Rol del usuario',
     type: 'string',
     enum: UserRole,
-    example: UserRole.CUSTOMER
+    example: UserRole.CUSTOMER,
   })
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
@@ -67,7 +68,7 @@ export class User {
   @ApiProperty({
     description: 'Saldo del usuario',
     type: 'number',
-    example: 100.5
+    example: 100.5,
   })
   @Column({
     type: 'decimal',
@@ -82,8 +83,20 @@ export class User {
   balance: number;
 
   @ApiProperty({
+    description: 'Estado de actividad',
+    enum: UserStatus,
+    example: UserStatus.PENDING,
+  })
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.PENDING,
+  })
+  status: UserStatus;
+
+  @ApiProperty({
     description: 'Contraseñas del usuario',
-    type: 'array'
+    type: 'array',
   })
   @OneToMany(() => Password, (password) => password.user, {
     onDelete: 'CASCADE',
@@ -94,7 +107,7 @@ export class User {
   // reservas creadas
   @ApiProperty({
     description: 'Bookings created by this user',
-    type: 'array'
+    type: 'array',
   })
   @OneToMany(() => Booking, (booked) => booked.appointer, {
     onDelete: 'SET NULL',
@@ -104,7 +117,7 @@ export class User {
   // reservas atendidas
   @ApiProperty({
     description: 'Bookings booked for this user',
-    type: 'array'
+    type: 'array',
   })
   @OneToMany(() => Booking, (booking) => booking.appointee, {
     onDelete: 'SET NULL',
@@ -114,7 +127,7 @@ export class User {
   @ApiProperty({
     description: 'Fecha de creación del usuario',
     type: 'string',
-    example: '2025-03-11T18:30:00.000Z'
+    example: '2025-03-11T18:30:00.000Z',
   })
   @CreateDateColumn()
   createdAt: Date;
@@ -122,7 +135,7 @@ export class User {
   @ApiProperty({
     description: 'Fecha de actualización del usuario',
     type: 'string',
-    example: '2025-03-11T18:30:00.000Z'
+    example: '2025-03-11T18:30:00.000Z',
   })
   @UpdateDateColumn()
   updatedAt: Date;
@@ -130,7 +143,7 @@ export class User {
   @ApiProperty({
     description: 'Fecha de eliminación del usuario',
     type: 'string',
-    example: '2025-03-11T18:30:00.000Z'
+    example: '2025-03-11T18:30:00.000Z',
   })
   @DeleteDateColumn()
   deletedAt: Date;
