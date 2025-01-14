@@ -10,10 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { usersService } from "@/services/user"
 import { venuesService } from "@/services/venue"
 import type { Booking } from "@/types/booking"
-import type { User } from "@/types/user"
 import type { Venue } from "@/types/venue"
 import type {
   ColumnDef,
@@ -33,6 +31,7 @@ import {
 } from "@tanstack/vue-table"
 import { Plus } from "lucide-vue-next"
 import { computed, onMounted, ref } from "vue"
+import BookingCreateDialog from "./BookingCreateDialog.vue"
 import DataTablePagination from "./DataTablePagination.vue"
 
 interface DataTableProps {
@@ -41,8 +40,9 @@ interface DataTableProps {
 }
 
 const props = defineProps<DataTableProps>()
+const showCreateDialog = ref(false)
+
 const emit = defineEmits<{
-  create: []
   refresh: []
 }>()
 
@@ -50,7 +50,6 @@ const sorting = ref<SortingState>([])
 const columnFilters = ref<ColumnFiltersState>([])
 const columnVisibility = ref<VisibilityState>({})
 const venues = ref<Venue[]>([])
-const users = ref<User[]>([])
 
 const table = useVueTable({
   get data() {
@@ -76,7 +75,6 @@ const table = useVueTable({
   },
   onColumnFiltersChange: (updater) => {
     columnFilters.value = typeof updater === "function" ? updater(columnFilters.value) : updater
-    emit("refresh")
   },
   onColumnVisibilityChange: (updater) => {
     columnVisibility.value =
@@ -88,6 +86,11 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getFacetedRowModel: getFacetedRowModel(),
   getFacetedUniqueValues: getFacetedUniqueValues(),
+  initialState: {
+    pagination: {
+      pageSize: 5,
+    },
+  },
 })
 
 const venueOptions = computed(() =>
@@ -97,48 +100,52 @@ const venueOptions = computed(() =>
   })),
 )
 
-const userOptions = computed(() =>
-  users.value.map((user) => ({
-    label: user.name,
-    value: user.id,
-  })),
-)
-
 onMounted(async () => {
-  venues.value = (await venuesService.getAll()).data
-  users.value = (await usersService.getAll()).data
+  const venuesResponse = await venuesService.getAll()
+  venues.value = venuesResponse.data
 })
+
+const handleInputFilter = (column: string, value: string) => {
+  table.getColumn(column)?.setFilterValue(value)
+}
+
+const onInput = (e: Event, column: string) => {
+  const target = e.target as HTMLInputElement
+  handleInputFilter(column, target.value)
+}
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex items-center gap-2">
-      <div class="flex items-center gap-2">
-        <Input
-          placeholder="Filtrar reservas..."
-          :model-value="(table.getColumn('appointee')?.getFilterValue() as string) ?? ''"
-          class="max-w-sm"
-          @input="
-            table.getColumn('appointee')?.setFilterValue(($event.target as HTMLInputElement).value)
-          "
-        />
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="flex flex-col gap-2 sm:flex-row">
+          <Input
+            placeholder="Filtrar por cliente..."
+            :value="(table.getColumn('appointee')?.getFilterValue() as string) ?? ''"
+            class="max-w-[200px]"
+            @input="(e: Event) => onInput(e, 'appointee')"
+          />
+          <Input
+            placeholder="Filtrar por reservador..."
+            :value="(table.getColumn('appointer')?.getFilterValue() as string) ?? ''"
+            class="max-w-[200px]"
+            @input="(e: Event) => onInput(e, 'appointer')"
+          />
+        </div>
         <DataTableFacetedFilter
           v-if="table.getColumn('venue')"
           :column="table.getColumn('venue')"
           title="Pista"
           :options="venueOptions"
         />
-        <DataTableFacetedFilter
-          v-if="table.getColumn('appointee')"
-          :column="table.getColumn('appointee')"
-          title="Usuario"
-          :options="userOptions"
-        />
       </div>
-      <Button class="ml-auto" @click="$emit('create')">
+      <Button class="ml-auto whitespace-nowrap" @click="showCreateDialog = true">
         <Plus class="h-4 w-4" />
         <span class="hidden md:inline-block ml-2">Nueva Reserva</span>
       </Button>
+
+      <BookingCreateDialog v-model:open="showCreateDialog" @refresh="emit('refresh')" />
     </div>
     <div class="rounded-md border">
       <Table>

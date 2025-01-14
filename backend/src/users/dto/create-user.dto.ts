@@ -5,6 +5,7 @@ import {
   MaxLength,
   IsEmail,
   IsPhoneNumber,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -21,7 +22,9 @@ export class CreateUserDto {
     type: 'string',
     example: 'Password123#',
     maxLength: 64,
+    required: false,
   })
+  @IsOptional()
   @IsStrongPassword({
     minLength: 8,
     minNumbers: 1,
@@ -30,7 +33,7 @@ export class CreateUserDto {
     minUppercase: 1,
   })
   @MaxLength(64)
-  password: string;
+  password?: string;
 
   @ApiProperty({
     description: 'Nombre real del usuario',

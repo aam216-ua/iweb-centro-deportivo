@@ -106,7 +106,7 @@ onMounted(async () => {
     <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
         <Input
-          placeholder="Filtrar pistas..."
+          placeholder="Filtrar por nombre..."
           :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
           class="max-w-sm"
           @input="

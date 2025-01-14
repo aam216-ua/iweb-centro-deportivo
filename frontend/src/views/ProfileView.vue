@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { roleLabels } from "@/lib/role"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
+import { Calendar, Mail, Phone, RefreshCcw, Wallet } from "lucide-vue-next"
 import { computed, onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
 
@@ -13,18 +14,15 @@ const loadedUser = ref<User | null>(null)
 
 const user = computed<User | null>(() => {
   const id = route.params.id as string
-  if (!id || id === authStore.user?.id) {
-    return authStore.user
-  }
+  if (!id || id === authStore.user?.id) return authStore.user
   return loadedUser.value
 })
 
-const title = computed(() => {
-  const id = route.params.id as string
-  if (!id || id === authStore.user?.id) {
-    return "Mi Perfil"
-  }
-  return "Perfil de Usuario"
+const userInitials = computed(() => {
+  if (!user.value?.name) return "U"
+  const [firstName, lastName] = [user.value.name, user.value.surname]
+  if (!lastName) return firstName.charAt(0).toUpperCase()
+  return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase()
 })
 
 onMounted(async () => {
@@ -52,60 +50,70 @@ const formatDate = (date: Date) => {
     <div class="grid gap-8">
       <section>
         <div class="grid gap-2">
-          <h1 class="text-2xl sm:text-3xl font-bold">{{ title }}</h1>
-          <p class="text-balance text-muted-foreground">Información detallada de la cuenta</p>
+          <div class="flex items-center gap-4">
+            <Avatar class="h-16 w-16">
+              <AvatarImage src="" :alt="user?.name" />
+              <AvatarFallback class="text-lg">{{ userInitials }}</AvatarFallback>
+            </Avatar>
+            <div>
+              <Badge variant="secondary" class="mb-2">
+                {{ user?.role?.toUpperCase() }}
+              </Badge>
+              <h1 class="text-2xl sm:text-3xl font-bold">{{ user?.name }} {{ user?.surname }}</h1>
+              <p class="text-muted-foreground">ID: {{ user?.id }}</p>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div class="mt-6 grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Información Personal</CardTitle>
-            </CardHeader>
-            <CardContent class="grid gap-4">
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <p class="text-sm text-muted-foreground">Nombre</p>
-                  <p class="font-medium">{{ user?.name || "-" }}</p>
-                </div>
-                <div>
-                  <p class="text-sm text-muted-foreground">Apellidos</p>
-                  <p class="font-medium">{{ user?.surname || "-" }}</p>
-                </div>
-              </div>
-              <div>
-                <p class="text-sm text-muted-foreground">Correo Electrónico</p>
-                <p class="font-medium">{{ user?.email || "-" }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-muted-foreground">Teléfono</p>
-                <p class="font-medium">{{ user?.phone || "-" }}</p>
-              </div>
-            </CardContent>
-          </Card>
+      <section>
+        <div class="grid gap-2">
+          <h2 class="text-lg font-semibold">Información Personal</h2>
+        </div>
+        <div class="mt-4 space-y-4">
+          <div class="flex items-center gap-3">
+            <Mail class="w-5 h-5 text-muted-foreground" />
+            <div>
+              <p class="text-sm text-muted-foreground">Correo Electrónico</p>
+              <p class="font-medium">{{ user?.email || "-" }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <Phone class="w-5 h-5 text-muted-foreground" />
+            <div>
+              <p class="text-sm text-muted-foreground">Teléfono</p>
+              <p class="font-medium">{{ user?.phone || "-" }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <Wallet class="w-5 h-5 text-muted-foreground" />
+            <div>
+              <p class="text-sm text-muted-foreground">Saldo Actual</p>
+              <p class="font-medium">{{ user?.balance ? `€${user.balance.toFixed(2)}` : "-" }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Detalles de la Cuenta</CardTitle>
-            </CardHeader>
-            <CardContent class="grid gap-4">
-              <div>
-                <p class="text-sm text-muted-foreground">Rol</p>
-                <p class="font-medium">{{ roleLabels[user?.role || "customer"] }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-muted-foreground">Saldo</p>
-                <p class="font-medium">{{ user?.balance ? user.balance : "-" }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-muted-foreground">Fecha de Registro</p>
-                <p class="font-medium">{{ user?.createdAt ? formatDate(user.createdAt) : "-" }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-muted-foreground">Última Actualización</p>
-                <p class="font-medium">{{ user?.updatedAt ? formatDate(user.updatedAt) : "-" }}</p>
-              </div>
-            </CardContent>
-          </Card>
+      <section class="border-t pt-8">
+        <div class="grid gap-2">
+          <h2 class="text-lg font-semibold">Detalles de la Cuenta</h2>
+        </div>
+        <div class="mt-4 space-y-4">
+          <div class="flex items-center gap-3">
+            <Calendar class="w-5 h-5 text-muted-foreground" />
+            <div>
+              <p class="text-sm text-muted-foreground">Fecha de Registro</p>
+              <p class="font-medium">{{ user?.createdAt ? formatDate(user.createdAt) : "-" }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <RefreshCcw class="w-5 h-5 text-muted-foreground" />
+            <div>
+              <p class="text-sm text-muted-foreground">Última Actualización</p>
+              <p class="font-medium">{{ user?.updatedAt ? formatDate(user.updatedAt) : "-" }}</p>
+            </div>
+          </div>
         </div>
       </section>
     </div>

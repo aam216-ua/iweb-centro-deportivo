@@ -15,6 +15,7 @@ import { Session } from './decorators/session.decorator';
 import { UserSession } from './types/user-session.type';
 import { GrantRoleDto } from './dto/grant-role.dto';
 import { UserRole } from 'src/users/enums/user-role.enum';
+import { GrantStatusDto } from './dto/grant-status.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +32,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('grant/:id')
+  @Post('grant/:id/role')
   grantRole(
     @Session() session: UserSession,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -44,6 +45,19 @@ export class AuthController {
       throw new UnauthorizedException('insufficient permissions');
 
     return this.authService.grantRole(id, grantRoleDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('grant/:id/status')
+  grantStatus(
+    @Session() session: UserSession,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() grantStatusDto: GrantStatusDto
+  ) {
+    if (session.role == UserRole.CUSTOMER)
+      throw new UnauthorizedException('insufficient permissions');
+
+    return this.authService.grantStatus(id, grantStatusDto);
   }
 
   @UseGuards(AuthGuard)

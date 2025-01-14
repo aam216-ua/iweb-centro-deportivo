@@ -11,11 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { venueSchema } from "@/schemas/venue"
 import { activitiesService } from "@/services/activity"
 import { venuesService } from "@/services/venue"
 import type { Activity } from "@/types/activity"
 import type { Venue } from "@/types/venue"
+import { VenueStatus } from "@/types/venue"
 import { Loader2 } from "lucide-vue-next"
 import { useField, useForm } from "vee-validate"
 import { onMounted, reactive, ref } from "vue"
@@ -72,6 +74,17 @@ const activityField = reactive(
     initialValue: props.venue.activity?.id,
   }),
 )
+
+const statusField = reactive(
+  useField<VenueStatus>("status", undefined, {
+    form: form,
+    initialValue: props.venue.status,
+  }),
+)
+
+function toggleStatus(checked: boolean) {
+  statusField.value = checked ? VenueStatus.AVAILABLE : VenueStatus.UNAVAILABLE
+}
 
 onMounted(async () => {
   try {
@@ -177,6 +190,23 @@ const onSubmit = form.handleSubmit(async (values) => {
             </SelectContent>
           </Select>
           <FormMessage>{{ activityField.errorMessage }}</FormMessage>
+        </FormItem>
+
+        <FormItem>
+          <div class="flex items-center justify-between">
+            <div class="space-y-0.5">
+              <FormLabel>Estado</FormLabel>
+              <p class="text-sm text-muted-foreground">
+                {{ statusField.value === VenueStatus.AVAILABLE ? "Disponible" : "No disponible" }}
+              </p>
+            </div>
+            <Switch
+              :name="statusField.name"
+              :checked="statusField.value === VenueStatus.AVAILABLE"
+              @update:checked="toggleStatus"
+            />
+          </div>
+          <FormMessage>{{ statusField.errorMessage }}</FormMessage>
         </FormItem>
 
         <div class="flex justify-end gap-4 mt-4">

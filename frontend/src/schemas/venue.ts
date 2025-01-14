@@ -1,3 +1,4 @@
+import { VenueStatus } from "@/types/venue"
 import { toTypedSchema } from "@vee-validate/zod"
 import { z } from "zod"
 
@@ -8,5 +9,6 @@ export const venueSchema = toTypedSchema(
     capacity: z.number().positive().lte(200),
     fee: z.number().positive().lte(9999.99),
     activityId: z.string().uuid(),
+    status: z.nativeEnum(VenueStatus),
   }),
 )

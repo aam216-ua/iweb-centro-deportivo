@@ -66,6 +66,19 @@ CREATE TYPE public.user_role_enum AS ENUM (
 ALTER TYPE public.user_role_enum OWNER TO "user";
 
 --
+-- Name: user_status_enum; Type: TYPE; Schema: public; Owner: user
+--
+
+CREATE TYPE public.user_status_enum AS ENUM (
+    'pending',
+    'created',
+    'blocked'
+);
+
+
+ALTER TYPE public.user_status_enum OWNER TO "user";
+
+--
 -- Name: venue_status_enum; Type: TYPE; Schema: public; Owner: user
 --
 
@@ -141,7 +154,8 @@ CREATE TABLE public."user" (
     balance numeric(6,2) DEFAULT '0'::numeric NOT NULL,
     "createdAt" timestamp without time zone DEFAULT now() NOT NULL,
     "updatedAt" timestamp without time zone DEFAULT now() NOT NULL,
-    "deletedAt" timestamp without time zone
+    "deletedAt" timestamp without time zone,
+    status public.user_status_enum DEFAULT 'pending'::public.user_status_enum NOT NULL
 );
 
 
@@ -171,12 +185,12 @@ ALTER TABLE public.venue OWNER TO "user";
 --
 
 COPY public.activity (id, name) FROM stdin;
-84619cfc-2e12-47af-9df7-05dce103e9ea	padel
-8d4413cf-82d0-4b74-beb0-1ee0b0082e9e	basketball
-557eba62-c2ba-48b3-9117-4c703c7f787e	soccer
-968af143-2b03-411a-b5cd-e37a285ff403	badminton
-4cfa6c82-4f81-4846-8292-c86c502e0b19	voleyball
-6db20603-e31b-419f-96b6-32b232664890	tennis
+84619cfc-2e12-47af-9df7-05dce103e9ea	Pádel
+8d4413cf-82d0-4b74-beb0-1ee0b0082e9e	Baloncesto
+557eba62-c2ba-48b3-9117-4c703c7f787e	Fútbol
+968af143-2b03-411a-b5cd-e37a285ff403	Bádminton
+4cfa6c82-4f81-4846-8292-c86c502e0b19	Voleyball
+6db20603-e31b-419f-96b6-32b232664890	Tenis
 \.
 
 
@@ -192,11 +206,11 @@ COPY public.booking (id, date, turn, fee, "createdAt", "updatedAt", "appointerId
 -- Data for Name: password; Type: TABLE DATA; Schema: public; Owner: user
 --
 
-COPY public.password (id, password, "createdAt", "userId") FROM stdin;
-69c8c3d1-b62c-4e52-b7c6-69c1df4b869a	$argon2id$v=19$m=65536,t=3,p=4$zXByy6rTEVp/3sl7i29AbQ$j2H6qBhvMgotEe9vAJ/c7Lxcsv9dzQZZlXb5blWF+8k	2024-12-30 23:37:08.427862	ca0be172-c368-4771-88db-545ac8fa7a7f
-08a5c4ff-f1a8-4bbd-b48f-f1fa9b86ddfd	$argon2id$v=19$m=65536,t=3,p=4$Ogkw4qSAFDMPNK+YkRaQ7w$vM+qRJ8+f0JINOmCUrlDjihupIOyaeFADApXvP7uzmg	2024-12-30 23:37:56.423025	500fcbd6-42c5-4e27-8f4d-604ab83509d0
-8da7d749-8997-4115-a896-1301d2d19da5	$argon2id$v=19$m=65536,t=3,p=4$W9pBnWQk8bVwQ1++ylmfkA$he37fipogNiahJNzkZOSO05uEKOxfZBBrxi+imtbhY8	2024-12-30 23:38:29.012537	1eaf5e0e-bb26-4279-8a6f-8ecbe74bd2f4
-380dea2d-f492-47a8-ba34-a966f33407e4	$argon2id$v=19$m=65536,t=3,p=4$7AM9lnBKQz0lvqBf++2ypA$CnLRa3B16vfRJmBTk6dpwZzisypzCcxEMqMqvJHN5Uk	2024-12-30 23:38:49.648643	281f1361-ce49-4d4b-88aa-cb8025fe9a0a
+COPY public.password (id, password, "createdAt", "deletedAt", "userId") FROM stdin;
+69c8c3d1-b62c-4e52-b7c6-69c1df4b869a	$argon2id$v=19$m=65536,t=3,p=4$zXByy6rTEVp/3sl7i29AbQ$j2H6qBhvMgotEe9vAJ/c7Lxcsv9dzQZZlXb5blWF+8k	2024-12-30 23:37:08.427862	\N	ca0be172-c368-4771-88db-545ac8fa7a7f
+08a5c4ff-f1a8-4bbd-b48f-f1fa9b86ddfd	$argon2id$v=19$m=65536,t=3,p=4$Ogkw4qSAFDMPNK+YkRaQ7w$vM+qRJ8+f0JINOmCUrlDjihupIOyaeFADApXvP7uzmg	2024-12-30 23:37:56.423025	\N	500fcbd6-42c5-4e27-8f4d-604ab83509d0
+8da7d749-8997-4115-a896-1301d2d19da5	$argon2id$v=19$m=65536,t=3,p=4$W9pBnWQk8bVwQ1++ylmfkA$he37fipogNiahJNzkZOSO05uEKOxfZBBrxi+imtbhY8	2024-12-30 23:38:29.012537	\N	1eaf5e0e-bb26-4279-8a6f-8ecbe74bd2f4
+380dea2d-f492-47a8-ba34-a966f33407e4	$argon2id$v=19$m=65536,t=3,p=4$7AM9lnBKQz0lvqBf++2ypA$CnLRa3B16vfRJmBTk6dpwZzisypzCcxEMqMqvJHN5Uk	2024-12-30 23:38:49.648643	\N	281f1361-ce49-4d4b-88aa-cb8025fe9a0a
 \.
 
 
@@ -204,11 +218,11 @@ COPY public.password (id, password, "createdAt", "userId") FROM stdin;
 -- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: user
 --
 
-COPY public."user" (id, email, name, surname, phone, role, balance, "createdAt", "updatedAt", "deletedAt") FROM stdin;
-ca0be172-c368-4771-88db-545ac8fa7a7f	customer@ua.es	customer	example	3	customer	0.00	2024-12-30 23:37:08.427862	2024-12-30 23:37:08.427862	\N
-500fcbd6-42c5-4e27-8f4d-604ab83509d0	receptionist@ua.es	receptionist	example	2	receptionist	0.00	2024-12-30 23:37:56.423025	2024-12-30 23:37:56.423025	\N
-1eaf5e0e-bb26-4279-8a6f-8ecbe74bd2f4	admin@ua.es	admin	example	1	admin	0.00	2024-12-30 23:38:29.012537	2024-12-30 23:38:29.012537	\N
-281f1361-ce49-4d4b-88aa-cb8025fe9a0a	superadmin@ua.es	superadmin	example	0	superadmin	0.00	2024-12-30 23:38:49.648643	2024-12-30 23:38:49.648643	\N
+COPY public."user" (id, email, name, surname, phone, role, balance, "createdAt", "updatedAt", "deletedAt", status) FROM stdin;
+1eaf5e0e-bb26-4279-8a6f-8ecbe74bd2f4	admin@ua.es	admin	example	1	admin	0.00	2024-12-30 23:38:29.012537	2024-12-30 23:38:29.012537	\N	created
+281f1361-ce49-4d4b-88aa-cb8025fe9a0a	superadmin@ua.es	superadmin	example	0	superadmin	0.00	2024-12-30 23:38:49.648643	2024-12-30 23:38:49.648643	\N	created
+500fcbd6-42c5-4e27-8f4d-604ab83509d0	receptionist@ua.es	receptionist	example	2	receptionist	0.00	2024-12-30 23:37:56.423025	2024-12-30 23:37:56.423025	\N	created
+ca0be172-c368-4771-88db-545ac8fa7a7f	customer@ua.es	customer	example	3	customer	0.00	2024-12-30 23:37:08.427862	2024-12-30 23:37:08.427862	\N	created
 \.
 
 

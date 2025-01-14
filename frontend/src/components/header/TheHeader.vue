@@ -17,24 +17,25 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
     <div class="absolute inset-0 overflow-hidden">
       <img :src="bgImg" alt="" class="h-80 w-full object-cover brightness-[0.6]" />
       <div
-        class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 via-30% to-transparent to-50%"
+        class="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 via-30% to-transparent to-60%"
       ></div>
     </div>
     <div class="relative z-10 flex flex-col h-full">
-      <div class="container flex h-16 items-center justify-end">
+      <div class="container flex h-16 items-center">
+        <div class="flex flex-1 items-center">
+          <MobileMenu buttonClass="md:hidden mr-2 text-white" />
+        </div>
+
         <div class="flex items-center gap-2">
-          <MobileMenu buttonClass="md:hidden text-white" />
-          <div class="hidden md:flex items-center gap-2">
-            <HeaderReserve class="text-white" />
-            <UserMenu v-if="isAuthenticated" buttonClass="text-white hover:text-white/90" />
-          </div>
+          <HeaderReserve class="text-white" />
+          <UserMenu v-if="isAuthenticated" buttonClass="text-white hover:text-white/90" />
         </div>
       </div>
 
-      <div class="container">
+      <div class="container flex-1 flex flex-col justify-start pb-4">
         <div class="mb-4">
           <RouterLink to="/">
-            <img src="/placeholder.svg" alt="Logo" class="h-16 w-auto" />
+            <img src="/logoc.png" alt="Logo" class="h-36 w-auto" />
           </RouterLink>
         </div>
         <NavigationLinks class="hidden md:flex gap-4" linkClass="text-white hover:text-white/80" />

@@ -1,30 +1,11 @@
 import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import { Badge } from "@/components/ui/badge"
-import { usersService } from "@/services/user"
-import { venuesService } from "@/services/venue"
 import type { Booking } from "@/types/booking"
-import type { ColumnDef, Row } from "@tanstack/vue-table"
-import { Clock } from "lucide-vue-next"
-import { h, onMounted, ref } from "vue"
+import type { ColumnDef } from "@tanstack/vue-table"
+import { BookUser, Clock } from "lucide-vue-next"
+import { h } from "vue"
+import { RouterLink } from "vue-router"
 import DataTableRowActions from "./DataTableRowActions.vue"
-
-const users = ref(new Map())
-const venues = ref(new Map())
-
-onMounted(async () => {
-  const [usersResponse, venuesResponse] = await Promise.all([
-    usersService.getAll(),
-    venuesService.getAll(),
-  ])
-
-  usersResponse.data.forEach((user) => {
-    users.value.set(user.id, user)
-  })
-
-  venuesResponse.data.forEach((venue) => {
-    venues.value.set(venue.id, venue)
-  })
-})
 
 export const columns: ColumnDef<Booking>[] = [
   {
@@ -49,26 +30,64 @@ export const columns: ColumnDef<Booking>[] = [
   },
   {
     id: "venue",
+    accessorFn: (row) => row.venue?.id,
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Pista" }),
-    accessorFn: (row) => venues.value.get(row.venueId)?.name,
-    filterFn: (row: Row<Booking>, id, value: string[]) => {
+    cell: ({ row }) => {
+      const venue = row.original.venue?.name || "Sin pista"
+      return h("div", {}, venue)
+    },
+    filterFn: (row, id, value: string[]) => {
       if (!value.length) return true
-      return value.includes(row.original.venueId || "")
+      return value.includes(row.original.venue?.id || "")
     },
   },
   {
     id: "appointee",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Cliente" }),
-    accessorFn: (row) => users.value.get(row.appointeeId)?.name,
-    filterFn: (row: Row<Booking>, id, value: string[]) => {
-      if (!value.length) return true
-      return value.includes(row.original.appointeeId || "")
+    cell: ({ row }) => {
+      const appointee = row.original.appointee
+      return h("div", { class: "flex items-center gap-2" }, [
+        h("span", {}, appointee?.name || "N/A"),
+        appointee?.id &&
+          h(
+            RouterLink,
+            {
+              to: `/profile/${appointee.id}`,
+              class: "hover:text-primary",
+            },
+            () => h(BookUser, { class: "size-3" }),
+          ),
+      ])
+    },
+    filterFn: (row, id, value: string) => {
+      if (!value) return true
+      const name = row.original.appointee?.name || ""
+      return name.toLowerCase().includes(value.toLowerCase())
     },
   },
   {
     id: "appointer",
     header: ({ column }) => h(DataTableColumnHeader, { column, title: "Reservado por" }),
-    accessorFn: (row) => users.value.get(row.appointerId)?.name,
+    cell: ({ row }) => {
+      const appointer = row.original.appointer
+      return h("div", { class: "flex items-center gap-2" }, [
+        h("span", {}, appointer?.name || "N/A"),
+        appointer?.id &&
+          h(
+            RouterLink,
+            {
+              to: `/profile/${appointer.id}`,
+              class: "hover:text-primary",
+            },
+            () => h(BookUser, { class: "size-3" }),
+          ),
+      ])
+    },
+    filterFn: (row, id, value: string) => {
+      if (!value) return true
+      const name = row.original.appointer?.name || ""
+      return name.toLowerCase().includes(value.toLowerCase())
+    },
   },
   {
     id: "actions",

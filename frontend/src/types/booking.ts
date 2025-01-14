@@ -13,6 +13,7 @@ export enum BookingTurn {
 
 export interface CreateBookingData {
   date: string
+  fee: number
   turn: BookingTurn
   appointerId: string
   appointeeId: string
@@ -23,15 +24,16 @@ export interface Booking extends CreateBookingData {
   id: string
   createdAt: string
   updatedAt: string
-}
-
-export interface BookingQueryParams {
-  page?: number
-  size?: number
-  appointerId?: string
-  appointeeId?: string
-  venueId?: string
-  after?: Date
-  before?: Date
-  sort?: "ASC" | "DESC"
+  venue?: {
+    id: string
+    name: string
+  }
+  appointee?: {
+    id: string
+    name: string
+  }
+  appointer?: {
+    id: string
+    name: string
+  }
 }
