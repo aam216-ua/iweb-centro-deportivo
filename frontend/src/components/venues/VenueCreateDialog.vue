@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
@@ -14,9 +15,10 @@ import { venueSchema } from "@/schemas/venue"
 import { activitiesService } from "@/services/activity"
 import { venuesService } from "@/services/venue"
 import type { Activity } from "@/types/activity"
+import { VenueStatus } from "@/types/venue"
 import { Loader2 } from "lucide-vue-next"
-import { useForm } from "vee-validate"
-import { onMounted, ref } from "vue"
+import { useField, useForm } from "vee-validate"
+import { onMounted, reactive, ref } from "vue"
 import { toast } from "vue-sonner"
 
 const props = defineProps<{
@@ -33,7 +35,20 @@ const activities = ref<Activity[]>([])
 
 const form = useForm({
   validationSchema: venueSchema,
+  initialValues: {
+    status: VenueStatus.AVAILABLE
+  }
 })
+
+const statusField = reactive(
+  useField<VenueStatus>("status", undefined, {
+    form: form,
+  }),
+)
+
+function toggleStatus(checked: boolean) {
+  statusField.value = checked ? VenueStatus.AVAILABLE : VenueStatus.UNAVAILABLE
+}
 
 onMounted(async () => {
   try {
@@ -132,6 +147,23 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormMessage />
           </FormItem>
         </FormField>
+
+        <FormItem>
+          <div class="flex items-center justify-between">
+            <div class="space-y-0.5">
+              <FormLabel>Estado</FormLabel>
+              <p class="text-sm text-muted-foreground">
+                {{ statusField.value === VenueStatus.AVAILABLE ? 'Disponible' : 'No disponible' }}
+              </p>
+            </div>
+            <Switch
+              :name="statusField.name"
+              :checked="statusField.value === VenueStatus.AVAILABLE"
+              @update:checked="toggleStatus"
+            />
+          </div>
+          <FormMessage>{{ statusField.errorMessage }}</FormMessage>
+        </FormItem>
 
         <div class="flex justify-end gap-4 mt-4">
           <Button type="button" variant="outline" @click="$emit('update:open', false)">
