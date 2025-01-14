@@ -30,9 +30,7 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  public async signUp(
-    createAccountDto: CreateAccountDto
-  ): Promise<{ token: string; user: User }> {
+  public async signUp(createAccountDto: CreateAccountDto): Promise<void> {
     const user = await this.userRepository.findOne({
       where: {
         email: createAccountDto.email,
@@ -62,11 +60,6 @@ export class AuthService {
           password: await hash(createAccountDto.password),
         })
       );
-    });
-
-    return this.signIn({
-      email: createAccountDto.email,
-      password: createAccountDto.password,
     });
   }
 
@@ -124,7 +117,10 @@ export class AuthService {
     if (user.role == UserRole.SUPERADMIN)
       throw new UnauthorizedException('insufficient permissions');
 
-    return this.userRepository.update(user, { role: grantRoleDto.role });
+    return this.userRepository.update(
+      { id: user.id },
+      { role: grantRoleDto.role }
+    );
   }
 
   public async grantStatus(
@@ -138,7 +134,10 @@ export class AuthService {
     if (user.role == UserRole.SUPERADMIN)
       throw new UnauthorizedException('insufficient permissions');
 
-    return this.userRepository.update(user, { status: grantStatusDto.status });
+    return this.userRepository.update(
+      { id: user.id },
+      { status: grantStatusDto.status }
+    );
   }
 
   public async resetPassword(id: string) {
