@@ -1,8 +1,5 @@
 <script setup lang="ts">
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import { usePermissions } from "@/lib/permissions"
-import UserSelect from "@/components/UserSelect.vue"
 import { usersService } from "@/services/user"
 import {
   AlertDialog,
@@ -55,6 +52,7 @@ import {
 } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import {
   CalendarDays,
   CalendarIcon,
@@ -68,6 +66,9 @@ import {
 } from "lucide-vue-next"
 import { computed, onMounted, ref, watch } from "vue"
 import { toast } from "vue-sonner"
+import type { User as UserType } from "@/types/user"
+import { useForm } from "vee-validate"
+import {createUserSchema} from "@/schemas/booking"
 
 const auth = useAuthStore()
 const venues = ref<Venue[]>([])
@@ -77,15 +78,98 @@ const activeTab = ref("list")
 const step = ref(1)
 const deleteLoading = ref(false)
 const { isStaff } = usePermissions()
-const users = ref<User[]>([])
-const selectedUser = ref<User | null>(null)
+const users = ref<UserType[]>([])
+const selectedUser = ref<UserType | null>(null)
 const showCreateUserDialog = ref(false)
 const userSearch = ref('')
-const newUser = ref({ name: '', email: '', phone: '' })
 const createUserLoading = ref(false)
 const showUserSelect = ref(false)
 
+const createUserForm = useForm({
+  validationSchema: createUserSchema,
+  initialValues: {
+    name: '',
+    email: '',
+    phone: ''
+  }
+})
+
+const steps = [
+  {
+    step: 1,
+    title: "Cliente",
+    description: "Seleccionar cliente",
+    icon: User,
+    staffOnly: true,
+  },
+  {
+    step: 2,
+    title: "Actividad",
+    description: "Elige la actividad",
+    icon: MapPin,
+  },
+  {
+    step: 3,
+    title: "Fecha y Hora",
+    description: "Escoge día y hora",
+    icon: Clock,
+  },
+  {
+    step: 4,
+    title: "Pista",
+    description: "Selecciona pista",
+    icon: MapPin,
+  },
+].filter(step => !step.staffOnly || isStaff)
+
+const selectedActivity = ref<string | null>(null)
+const selectedDate = ref<DateValue | undefined>(undefined)
+const selectedTime = ref<BookingTurn | null>(null)
+const selectedVenue = ref<Venue | null>(null)
+const loading = ref(false)
+
+const timeSlots = Object.values(BookingTurn)
+
+const tomorrow = today(getLocalTimeZone()).add({ days: 1 })
+const maxDate = tomorrow.add({ days: 14 })
+
+const filteredUsers = computed(() => {
+  const search = userSearch.value?.toLowerCase().trim() || ''
+  if (!search) return users.value
+
+  return users.value.filter(user => {
+    const searchableFields = [
+      user.name?.toLowerCase() || '',
+      user.email?.toLowerCase() || '',
+      user.phone?.toLowerCase() || ''
+    ]
+    return searchableFields.some(field => field.includes(search))
+  })
+})
+
+const handleCreateUser = async (values: any) => {
+  try {
+    createUserLoading.value = true
+    const response = await api.post('/users', {
+      ...values,
+      phone: values.phone || undefined
+    })
+    const createdUser = response.data
+    selectedUser.value = createdUser
+    users.value = [...users.value, createdUser]
+    showCreateUserDialog.value = false
+    showUserSelect.value = false
+    createUserForm.resetForm()
+    toast.success("Usuario creado exitosamente")
+  } catch (error) {
+    toast.error("Error al crear el usuario")
+  } finally {
+    createUserLoading.value = false
+  }
+}
+
 const resetForm = () => {
+  selectedUser.value = null
   selectedActivity.value = null
   selectedDate.value = undefined
   selectedTime.value = null
@@ -99,41 +183,6 @@ const refreshBookings = async () => {
     sort: "DESC",
   })
   bookings.value = bookingsResponse.data
-}
-
-const filteredUsers = computed(() => {
-  return users.value.filter(user =>
-    user.name.toLowerCase().includes(userSearch.value.toLowerCase()) ||
-    user.email?.toLowerCase().includes(userSearch.value.toLowerCase())
-  )
-})
-
-const handleCreateUser = async () => {
-  if (!newUser.value.name || !newUser.value.email) return
-
-  try {
-    createUserLoading.value = true
-    // This would use your actual API endpoint
-    const response = await fetch('/userstemp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newUser.value)
-    })
-
-    if (!response.ok) throw new Error('Failed to create user')
-
-    const createdUser = await response.json()
-    selectedUser.value = createdUser
-    users.value = [...users.value, createdUser]
-    showCreateUserDialog.value = false
-    showUserSelect.value = false
-    newUser.value = { name: '', email: '', phone: '' }
-    toast.success("Usuario creado exitosamente")
-  } catch (error) {
-    toast.error("Error al crear el usuario")
-  } finally {
-    createUserLoading.value = false
-  }
 }
 
 const handleDelete = async (bookingId: string) => {
@@ -159,38 +208,6 @@ const formatTime = (date: string) => {
     minute: "numeric",
   }).format(new Date(date))
 }
-
-const selectedActivity = ref<string | null>(null)
-const selectedDate = ref<DateValue | undefined>(undefined)
-const selectedTime = ref<BookingTurn | null>(null)
-const selectedVenue = ref<Venue | null>(null)
-const loading = ref(false)
-
-const timeSlots = Object.values(BookingTurn)
-
-const tomorrow = today(getLocalTimeZone()).add({ days: 1 })
-const maxDate = tomorrow.add({ days: 14 })
-
-const steps = [
-  {
-    step: 1,
-    title: "Actividad",
-    description: "Elige la actividad",
-    icon: MapPin,
-  },
-  {
-    step: 2,
-    title: "Fecha y Hora",
-    description: "Escoge día y hora",
-    icon: Clock,
-  },
-  {
-    step: 3,
-    title: "Pista",
-    description: "Selecciona pista",
-    icon: MapPin,
-  },
-]
 
 watch(step, (newStep, oldStep) => {
   if (newStep < oldStep) {
@@ -300,13 +317,10 @@ const handleSubmit = async () => {
 
 const canProceed = computed(() => {
   const baseConditions = {
-    1: !!selectedActivity.value,
-    2: !!selectedDate.value && !!selectedTime.value,
-    3: !!selectedVenue.value && !loading.value,
-  }
-
-  if (isStaff.value && step.value === 1) {
-    return baseConditions[1] && !!selectedUser.value
+    1: isStaff.value ? !!selectedUser.value : true,
+    2: !!selectedActivity.value,
+    3: !!selectedDate.value && !!selectedTime.value,
+    4: !!selectedVenue.value && !loading.value,
   }
 
   return baseConditions[step.value] || false
@@ -414,8 +428,9 @@ onMounted(async () => {
                           variant="ghost"
                           size="icon"
                           class="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                          :disabled="!canCancelBooking(booking.date)"
                         >
-                          <Trash2 class="w-4 w-4" />
+                          <Trash2 class="w-4 h-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -590,114 +605,95 @@ onMounted(async () => {
               </div>
 
               <div class="space-y-8">
-                <div v-show="step === 1">
-                  <div v-if="isStaff" class="mb-6">
-  <Label>Cliente</Label>
-  <Popover v-model:open="showUserSelect">
-    <PopoverTrigger asChild>
-      <Button
-        variant="outline"
-        role="combobox"
-        :aria-expanded="showUserSelect"
-        class="w-full justify-between"
-      >
-        {{ selectedUser?.name || "Seleccionar cliente..." }}
-        <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent class="w-[300px] p-0">
-      <Command>
-        <CommandInput
-          placeholder="Buscar cliente..."
-          v-model="userSearch"
-          class="h-9"
-        />
-        <CommandList>
-          <CommandEmpty>
-            No se encontraron resultados.
-          </CommandEmpty>
-          <CommandGroup>
-            <CommandItem
-              v-for="user in filteredUsers"
-              :key="user.id"
-              :value="user.id"
-              @select="() => {
-                selectedUser = user
-                showUserSelect = false
-              }"
-            >
-              <User class="mr-2 h-4 w-4" />
-              <span>{{ user.name }}</span>
-              <Check
-                v-if="selectedUser?.id === user.id"
-                class="ml-auto h-4 w-4"
-              />
-            </CommandItem>
-          </CommandGroup>
-        </CommandList>
-        <Button
-          variant="ghost"
-          class="w-full flex items-center justify-center py-2 border-t"
-          @click="showCreateUserDialog = true"
-        >
-          <Plus class="mr-2 h-4 w-4" />
-          Crear Nuevo Cliente
-        </Button>
-      </Command>
-    </PopoverContent>
-  </Popover>
-</div>
 
-<!-- Add the create user dialog outside the popover -->
-<Dialog v-model:open="showCreateUserDialog">
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Crear Nuevo Cliente</DialogTitle>
-    </DialogHeader>
-    <div class="grid gap-4 py-4">
-      <div class="grid gap-2">
-        <Label for="name">Nombre</Label>
-        <Input
-          id="name"
-          v-model="newUser.name"
-          placeholder="Nombre completo"
-        />
-      </div>
-      <div class="grid gap-2">
-        <Label for="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          v-model="newUser.email"
-          placeholder="correo@ejemplo.com"
-        />
-      </div>
-      <div class="grid gap-2">
-        <Label for="phone">Teléfono</Label>
-        <Input
-          id="phone"
-          v-model="newUser.phone"
-          placeholder="(opcional)"
-        />
-      </div>
-    </div>
-    <DialogFooter>
-      <Button variant="outline" @click="showCreateUserDialog = false">
-        Cancelar
-      </Button>
-      <Button
-        @click="handleCreateUser"
-        :disabled="createUserLoading || !newUser.name || !newUser.email"
-      >
-        <Loader2
-          v-if="createUserLoading"
-          class="mr-2 h-4 w-4 animate-spin"
-        />
-        {{ createUserLoading ? 'Creando...' : 'Crear Cliente' }}
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
+                <div v-show="step === 1 && isStaff">
+                  <Card class="p-6">
+                    <CardHeader class="px-0 pt-0">
+                      <CardTitle class="text-lg font-semibold flex items-center gap-2">
+                        <User class="w-5 h-5" />
+                        Seleccionar Cliente
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent class="px-0 pb-0">
+                      <div class="space-y-4">
+                        <Popover v-model:open="showUserSelect">
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              :aria-expanded="showUserSelect"
+                              class="w-full justify-between"
+                            >
+                              {{ selectedUser?.name || "Seleccionar cliente..." }}
+                              <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent class="w-[300px] p-0">
+                            <Command>
+                              <Input
+                                placeholder="Buscar cliente..."
+                                class="h-9"
+                                :model-value="userSearch"
+                                @input="(e) => userSearch = (e.target as HTMLInputElement).value"
+                              />
+                              <CommandList class="max-h-[200px] overflow-y-auto">
+                                <CommandEmpty>
+                                  No se encontraron resultados.
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  <CommandItem
+                                    v-for="user in filteredUsers"
+                                    :key="user.id"
+                                    :value="user.id"
+                                    @click="() => {
+                                      selectedUser = user
+                                      showUserSelect = false
+                                      userSearch = ''
+                                    }"
+                                    class="flex items-center justify-between cursor-pointer"
+                                  >
+                                    <div class="flex items-center gap-2">
+                                      <User class="h-4 w-4" />
+                                      <div class="flex flex-col">
+                                        <span class="font-medium">{{ user.name }}</span>
+                                        <span class="text-xs text-muted-foreground">
+                                          {{ user.email }}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <Check
+                                      v-if="selectedUser?.id === user.id"
+                                      class="h-4 w-4 shrink-0"
+                                    />
+                                  </CommandItem>
+                                </CommandGroup>
+                              </CommandList>
+                              <Button
+                                variant="ghost"
+                                class="w-full flex items-center justify-center py-2 border-t"
+                                @click="showCreateUserDialog = true"
+                              >
+                                <Plus class="mr-2 h-4 w-4" />
+                                Crear Nuevo Cliente
+                              </Button>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </CardContent>
+                    <CardFooter class="px-0 pt-6">
+                      <div class="flex justify-end w-full">
+                        <Button :disabled="!selectedUser" @click="step = 2">
+                          Siguiente
+                          <ChevronRight class="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                </div>
+
+
+                <div v-show="(step === 2 && isStaff) || (step === 1 && !isStaff)">
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
                       <CardTitle class="text-lg font-semibold flex items-center gap-2">
@@ -719,8 +715,11 @@ onMounted(async () => {
                       </div>
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
-                      <div class="flex justify-end w-full">
-                        <Button :disabled="!selectedActivity" @click="step = 2">
+                      <div class="flex justify-between w-full">
+                        <Button v-if="isStaff" variant="outline" @click="step--">
+                          Atrás
+                        </Button>
+                        <Button :disabled="!selectedActivity" @click="step++" class="ml-auto">
                           Siguiente
                           <ChevronRight class="w-4 h-4 ml-2" />
                         </Button>
@@ -729,7 +728,8 @@ onMounted(async () => {
                   </Card>
                 </div>
 
-                <div v-show="step === 2">
+
+                <div v-show="(step === 3 && isStaff) || (step === 2 && !isStaff)">
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
                       <CardTitle class="text-lg font-semibold flex items-center gap-2">
@@ -788,8 +788,8 @@ onMounted(async () => {
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
                       <div class="flex justify-between w-full">
-                        <Button variant="outline" @click="step--"> Atrás </Button>
-                        <Button :disabled="!selectedDate || !selectedTime" @click="step = 3">
+                        <Button variant="outline" @click="step--">Atrás</Button>
+                        <Button :disabled="!selectedDate || !selectedTime" @click="step++">
                           Siguiente
                           <ChevronRight class="w-4 h-4 ml-2" />
                         </Button>
@@ -798,10 +798,11 @@ onMounted(async () => {
                   </Card>
                 </div>
 
-                <div v-show="step === 3">
+
+                <div v-show="(step === 4 && isStaff) || (step === 3 && !isStaff)">
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
-                      <CardTitle class="text-lg font-semibold"> Pistas Disponibles </CardTitle>
+                      <CardTitle class="text-lg font-semibold">Pistas Disponibles</CardTitle>
                     </CardHeader>
                     <CardContent class="px-0 pb-0">
                       <div class="grid gap-4">
@@ -825,7 +826,7 @@ onMounted(async () => {
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
                       <div class="flex justify-between w-full">
-                        <Button variant="outline" @click="step--"> Atrás </Button>
+                        <Button variant="outline" @click="step--">Atrás</Button>
                         <Button
                           :disabled="!selectedVenue"
                           @click="handleSubmit"
@@ -849,6 +850,13 @@ onMounted(async () => {
                 </CardHeader>
                 <CardContent>
                   <div class="space-y-3">
+                    <div v-if="isStaff" class="flex justify-between items-center">
+                      <span class="text-muted-foreground">Cliente</span>
+                      <span class="font-medium">
+                        {{ selectedUser?.name || "No seleccionado" }}
+                      </span>
+                    </div>
+                    <Separator v-if="isStaff" />
                     <div class="flex justify-between items-center">
                       <span class="text-muted-foreground">Actividad</span>
                       <span class="font-medium">
@@ -890,6 +898,61 @@ onMounted(async () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog v-model:open="showCreateUserDialog">
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Crear Nuevo Cliente</DialogTitle>
+          </DialogHeader>
+          <form @submit="createUserForm.handleSubmit(handleCreateUser)" class="space-y-4">
+            <FormField v-slot="{ field }" name="name">
+              <FormItem>
+                <FormLabel>Nombre</FormLabel>
+                <FormControl>
+                  <Input v-bind="field" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ field }" name="email">
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input v-bind="field" type="email" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ field }" name="phone">
+              <FormItem>
+                <FormLabel>Teléfono</FormLabel>
+                <FormControl>
+                  <Input type="tel" v-bind="field" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" @click="showCreateUserDialog = false">
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                :disabled="createUserLoading"
+              >
+                <Loader2
+                  v-if="createUserLoading"
+                  class="mr-2 h-4 w-4 animate-spin"
+                />
+                {{ createUserLoading ? 'Creando...' : 'Crear Cliente' }}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   </div>
 </template>
