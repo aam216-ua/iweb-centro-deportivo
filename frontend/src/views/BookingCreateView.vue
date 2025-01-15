@@ -1,6 +1,9 @@
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { usePermissions } from "@/lib/permissions"
+import UserSelect from "@/components/UserSelect.vue"
+import { usersService } from "@/services/user"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +38,23 @@ import { BookingTurn } from "@/types/booking"
 import type { Venue } from "@/types/venue"
 import type { DateValue } from "@internationalized/date"
 import { getLocalTimeZone, today } from "@internationalized/date"
+import { User, Check, ChevronsUpDown } from "lucide-vue-next"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   CalendarDays,
   CalendarIcon,
@@ -56,6 +76,14 @@ const activities = ref<Activity[]>([])
 const activeTab = ref("list")
 const step = ref(1)
 const deleteLoading = ref(false)
+const { isStaff } = usePermissions()
+const users = ref<User[]>([])
+const selectedUser = ref<User | null>(null)
+const showCreateUserDialog = ref(false)
+const userSearch = ref('')
+const newUser = ref({ name: '', email: '', phone: '' })
+const createUserLoading = ref(false)
+const showUserSelect = ref(false)
 
 const resetForm = () => {
   selectedActivity.value = null
@@ -71,6 +99,41 @@ const refreshBookings = async () => {
     sort: "DESC",
   })
   bookings.value = bookingsResponse.data
+}
+
+const filteredUsers = computed(() => {
+  return users.value.filter(user =>
+    user.name.toLowerCase().includes(userSearch.value.toLowerCase()) ||
+    user.email?.toLowerCase().includes(userSearch.value.toLowerCase())
+  )
+})
+
+const handleCreateUser = async () => {
+  if (!newUser.value.name || !newUser.value.email) return
+
+  try {
+    createUserLoading.value = true
+    // This would use your actual API endpoint
+    const response = await fetch('/userstemp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newUser.value)
+    })
+
+    if (!response.ok) throw new Error('Failed to create user')
+
+    const createdUser = await response.json()
+    selectedUser.value = createdUser
+    users.value = [...users.value, createdUser]
+    showCreateUserDialog.value = false
+    showUserSelect.value = false
+    newUser.value = { name: '', email: '', phone: '' }
+    toast.success("Usuario creado exitosamente")
+  } catch (error) {
+    toast.error("Error al crear el usuario")
+  } finally {
+    createUserLoading.value = false
+  }
 }
 
 const handleDelete = async (bookingId: string) => {
@@ -208,14 +271,18 @@ const isTimeSlotDisabled = (time: BookingTurn) => {
 const handleSubmit = async () => {
   if (!canProceed.value || !selectedTime.value || !auth.user) return
 
+  const appointeeId = isStaff.value ? selectedUser.value?.id : auth.user.id
+
+  if (!appointeeId) return
+
   try {
     loading.value = true
     const payload = {
       venueId: selectedVenue.value!.id,
       date: new Date(selectedDate.value!.toString()).toISOString(),
       turn: selectedTime.value,
-      appointerId: auth.user?.id,
-      appointeeId: auth.user?.id,
+      appointerId: auth.user.id,
+      appointeeId: appointeeId,
       fee: selectedVenue.value!.fee,
     }
 
@@ -232,16 +299,17 @@ const handleSubmit = async () => {
 }
 
 const canProceed = computed(() => {
-  switch (step.value) {
-    case 1:
-      return !!selectedActivity.value
-    case 2:
-      return !!selectedDate.value && !!selectedTime.value
-    case 3:
-      return !!selectedVenue.value && !loading.value
-    default:
-      return false
+  const baseConditions = {
+    1: !!selectedActivity.value,
+    2: !!selectedDate.value && !!selectedTime.value,
+    3: !!selectedVenue.value && !loading.value,
   }
+
+  if (isStaff.value && step.value === 1) {
+    return baseConditions[1] && !!selectedUser.value
+  }
+
+  return baseConditions[step.value] || false
 })
 
 const getStepState = computed(() => (stepNumber: number) => {
@@ -273,17 +341,19 @@ const getActivityIcon = () => {
 
 onMounted(async () => {
   try {
-    const [venuesResponse, bookingsResponse, activitiesResponse] = await Promise.all([
+    const [venuesResponse, bookingsResponse, activitiesResponse, usersResponse] = await Promise.all([
       venuesService.getAll(),
       bookingsService.getAll({
         appointeeId: auth.user?.id,
         sort: "DESC",
       }),
       activitiesService.getAll(),
+      isStaff.value ? usersService.getAll() : Promise.resolve({ data: [] }),
     ])
     venues.value = venuesResponse.data
     bookings.value = bookingsResponse.data
     activities.value = activitiesResponse
+    users.value = usersResponse.data
   } catch (error) {
     toast.error("Error al cargar los datos")
   }
@@ -430,7 +500,7 @@ onMounted(async () => {
                           <DollarSign class="w-4 h-4 text-primary" />
                         </div>
                         <div class="min-w-0">
-                          <p class="text-sm font-medium truncate">${{ booking.fee }}</p>
+                          <p class="text-sm font-medium truncate">{{ booking.fee }}€</p>
                           <p class="text-xs text-muted-foreground">Precio</p>
                         </div>
                       </div>
@@ -521,6 +591,113 @@ onMounted(async () => {
 
               <div class="space-y-8">
                 <div v-show="step === 1">
+                  <div v-if="isStaff" class="mb-6">
+  <Label>Cliente</Label>
+  <Popover v-model:open="showUserSelect">
+    <PopoverTrigger asChild>
+      <Button
+        variant="outline"
+        role="combobox"
+        :aria-expanded="showUserSelect"
+        class="w-full justify-between"
+      >
+        {{ selectedUser?.name || "Seleccionar cliente..." }}
+        <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent class="w-[300px] p-0">
+      <Command>
+        <CommandInput
+          placeholder="Buscar cliente..."
+          v-model="userSearch"
+          class="h-9"
+        />
+        <CommandList>
+          <CommandEmpty>
+            No se encontraron resultados.
+          </CommandEmpty>
+          <CommandGroup>
+            <CommandItem
+              v-for="user in filteredUsers"
+              :key="user.id"
+              :value="user.id"
+              @select="() => {
+                selectedUser = user
+                showUserSelect = false
+              }"
+            >
+              <User class="mr-2 h-4 w-4" />
+              <span>{{ user.name }}</span>
+              <Check
+                v-if="selectedUser?.id === user.id"
+                class="ml-auto h-4 w-4"
+              />
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+        <Button
+          variant="ghost"
+          class="w-full flex items-center justify-center py-2 border-t"
+          @click="showCreateUserDialog = true"
+        >
+          <Plus class="mr-2 h-4 w-4" />
+          Crear Nuevo Cliente
+        </Button>
+      </Command>
+    </PopoverContent>
+  </Popover>
+</div>
+
+<!-- Add the create user dialog outside the popover -->
+<Dialog v-model:open="showCreateUserDialog">
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Crear Nuevo Cliente</DialogTitle>
+    </DialogHeader>
+    <div class="grid gap-4 py-4">
+      <div class="grid gap-2">
+        <Label for="name">Nombre</Label>
+        <Input
+          id="name"
+          v-model="newUser.name"
+          placeholder="Nombre completo"
+        />
+      </div>
+      <div class="grid gap-2">
+        <Label for="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          v-model="newUser.email"
+          placeholder="correo@ejemplo.com"
+        />
+      </div>
+      <div class="grid gap-2">
+        <Label for="phone">Teléfono</Label>
+        <Input
+          id="phone"
+          v-model="newUser.phone"
+          placeholder="(opcional)"
+        />
+      </div>
+    </div>
+    <DialogFooter>
+      <Button variant="outline" @click="showCreateUserDialog = false">
+        Cancelar
+      </Button>
+      <Button
+        @click="handleCreateUser"
+        :disabled="createUserLoading || !newUser.name || !newUser.email"
+      >
+        <Loader2
+          v-if="createUserLoading"
+          class="mr-2 h-4 w-4 animate-spin"
+        />
+        {{ createUserLoading ? 'Creando...' : 'Crear Cliente' }}
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
                       <CardTitle class="text-lg font-semibold flex items-center gap-2">
@@ -636,7 +813,7 @@ onMounted(async () => {
                           @click="selectedVenue = venue"
                         >
                           <span>{{ venue.name }}</span>
-                          <span class="text-sm">${{ venue.fee }}</span>
+                          <span class="text-sm">{{ venue.fee }}€</span>
                         </Button>
                         <div
                           v-if="availableVenues.length === 0"
@@ -703,7 +880,7 @@ onMounted(async () => {
                     <div class="flex justify-between items-center">
                       <span class="font-medium">Total</span>
                       <span class="font-medium">
-                        {{ selectedVenue ? `${selectedVenue.fee}` : "—" }}
+                        {{ selectedVenue ? `${selectedVenue.fee}€` : "—" }}
                       </span>
                     </div>
                   </div>
