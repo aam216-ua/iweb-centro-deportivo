@@ -11,6 +11,7 @@ import {
   UseGuards,
   UnauthorizedException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,6 +23,7 @@ import { UserSession } from 'src/auth/types/user-session.type';
 import { Session } from 'src/auth/decorators/session.decorator';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { PurchaseBalanceDto } from './dto/purchase-balance.dto';
 
 @Controller('users')
 export class UsersController {
@@ -101,5 +103,20 @@ export class UsersController {
       throw new UnauthorizedException('insufficient permissions');
 
     return this.usersService.remove(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('balance')
+  @ApiOperation({ summary: 'Recargar saldo' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  purchaseBalance(
+    @Session() session: UserSession,
+    @Body() purchaseBalanceDto: PurchaseBalanceDto
+  ) {
+    if (session.role != UserRole.CUSTOMER)
+      throw new BadRequestException('only customers can purchase balance');
+
+    this.usersService.purchaseBalance(session.id, purchaseBalanceDto);
   }
 }

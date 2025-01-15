@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   UnauthorizedException,
@@ -15,16 +16,22 @@ import { PaginatedQueryDto } from 'src/common/dto/paginated-query.dto';
 import { PaginatedResult } from 'src/common/type/paginated-result.type';
 import { hash } from 'argon2';
 import { UserRole } from './enums/user-role.enum';
+import { PurchaseBalanceDto } from './dto/purchase-balance.dto';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
+  private readonly tpvApiUrl = process.env.TPV_API_URL;
+  private readonly tpvApiKey = process.env.TPV_API_KEY;
 
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Password)
-    private passwordRepository: Repository<Password>
+    private readonly passwordRepository: Repository<Password>,
+    private readonly httpService: HttpService
   ) {}
 
   public async create(createUserDto: CreateUserDto): Promise<User> {
@@ -106,5 +113,45 @@ export class UsersService {
       throw new UnauthorizedException('insufficient permissions');
 
     await this.userRepository.softDelete({ id });
+  }
+
+  public async purchaseBalance(
+    id: string,
+    purchaseBalanceDto: PurchaseBalanceDto
+  ): Promise<void> {
+    const user = await this.findOne(id);
+
+    if (!user) throw new NotFoundException('user not found');
+
+    const response = await lastValueFrom(
+      this.httpService.post(
+        this.tpvApiUrl,
+        {
+          amount: purchaseBalanceDto.amount,
+          currency: 'EUR',
+          description: 'Club Mediterráneo balance purchase',
+          reference: `${id} (${Date.now()})`,
+          url_callback: '',
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': this.tpvApiKey,
+          },
+        }
+      )
+    );
+
+    this.logger.log(
+      `Received status code ${response.status} and body ${response.data}`
+    );
+
+    if (response.status != 201)
+      throw new InternalServerErrorException('purchase failed');
+
+    await this.userRepository.update(
+      { id },
+      { balance: user.balance + purchaseBalanceDto.amount }
+    );
   }
 }
