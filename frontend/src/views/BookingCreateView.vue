@@ -53,6 +53,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
+import { authService } from "@/services/auth"
 import {
   CalendarDays,
   CalendarIcon,
@@ -87,11 +88,6 @@ const showUserSelect = ref(false)
 
 const createUserForm = useForm({
   validationSchema: createUserSchema,
-  initialValues: {
-    name: '',
-    email: '',
-    phone: ''
-  }
 })
 
 const steps = [
@@ -147,14 +143,11 @@ const filteredUsers = computed(() => {
   })
 })
 
-const handleCreateUser = async (values: any) => {
+const handleCreateUser = createUserForm.handleSubmit(async (values) => {
   try {
     createUserLoading.value = true
-    const response = await api.post('/users', {
-      ...values,
-      phone: values.phone || undefined
-    })
-    const createdUser = response.data
+    const response = await authService.createNoPassword(values)
+    const createdUser = response
     selectedUser.value = createdUser
     users.value = [...users.value, createdUser]
     showCreateUserDialog.value = false
@@ -162,11 +155,12 @@ const handleCreateUser = async (values: any) => {
     createUserForm.resetForm()
     toast.success("Usuario creado exitosamente")
   } catch (error) {
+    console.error(error)
     toast.error("Error al crear el usuario")
   } finally {
     createUserLoading.value = false
   }
-}
+})
 
 const resetForm = () => {
   selectedUser.value = null
@@ -904,10 +898,20 @@ onMounted(async () => {
           <DialogHeader>
             <DialogTitle>Crear Nuevo Cliente</DialogTitle>
           </DialogHeader>
-          <form @submit="createUserForm.handleSubmit(handleCreateUser)" class="space-y-4">
+          <form @submit="handleCreateUser" class="space-y-4">
             <FormField v-slot="{ field }" name="name">
               <FormItem>
                 <FormLabel>Nombre</FormLabel>
+                <FormControl>
+                  <Input v-bind="field" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ field }" name="surname">
+              <FormItem>
+                <FormLabel>Apellidos</FormLabel>
                 <FormControl>
                   <Input v-bind="field" />
                 </FormControl>
@@ -936,9 +940,6 @@ onMounted(async () => {
             </FormField>
 
             <DialogFooter>
-              <Button type="button" variant="outline" @click="showCreateUserDialog = false">
-                Cancelar
-              </Button>
               <Button
                 type="submit"
                 :disabled="createUserLoading"

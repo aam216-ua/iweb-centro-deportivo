@@ -4,6 +4,7 @@ import type {
   RegisterUserData,
   UpdatePasswordData,
   UpdateProfileData,
+  NoPasswordUserData
 } from "@/types/auth"
 import type { User } from "@/types/user"
 import { api } from "./api"
@@ -17,6 +18,11 @@ export const authService = {
   async register(userData: RegisterUserData) {
     const { data } = await api.post<User>("/auth/signup", userData)
     return data
+  },
+
+  async createNoPassword(userData: NoPasswordUserData) {
+    const { data } = await api.post<User>("/auth/idk", userData)
+      return data
   },
 
   async updateProfile(id: string, userData: UpdateProfileData) {

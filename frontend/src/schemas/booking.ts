@@ -15,6 +15,7 @@ export const bookingSchema = toTypedSchema(
 export const createUserSchema = toTypedSchema(
   z.object({
       name: z.string().trim().min(2).max(50),
+      surname: z.string().trim().min(2).max(50),
     email: z.string().email(),
         phone: z
         .string()
