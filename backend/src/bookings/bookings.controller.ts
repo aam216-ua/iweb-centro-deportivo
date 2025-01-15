@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
   Query,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -39,7 +40,7 @@ export class BookingsController {
   @ApiOperation({ summary: 'Crear una reserva' })
   @ApiResponse({ status: HttpStatus.CREATED, type: Booking })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
-  create(
+  async create(
     @Session() session: UserSession,
     @Body() createBookingDto: CreateBookingDto
   ): Promise<Booking> {
@@ -49,6 +50,12 @@ export class BookingsController {
         createBookingDto.appointerId != session.id
       )
         throw new UnauthorizedException('insufficient permissions');
+
+      const venue = await this.venuesService.findOne(createBookingDto.venueId);
+
+      if (!venue) throw new NotFoundException('venue not found');
+
+      this.usersService.modifyBalance(session.id, -venue.fee);
     }
 
     return this.bookingsService.create(createBookingDto);
@@ -104,13 +111,23 @@ export class BookingsController {
   @ApiOperation({ summary: 'Eliminar una reserva' })
   @ApiResponse({ status: HttpStatus.OK, type: DeleteResult })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
-  remove(
+  async remove(
     @Session() session: UserSession,
     @Param('id') id: string
   ): Promise<DeleteResult> {
-    if (session.role == UserRole.CUSTOMER)
+    const booking = await this.bookingsService.findOne(id);
+
+    if (!booking) throw new NotFoundException('booking not found');
+
+    if (session.role == UserRole.CUSTOMER && booking.appointee.id != session.id)
       throw new UnauthorizedException('insufficient permissions');
 
-    return this.bookingsService.remove(id);
+    const result = await this.bookingsService.remove(id);
+
+    // devolver el dinero para reservas pasadas
+    if (booking.date < new Date() && result.affected > 0)
+      this.usersService.modifyBalance(booking.appointee.id, booking.fee);
+
+    return result;
   }
 }
