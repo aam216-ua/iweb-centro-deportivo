@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { settingsSchema } from "@/schemas/settings"
-import { useAuthStore } from "@/stores/auth"
 import { usersService } from "@/services/user"
+import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
 import { Role, Status } from "@/types/user"
 import { Loader2 } from "lucide-vue-next"
@@ -208,9 +208,7 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
             </FormItem>
 
             <div class="flex gap-4 justify-end pt-4">
-              <Button variant="outline" @click="$emit('update:open', false)">
-                Cancelar
-              </Button>
+              <Button variant="outline" @click="$emit('update:open', false)"> Cancelar </Button>
               <Button type="submit" :disabled="loadingProfile">
                 <Loader2 v-if="loadingProfile" class="mr-2 h-4 w-4 animate-spin" />
                 {{ loadingProfile ? "Guardando..." : "Guardar" }}
@@ -223,11 +221,7 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
           <form @submit.prevent="onSubmitRole" class="space-y-4">
             <FormItem>
               <FormLabel>Rol</FormLabel>
-              <Select
-                v-model="roleField.value"
-                :name="roleField.name"
-                @blur="roleField.handleBlur"
-              >
+              <Select v-model="roleField.value" :name="roleField.name" @blur="roleField.handleBlur">
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona un rol" />
@@ -235,7 +229,11 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
                 </FormControl>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem v-for="option in roleOptions" :key="option.value" :value="option.value">
+                    <SelectItem
+                      v-for="option in roleOptions"
+                      :key="option.value"
+                      :value="option.value"
+                    >
                       {{ option.label }}
                     </SelectItem>
                   </SelectGroup>
@@ -245,9 +243,7 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
             </FormItem>
 
             <div class="flex justify-between pt-4">
-              <Button variant="outline" @click="$emit('update:open', false)">
-                Cancelar
-              </Button>
+              <Button variant="outline" @click="$emit('update:open', false)"> Cancelar </Button>
               <Button type="submit" :disabled="loadingRole">
                 <Loader2 v-if="loadingRole" class="mr-2 h-4 w-4 animate-spin" />
                 {{ loadingRole ? "Guardando..." : "Guardar" }}
@@ -272,7 +268,11 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
                 </FormControl>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem v-for="option in statusOptions" :key="option.value" :value="option.value">
+                    <SelectItem
+                      v-for="option in statusOptions"
+                      :key="option.value"
+                      :value="option.value"
+                    >
                       {{ option.label }}
                     </SelectItem>
                   </SelectGroup>
@@ -282,9 +282,7 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
             </FormItem>
 
             <div class="flex justify-between pt-4">
-              <Button variant="outline" @click="$emit('update:open', false)">
-                Cancelar
-              </Button>
+              <Button variant="outline" @click="$emit('update:open', false)"> Cancelar </Button>
               <Button type="submit" :disabled="loadingStatus">
                 <Loader2 v-if="loadingStatus" class="mr-2 h-4 w-4 animate-spin" />
                 {{ loadingStatus ? "Guardando..." : "Guardar" }}

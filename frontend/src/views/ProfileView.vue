@@ -5,6 +5,7 @@ import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
 import { Calendar, Mail, Phone, RefreshCcw, Wallet } from "lucide-vue-next"
+import { getStatusConfig } from "@/lib/utils"
 import { computed, onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
 
@@ -23,6 +24,11 @@ const userInitials = computed(() => {
   const [firstName, lastName] = [user.value.name, user.value.surname]
   if (!lastName) return firstName.charAt(0).toUpperCase()
   return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase()
+})
+
+const statusConfig = computed(() => {
+  if (!user.value?.status) return null
+  return getStatusConfig(user.value.status)
 })
 
 onMounted(async () => {
@@ -56,11 +62,23 @@ const formatDate = (date: Date) => {
               <AvatarFallback class="text-lg">{{ userInitials }}</AvatarFallback>
             </Avatar>
             <div>
-              <Badge variant="secondary" class="mb-2">
-                {{ user?.role?.toUpperCase() }}
-              </Badge>
+              <div class="flex flex-row items-start gap-2">
+                <Badge variant="secondary" class="mb-2">
+                  {{ user?.role }}
+                </Badge>
+                <div v-if="statusConfig" class="flex items-center gap-2">
+                  <component
+                    :is="statusConfig.icon"
+                    :class="`h-4 w-4 ${statusConfig.color}`"
+                  />
+                  <span
+                    :class="`inline-flex rounded-md px-2 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.color}`"
+                  >
+                    {{ statusConfig.label }}
+                  </span>
+                </div>
+              </div>
               <h1 class="text-2xl sm:text-3xl font-bold">{{ user?.name }} {{ user?.surname }}</h1>
-              <p class="text-muted-foreground">ID: {{ user?.id }}</p>
             </div>
           </div>
         </div>
