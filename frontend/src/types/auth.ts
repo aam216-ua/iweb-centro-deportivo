@@ -14,6 +14,13 @@ export interface RegisterUserData {
   phone: string
 }
 
+export interface NoPasswordUserData {
+  email: string
+  name: string
+  surname: string
+  phone: string
+}
+
 export interface UpdateProfileData {
   email?: string
   name?: string

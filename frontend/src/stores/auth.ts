@@ -2,6 +2,7 @@ import { authService } from "@/services/auth"
 import { usersService } from "@/services/user"
 import type {
   LoginCredentials,
+  NoPasswordUserData,
   RegisterUserData,
   UpdatePasswordData,
   UpdateProfileData,
@@ -45,6 +46,16 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       delete userData["confirmPassword"]
       return await authService.register(userData)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function createUserNoPassword(userData: NoPasswordUserData) {
+    loading.value = true
+    error.value = null
+    try {
+      return await authService.createUserNoPassword(userData)
     } finally {
       loading.value = false
     }
@@ -141,5 +152,6 @@ export const useAuthStore = defineStore("auth", () => {
     updateProfile,
     updatePassword,
     refreshUser,
+    createUserNoPassword,
   }
 })

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
@@ -11,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { venueSchema } from "@/schemas/venue"
 import { activitiesService } from "@/services/activity"
 import { venuesService } from "@/services/venue"
@@ -36,8 +36,8 @@ const activities = ref<Activity[]>([])
 const form = useForm({
   validationSchema: venueSchema,
   initialValues: {
-    status: VenueStatus.AVAILABLE
-  }
+    status: VenueStatus.AVAILABLE,
+  },
 })
 
 const statusField = reactive(
@@ -153,7 +153,7 @@ const onSubmit = form.handleSubmit(async (values) => {
             <div class="space-y-0.5">
               <FormLabel>Estado</FormLabel>
               <p class="text-sm text-muted-foreground">
-                {{ statusField.value === VenueStatus.AVAILABLE ? 'Disponible' : 'No disponible' }}
+                {{ statusField.value === VenueStatus.AVAILABLE ? "Disponible" : "No disponible" }}
               </p>
             </div>
             <Switch

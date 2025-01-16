@@ -1,6 +1,7 @@
 import type {
   LoginAuthResponse,
   LoginCredentials,
+  NoPasswordUserData,
   RegisterUserData,
   UpdatePasswordData,
   UpdateProfileData,
@@ -16,6 +17,11 @@ export const authService = {
 
   async register(userData: RegisterUserData) {
     const { data } = await api.post<User>("/auth/signup", userData)
+    return data
+  },
+
+  async createUserNoPassword(userData: NoPasswordUserData) {
+    const { data } = await api.post<User>("/users", userData)
     return data
   },
 
