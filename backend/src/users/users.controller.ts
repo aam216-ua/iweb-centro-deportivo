@@ -14,6 +14,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
   Logger,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -128,24 +129,34 @@ export class UsersController {
     if (session.role != UserRole.CUSTOMER)
       throw new BadRequestException('only customers can purchase balance');
 
-    const response = await lastValueFrom(
-      this.httpService.post(
-        this.tpvApiUrl,
-        {
-          amount: purchaseBalanceDto.amount,
-          currency: 'EUR',
-          description: 'Club Mediterráneo balance purchase',
-          reference: `${session.id} (${Date.now()})`,
-          url_callback: '',
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': this.tpvApiKey,
+    let response: any;
+
+    try {
+      this.logger.debug(`Calling ${this.tpvApiUrl} with key ${this.tpvApiKey}`);
+
+      response = await lastValueFrom(
+        this.httpService.post(
+          `${this.tpvApiUrl}/sales`,
+          {
+            amount: purchaseBalanceDto.amount,
+            currency: 'EUR',
+            description: 'Club Mediterráneo balance purchase',
+            reference: `${session.id} (${Date.now()})`,
+            url_callback: '',
           },
-        }
-      )
-    );
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': this.tpvApiKey,
+            },
+          }
+        )
+      );
+    } catch (err) {
+      this.logger.error((err as Error).message);
+
+      throw new ServiceUnavailableException('failed to reach the TPV API');
+    }
 
     this.logger.log(
       `Received status code ${response.status} and body ${response.data}`
