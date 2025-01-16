@@ -124,8 +124,8 @@ export class BookingsController {
 
     const result = await this.bookingsService.remove(id);
 
-    // devolver el dinero para reservas pasadas
-    if (booking.date < new Date() && result.affected > 0)
+    // devolver el dinero para reservas futurasw
+    if (booking.date > new Date() && result.affected > 0)
       this.usersService.modifyBalance(booking.appointee.id, booking.fee);
 
     return result;
