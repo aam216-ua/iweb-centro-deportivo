@@ -40,8 +40,7 @@ export class BookingsService {
       await this.bookingRepository.findOneBy({
         date: createBookingDto.date,
         turn: createBookingDto.turn,
-        fee: venue.fee,
-        venue,
+        venue: { id: venue.id },
       })
     ) {
       throw new ConflictException('this spot is already taken');
@@ -52,6 +51,7 @@ export class BookingsService {
     const booking = await this.bookingRepository.save(
       this.bookingRepository.create({
         ...createBookingDto,
+        fee: venue.fee,
         appointer,
         appointee,
         venue,

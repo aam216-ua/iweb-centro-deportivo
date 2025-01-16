@@ -122,8 +122,6 @@ export class BookingsController {
 
     if (!booking) throw new NotFoundException('booking not found');
 
-    this.logger.debug(`Called with user session ${session.id}`);
-
     if (session.role == UserRole.CUSTOMER && booking.appointee.id != session.id)
       throw new UnauthorizedException('insufficient permissions');
 
