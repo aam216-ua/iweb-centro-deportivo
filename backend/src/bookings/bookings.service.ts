@@ -111,7 +111,10 @@ export class BookingsService {
   }
 
   public async findOne(id: string) {
-    return await this.bookingRepository.findOneBy({ id });
+    return await this.bookingRepository.findOne({
+      where: { id },
+      relations: ['appointer', 'appointee'],
+    });
   }
 
   public async update(
