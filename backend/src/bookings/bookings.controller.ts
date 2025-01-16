@@ -127,8 +127,8 @@ export class BookingsController {
     if (session.role == UserRole.CUSTOMER && booking.appointee.id != session.id)
       throw new UnauthorizedException('insufficient permissions');
 
-    // devolver el dinero para reservas pasadas
-    if (booking.date < new Date())
+    // devolver el dinero para reservas futuras
+    if (booking.date > new Date())
       await this.usersService.modifyBalance(booking.appointee.id, booking.fee);
 
     return await this.bookingsService.remove(id);
