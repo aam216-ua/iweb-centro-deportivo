@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { usePermissions } from "@/lib/permissions"
+import { roleLabels } from "@/lib/role"
 import { getStatusConfig } from "@/lib/utils"
 import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
@@ -73,7 +74,7 @@ const formatDate = (date: Date) => {
             <div>
               <div class="flex flex-row items-start gap-2">
                 <Badge variant="secondary" class="mb-2">
-                  {{ user?.role }}
+                  {{ roleLabels[user?.role as keyof typeof roleLabels] }}
                 </Badge>
                 <div v-if="statusConfig" class="flex items-center gap-2">
                   <component :is="statusConfig.icon" :class="`h-4 w-4 ${statusConfig.color}`" />

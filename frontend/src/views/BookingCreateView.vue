@@ -77,6 +77,7 @@ import { toast } from "vue-sonner"
 const auth = useAuthStore()
 const venues = ref<Venue[]>([])
 const bookings = ref<Booking[]>([])
+const myBookings = ref<Booking[]>([])
 const activities = ref<Activity[]>([])
 const activeTab = ref("list")
 const step = ref(1)
@@ -187,11 +188,11 @@ const resetForm = () => {
 }
 
 const refreshBookings = async () => {
-  const bookingsResponse = await bookingsService.getAll({
-    appointeeId: auth.user?.id,
-    sort: "DESC",
-  })
+  const bookingsResponse = await bookingsService.getAll()
   bookings.value = bookingsResponse.data
+  myBookings.value = bookingsResponse.data.filter(
+    (booking) => booking.appointee.id === auth.user?.id,
+  )
 }
 
 const handleDelete = async (bookingId: string) => {
@@ -251,6 +252,11 @@ const getUnavailableTurns = (date: Date) => {
   const unavailableTurns = new Set<BookingTurn>()
   const availableVenues = venuesByActivity.value
 
+  if (!availableVenues || availableVenues.length === 0) {
+    Object.values(BookingTurn).forEach((turn) => unavailableTurns.add(turn))
+    return unavailableTurns
+  }
+
   Object.values(BookingTurn).forEach((turn) => {
     const bookingsForTurn = dateBookings.filter((booking) => booking.turn === turn)
     const bookedVenueIds = new Set(bookingsForTurn.map((booking) => booking.venue?.id))
@@ -296,9 +302,8 @@ const isTimeSlotDisabled = (time: BookingTurn) => {
 
 const handleSubmit = async () => {
   if (!canProceed.value || !selectedTime.value || !auth.user) return
-  if (selectedVenue.value.fee > auth.user?.balance) {
+  if (!isStaff.value && selectedVenue.value.fee > auth.user?.balance) {
     toast.error("Saldo insuficiente")
-
     return
   }
   const appointeeId = isStaff.value ? selectedUser.value?.id : auth.user.id
@@ -383,16 +388,16 @@ onMounted(async () => {
     const [venuesResponse, bookingsResponse, activitiesResponse, usersResponse] = await Promise.all(
       [
         venuesService.getAll(),
-        bookingsService.getAll({
-          appointeeId: auth.user?.id,
-          sort: "DESC",
-        }),
+        bookingsService.getAll(),
         activitiesService.getAll(),
         isStaff.value ? usersService.getAll() : Promise.resolve({ data: [] }),
       ],
     )
     venues.value = venuesResponse.data
     bookings.value = bookingsResponse.data
+    myBookings.value = bookingsResponse.data.filter(
+      (booking) => booking.appointee.id === auth.user?.id,
+    )
     activities.value = activitiesResponse
     users.value = usersResponse.data
   } catch (error) {
@@ -433,9 +438,9 @@ onMounted(async () => {
             </Button>
           </div>
 
-          <div v-if="bookings.length > 0" class="grid gap-4">
+          <div v-if="myBookings.length > 0" class="grid gap-4">
             <Card
-              v-for="booking in bookings"
+              v-for="booking in myBookings"
               :key="booking.id"
               class="group overflow-hidden transition-all hover:shadow-md"
             >

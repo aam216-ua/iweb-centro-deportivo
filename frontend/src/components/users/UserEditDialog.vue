@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PasswordToggleButton from "@/components/PasswordVisibility.vue"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -12,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { settingsSchema } from "@/schemas/settings"
+import { passwordSchema, settingsSchema } from "@/schemas/settings"
 import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
@@ -35,7 +36,13 @@ const emit = defineEmits<{
 const loadingProfile = ref(false)
 const loadingRole = ref(false)
 const loadingStatus = ref(false)
+const loadingPassword = ref(false)
 const authStore = useAuthStore()
+
+// Password visibility toggles
+const showPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 const profileForm = useForm({
   validationSchema: settingsSchema,
@@ -43,6 +50,9 @@ const profileForm = useForm({
 
 const roleForm = useForm()
 const statusForm = useForm()
+const passwordForm = useForm({
+  validationSchema: passwordSchema,
+})
 
 const nameField = reactive(
   useField<string>("name", undefined, {
@@ -83,6 +93,24 @@ const statusField = reactive(
   useField<Status>("status", undefined, {
     form: statusForm,
     initialValue: props.user.status,
+  }),
+)
+
+const currentPasswordField = reactive(
+  useField<string>("password", undefined, {
+    form: passwordForm,
+  }),
+)
+
+const newPasswordField = reactive(
+  useField<string>("newPassword", undefined, {
+    form: passwordForm,
+  }),
+)
+
+const confirmPasswordField = reactive(
+  useField<string>("confirmPassword", undefined, {
+    form: passwordForm,
   }),
 )
 
@@ -137,6 +165,23 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
     loadingStatus.value = false
   }
 })
+
+const onSubmitPassword = passwordForm.handleSubmit(async (values) => {
+  try {
+    loadingPassword.value = true
+    await authStore.updatePassword({
+      ...values,
+      email: props.user.email,
+    })
+    passwordForm.resetForm()
+    toast.success("Contraseña actualizada exitosamente")
+    emit("userEdited")
+  } catch (error) {
+    toast.error("No se pudo actualizar la contraseña")
+  } finally {
+    loadingPassword.value = false
+  }
+})
 </script>
 
 <template>
@@ -147,10 +192,11 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
       </DialogHeader>
 
       <Tabs defaultValue="profile" class="w-full">
-        <TabsList class="grid w-full grid-cols-3">
+        <TabsList class="grid w-full grid-cols-4">
           <TabsTrigger value="profile">Perfil</TabsTrigger>
           <TabsTrigger value="role">Rol</TabsTrigger>
           <TabsTrigger value="status">Estado</TabsTrigger>
+          <TabsTrigger value="password">Contraseña</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -208,7 +254,7 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
             </FormItem>
 
             <div class="flex gap-4 justify-end pt-4">
-              <Button variant="outline" @click="$emit('update:open', false)"> Cancelar </Button>
+              <Button variant="outline" @click="$emit('update:open', false)">Cancelar</Button>
               <Button type="submit" :disabled="loadingProfile">
                 <Loader2 v-if="loadingProfile" class="mr-2 h-4 w-4 animate-spin" />
                 {{ loadingProfile ? "Guardando..." : "Guardar" }}
@@ -243,7 +289,7 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
             </FormItem>
 
             <div class="flex justify-between pt-4">
-              <Button variant="outline" @click="$emit('update:open', false)"> Cancelar </Button>
+              <Button variant="outline" @click="$emit('update:open', false)">Cancelar</Button>
               <Button type="submit" :disabled="loadingRole">
                 <Loader2 v-if="loadingRole" class="mr-2 h-4 w-4 animate-spin" />
                 {{ loadingRole ? "Guardando..." : "Guardar" }}
@@ -282,10 +328,81 @@ const onSubmitStatus = statusForm.handleSubmit(async (values) => {
             </FormItem>
 
             <div class="flex justify-between pt-4">
-              <Button variant="outline" @click="$emit('update:open', false)"> Cancelar </Button>
+              <Button variant="outline" @click="$emit('update:open', false)">Cancelar</Button>
               <Button type="submit" :disabled="loadingStatus">
                 <Loader2 v-if="loadingStatus" class="mr-2 h-4 w-4 animate-spin" />
                 {{ loadingStatus ? "Guardando..." : "Guardar" }}
+              </Button>
+            </div>
+          </form>
+        </TabsContent>
+
+        <TabsContent value="password">
+          <form @submit.prevent="onSubmitPassword" class="space-y-4">
+            <FormItem>
+              <FormLabel>Contraseña Actual</FormLabel>
+              <div class="relative">
+                <FormControl>
+                  <Input
+                    class="pr-10"
+                    :type="showPassword ? 'text' : 'password'"
+                    v-model="currentPasswordField.value"
+                    :name="currentPasswordField.name"
+                    @blur="currentPasswordField.handleBlur"
+                  />
+                </FormControl>
+                <PasswordToggleButton v-model="showPassword" />
+              </div>
+              <FormMessage>{{ currentPasswordField.errorMessage }}</FormMessage>
+            </FormItem>
+
+            <FormItem>
+              <FormLabel>Nueva Contraseña</FormLabel>
+              <div class="relative">
+                <FormControl>
+                  <Input
+                    class="pr-10"
+                    :type="showNewPassword ? 'text' : 'password'"
+                    v-model="newPasswordField.value"
+                    :name="newPasswordField.name"
+                    @blur="newPasswordField.handleBlur"
+                  />
+                </FormControl>
+                <PasswordToggleButton v-model="showNewPassword" />
+              </div>
+              <FormMessage>{{ newPasswordField.errorMessage }}</FormMessage>
+            </FormItem>
+
+            <ul class="list-inside list-disc text-xs text-muted-foreground">
+              <li>Debe contener entre 8 y 64 caracteres</li>
+              <li>Debe contener alguna mayúscula [A-Z]</li>
+              <li>Debe contener alguna minúscula [a-z]</li>
+              <li>Debe contener algún dígito [0-9]</li>
+              <li>Debe contener algún símbolo [!@#$%^&*]</li>
+            </ul>
+
+            <FormItem>
+              <FormLabel>Confirmar Nueva Contraseña</FormLabel>
+              <div class="relative">
+                <FormControl>
+                  <Input
+                    class="pr-10"
+                    :type="showConfirmPassword ? 'text' : 'password'"
+                    v-model="confirmPasswordField.value"
+                    :name="confirmPasswordField.name"
+                    @blur="confirmPasswordField.handleBlur"
+                  />
+                </FormControl>
+                <PasswordToggleButton v-model="showConfirmPassword" />
+              </div>
+              <FormMessage>{{ confirmPasswordField.errorMessage }}</FormMessage>
+            </FormItem>
+
+            <div class="flex justify-between pt-4">
+              <Button variant="outline" @click="$emit('update:open', false)">Cancelar</Button>
+              <Button type="submit" :disabled="loadingPassword">
+                <Loader2 v-if="loadingPassword" class="mr-2 h-4 w-4 animate-spin" />
+                {{ loadingPassword ? "Guardando..." : "Guardar" }}
               </Button>
             </div>
           </form>
