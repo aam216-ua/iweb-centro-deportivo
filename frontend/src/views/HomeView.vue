@@ -22,7 +22,10 @@ const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const user = computed(() => authStore.user)
 const venues = ref<Venue[]>([])
-const api = { isLoading: ref(false), error: ref(null) }
+const api = {
+  isLoading: ref(false),
+  error: ref(null),
+}
 
 const fetchVenues = async () => {
   api.isLoading.value = true
@@ -142,6 +145,7 @@ onMounted(() => {
           </CardContent>
         </Card>
       </section>
+
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold">Instalaciones Destacadas</h2>
@@ -177,7 +181,9 @@ onMounted(() => {
                           {{ venue.activity.name }}
                         </Badge>
                       </div>
-                      <h3 class="text-base font-semibold text-white">{{ venue.name }}</h3>
+                      <h3 class="text-base font-semibold text-white">
+                        {{ venue.name }}
+                      </h3>
                       <p class="text-xs text-gray-300 line-clamp-2">
                         {{ venue.description || "Sin descripción disponible" }}
                       </p>
@@ -203,6 +209,7 @@ onMounted(() => {
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
         <Card
+          v-once
           v-for="(feature, index) in caracteristicas"
           :key="index"
           class="group border-0 bg-secondary/5 hover:bg-secondary/10 transition-colors"

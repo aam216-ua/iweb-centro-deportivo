@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { usePermissions } from "@/lib/permissions"
 import { passwordSchema, settingsSchema } from "@/schemas/settings"
 import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
@@ -23,6 +24,7 @@ import { computed, reactive, ref } from "vue"
 import { useRouter } from "vue-router"
 import { toast } from "vue-sonner"
 
+const { isStaff } = usePermissions()
 const loading = ref(false)
 const loadingPassword = ref(false)
 const loadingDelete = ref(false)
@@ -206,7 +208,13 @@ const onDeleteAccount = async () => {
       <section class="border-t pt-8">
         <div class="grid gap-2">
           <h2 class="text-2xl font-bold">Cambiar Contraseña</h2>
-          <p class="text-balance text-muted-foreground">Actualiza tu contraseña de acceso</p>
+          <p class="text-balance text-muted-foreground">
+            {{
+              isStaff
+                ? "Actualiza tu contraseña de acceso"
+                : "Solo el personal autorizado puede cambiar las contraseñas"
+            }}
+          </p>
         </div>
 
         <form @submit="onSubmitPassword" class="mt-6 max-w-xl space-y-6">
@@ -220,9 +228,10 @@ const onDeleteAccount = async () => {
                   v-model="currentPasswordField.value"
                   :name="currentPasswordField.name"
                   @blur="currentPasswordField.handleBlur"
+                  :disabled="!isStaff"
                 />
               </FormControl>
-              <PasswordToggleButton v-model="showPassword" />
+              <PasswordToggleButton v-model="showPassword" :disabled="!isStaff" />
             </div>
             <FormMessage>{{ currentPasswordField.errorMessage }}</FormMessage>
           </FormItem>
@@ -237,9 +246,10 @@ const onDeleteAccount = async () => {
                   v-model="newPasswordField.value"
                   :name="newPasswordField.name"
                   @blur="newPasswordField.handleBlur"
+                  :disabled="!isStaff"
                 />
               </FormControl>
-              <PasswordToggleButton v-model="showNewPassword" />
+              <PasswordToggleButton v-model="showNewPassword" :disabled="!isStaff" />
             </div>
             <FormMessage>{{ newPasswordField.errorMessage }}</FormMessage>
           </FormItem>
@@ -262,16 +272,23 @@ const onDeleteAccount = async () => {
                   v-model="confirmPasswordField.value"
                   :name="confirmPasswordField.name"
                   @blur="confirmPasswordField.handleBlur"
+                  :disabled="!isStaff"
                 />
               </FormControl>
-              <PasswordToggleButton v-model="showConfirmPassword" />
+              <PasswordToggleButton v-model="showConfirmPassword" :disabled="!isStaff" />
             </div>
             <FormMessage>{{ confirmPasswordField.errorMessage }}</FormMessage>
           </FormItem>
 
-          <Button type="submit" class="w-full" :disabled="loadingPassword">
+          <Button type="submit" class="w-full" :disabled="!isStaff || loadingPassword">
             <Loader2 v-if="loadingPassword" class="mr-2 h-4 w-4 animate-spin" />
-            {{ loadingPassword ? "Actualizando contraseña..." : "Cambiar contraseña" }}
+            {{
+              !isStaff
+                ? "Contacta a un administrador"
+                : loadingPassword
+                  ? "Actualizando contraseña..."
+                  : "Cambiar contraseña"
+            }}
           </Button>
         </form>
       </section>
@@ -287,7 +304,7 @@ const onDeleteAccount = async () => {
         <div class="mt-6">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" class="w-full max-w-xl"> Darse de baja </Button>
+              <Button variant="destructive" class="w-full max-w-xl">Darse de baja</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
