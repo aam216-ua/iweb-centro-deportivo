@@ -10,6 +10,8 @@ import {
   UnauthorizedException,
   Query,
   HttpStatus,
+  NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -28,6 +30,8 @@ import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Controller('bookings')
 export class BookingsController {
+  private readonly logger = new Logger(BookingsController.name);
+
   constructor(
     private readonly bookingsService: BookingsService,
     private readonly usersService: UsersService,
@@ -108,9 +112,19 @@ export class BookingsController {
     @Session() session: UserSession,
     @Param('id') id: string
   ): Promise<DeleteResult> {
-    if (session.role == UserRole.CUSTOMER)
+    const booking = await this.bookingsService.findOne(id);
+
+    if (!booking) throw new NotFoundException('booking not found');
+
+    this.logger.debug(`Called with user session ${session.id}`);
+
+    if (session.role == UserRole.CUSTOMER && booking.appointee.id != session.id)
       throw new UnauthorizedException('insufficient permissions');
 
-    return this.bookingsService.remove(id);
+    // devolver el dinero para reservas pasadas
+    if (booking.date < new Date())
+      await this.usersService.modifyBalance(booking.appointee.id, booking.fee);
+
+    return await this.bookingsService.remove(id);
   }
 }
