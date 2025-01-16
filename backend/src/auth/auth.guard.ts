@@ -20,9 +20,7 @@ export class AuthGuard implements CanActivate {
     const token = ((request) => {
       const [type, token] = request.headers.authorization?.split(' ') ?? [];
 
-      this.logger.debug(
-        `Received token of type '${type}' with value '${token}'`
-      );
+      this.logger.debug(`Received token of type '${type}'`);
 
       if (type == 'Bearer') return token;
     })(request);
@@ -32,9 +30,7 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token);
 
-      this.logger.debug(
-        `The received token corresponds to user '${payload.id}' with role '${payload.role}'`
-      );
+      this.logger.log(`Token corresponds to ${payload.role} '${payload.id}'`);
 
       request['session'] = payload as UserSession;
     } catch (err) {

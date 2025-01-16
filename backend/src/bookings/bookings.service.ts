@@ -118,7 +118,8 @@ export class BookingsService {
     id: string,
     updateBookingDto: UpdateBookingDto
   ): Promise<UpdateResult> {
-    if (!this.findOne(id)) throw new NotFoundException('booking not found');
+    if (!(await this.findOne(id)))
+      throw new NotFoundException('booking not found');
 
     if (!updateBookingDto.venueId)
       return await this.bookingRepository.update({ id }, updateBookingDto);
@@ -139,7 +140,8 @@ export class BookingsService {
   }
 
   public async remove(id: string): Promise<DeleteResult> {
-    if (!this.findOne(id)) throw new NotFoundException('booking not found');
+    if (!(await this.findOne(id)))
+      throw new NotFoundException('booking not found');
 
     return await this.bookingRepository.delete({ id });
   }

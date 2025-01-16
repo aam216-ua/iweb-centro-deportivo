@@ -4,9 +4,10 @@ import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Password } from './entities/password.entity';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Password])],
+  imports: [TypeOrmModule.forFeature([User, Password]), HttpModule],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
