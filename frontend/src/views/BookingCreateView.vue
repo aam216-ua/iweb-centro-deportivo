@@ -940,9 +940,9 @@ onMounted(async () => {
             </FormField>
 
             <DialogFooter>
-          <Button type="button" variant="outline" @click="showCreateUserDialog = false">
-            Cancelar
-          </Button>
+              <Button type="button" variant="outline" @click="showCreateUserDialog = false">
+                Cancelar
+              </Button>
               <Button type="submit" :disabled="createUserLoading">
                 <Loader2 v-if="createUserLoading" class="mr-2 h-4 w-4 animate-spin" />
                 {{ createUserLoading ? "Creando..." : "Crear Cliente" }}

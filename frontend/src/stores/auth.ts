@@ -2,6 +2,7 @@ import { authService } from "@/services/auth"
 import { usersService } from "@/services/user"
 import type {
   LoginCredentials,
+  NoPasswordUserData,
   RegisterUserData,
   UpdatePasswordData,
   UpdateProfileData,
@@ -50,7 +51,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
- async function createUserNoPassword(userData: NoPasswordUserData) {
+  async function createUserNoPassword(userData: NoPasswordUserData) {
     loading.value = true
     error.value = null
     try {

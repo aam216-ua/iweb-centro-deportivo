@@ -62,7 +62,6 @@
 </template>
 
 <script setup lang="ts">
-import PasswordToggleButton from "@/components/PasswordVisibility.vue"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
