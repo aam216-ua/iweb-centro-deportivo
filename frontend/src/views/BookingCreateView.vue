@@ -93,39 +93,44 @@ const createUserForm = useForm({
   validationSchema: createUserSchema,
 })
 
-const steps = [
+const baseSteps = [
   {
-    step: 1,
-    title: "Cliente",
-    description: "Seleccionar cliente",
-    icon: User,
-    staffOnly: true,
-  },
-  {
-    step: 2,
     title: "Actividad",
     description: "Elige la actividad",
     icon: MapPin,
   },
   {
-    step: 3,
     title: "Fecha y Hora",
     description: "Escoge día y hora",
     icon: Clock,
   },
   {
-    step: 4,
     title: "Pista",
     description: "Selecciona pista",
     icon: MapPin,
-  },
-].filter((step) => !step.staffOnly || isStaff)
+  }
+]
 
-const filteredSteps = computed(() => {
-  return steps.map((step, index) => ({
-    ...step,
-    step: index + 1,
-  }))
+const steps = computed(() => {
+  const finalSteps = []
+
+  if (isStaff.value) {
+    finalSteps.push({
+      step: 1,
+      title: "Cliente",
+      description: "Seleccionar cliente",
+      icon: User,
+    })
+  }
+
+  baseSteps.forEach((step, index) => {
+    finalSteps.push({
+      ...step,
+      step: isStaff.value ? index + 2 : index + 1,
+    })
+  })
+
+  return finalSteps
 })
 
 const selectedActivity = ref<string | null>(null)
@@ -215,12 +220,12 @@ const formatTime = (date: string) => {
 
 watch(step, (newStep, oldStep) => {
   if (newStep < oldStep) {
-    if (newStep === 1) {
+    if ((!isStaff.value && newStep === 1) || (isStaff.value && newStep === 2)) {
       selectedActivity.value = null
       selectedDate.value = undefined
       selectedTime.value = null
       selectedVenue.value = null
-    } else if (newStep === 2) {
+    } else if ((!isStaff.value && newStep === 2) || (isStaff.value && newStep === 3)) {
       selectedDate.value = undefined
       selectedTime.value = null
       selectedVenue.value = null
@@ -321,23 +326,29 @@ const handleSubmit = async () => {
 
 const canProceed = computed(() => {
   const currentStepIndex = step.value - 1
-  const currentStep = filteredSteps.value[currentStepIndex]
+  const currentStep = steps.value[currentStepIndex]
 
   if (!currentStep) return false
 
-  const conditions = [
-    isStaff.value ? !!selectedUser.value : true,
-    !!selectedActivity.value,
-    !!selectedDate.value && !!selectedTime.value,
-    !!selectedVenue.value && !loading.value,
-  ]
+  const conditions = isStaff.value
+    ? [
+        !!selectedUser.value,
+        !!selectedActivity.value,
+        !!selectedDate.value && !!selectedTime.value,
+        !!selectedVenue.value && !loading.value,
+      ]
+    : [
+        !!selectedActivity.value,
+        !!selectedDate.value && !!selectedTime.value,
+        !!selectedVenue.value && !loading.value,
+      ]
 
   return conditions[currentStepIndex] || false
 })
 
 const getStepState = computed(() => (stepNumber: number) => {
   const currentStep = step.value
-  const maxSteps = filteredSteps.value.length
+  const maxSteps = steps.value.length
 
   if (stepNumber === currentStep) return "active"
   if (stepNumber < currentStep) return "completed"

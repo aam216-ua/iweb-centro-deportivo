@@ -122,6 +122,27 @@ onMounted(() => {
           </CardContent>
         </Card>
 
+      </section>
+
+      <section v-else class="space-y-8 py-6">
+        <Card class="bg-gradient-to-r from-primary/5 to-transparent border-0">
+          <CardContent class="py-8">
+            <div class="max-w-2xl mx-auto text-center">
+              <h1 class="text-2xl font-semibold mb-4">Tu Espacio Deportivo Ideal</h1>
+              <p class="text-muted-foreground mb-6">
+                Encuentra y reserva las mejores instalaciones deportivas en tu zona. Simple, rápido
+                y sin complicaciones.
+              </p>
+              <Button @click="handleLoginClick" class="group">
+                Comenzar
+                <ChevronRight
+                  class="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform"
+                />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
         <div class="space-y-4">
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold">Instalaciones Destacadas</h2>
@@ -181,7 +202,7 @@ onMounted(() => {
           </Carousel>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
           <Card
             v-for="(feature, index) in caracteristicas"
             :key="index"
@@ -202,27 +223,6 @@ onMounted(() => {
             </CardContent>
           </Card>
         </div>
-      </section>
-
-      <section v-else class="space-y-8 py-6">
-        <Card class="bg-gradient-to-r from-primary/5 to-transparent border-0">
-          <CardContent class="py-8">
-            <div class="max-w-2xl mx-auto text-center">
-              <h1 class="text-2xl font-semibold mb-4">Tu Espacio Deportivo Ideal</h1>
-              <p class="text-muted-foreground mb-6">
-                Encuentra y reserva las mejores instalaciones deportivas en tu zona. Simple, rápido
-                y sin complicaciones.
-              </p>
-              <Button @click="handleLoginClick" class="group">
-                Comenzar
-                <ChevronRight
-                  class="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform"
-                />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
     </div>
   </div>
 </template>
