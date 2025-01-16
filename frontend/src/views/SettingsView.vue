@@ -20,6 +20,7 @@ import { useAuthStore } from "@/stores/auth"
 import { Loader2 } from "lucide-vue-next"
 import { useField, useForm } from "vee-validate"
 import { computed, reactive, ref } from "vue"
+import { useRouter } from "vue-router"
 import { toast } from "vue-sonner"
 
 const loading = ref(false)
@@ -29,6 +30,7 @@ const showPassword = ref(false)
 const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 const authStore = useAuthStore()
+const router = useRouter()
 
 const user = computed(() => authStore.user)
 
@@ -121,6 +123,7 @@ const onDeleteAccount = async () => {
     if (!user.value?.id) throw new Error("No user ID")
     await usersService.delete(user.value.id)
     await authStore.logout()
+    router.push("/login")
     toast.success("Cuenta eliminada exitosamente")
   } catch (error) {
     toast.error("No se pudo eliminar la cuenta. Intenta nuevamente.")

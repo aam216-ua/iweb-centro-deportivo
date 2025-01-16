@@ -1,7 +1,9 @@
 import DataTableColumnHeader from "@/components/DataTableColumnHeader.vue"
 import { Badge } from "@/components/ui/badge"
 import { roleLabels } from "@/lib/role"
+import { getStatusConfig } from "@/lib/utils"
 import type { User } from "@/types/user"
+import { Status } from "@/types/user"
 import type { ColumnDef } from "@tanstack/vue-table"
 import { h } from "vue"
 import DataTableRowActions from "./DataTableRowActions.vue"
@@ -35,6 +37,30 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const role = roleLabels[row.getValue("role") as keyof typeof roleLabels]
       return h("div", { class: "w-[150px]" }, [h(Badge, { variant: "outline" }, () => role)])
+    },
+    filterFn: (row, id, value: string[]) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => h(DataTableColumnHeader, { column, title: "Estado" }),
+    cell: ({ row }) => {
+      const status = row.getValue("status") as Status
+      const config = getStatusConfig(status)
+
+      return h("div", { class: "flex items-center gap-2" }, [
+        h(config.icon, {
+          class: `h-4 w-4 ${config.color}`,
+        }),
+        h(
+          "span",
+          {
+            class: `inline-flex rounded-md px-2 py-1 text-xs font-medium ${config.bg} ${config.color}`,
+          },
+          config.label,
+        ),
+      ])
     },
     filterFn: (row, id, value: string[]) => {
       return value.includes(row.getValue(id))

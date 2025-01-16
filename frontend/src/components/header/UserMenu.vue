@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import RechargeDialog from "@/components/RechargeDialog.vue"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,7 +16,7 @@ import { usePermissions } from "@/lib/permissions"
 import { roleLabels } from "@/lib/role"
 import { useAuthStore } from "@/stores/auth"
 import { Shield } from "lucide-vue-next"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { useRouter } from "vue-router"
 
 const props = defineProps<{
@@ -26,6 +27,7 @@ const { isStaff } = usePermissions()
 const router = useRouter()
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
+const showRechargeDialog = ref(false)
 
 const handleLogout = () => {
   authStore.logout()
@@ -47,6 +49,10 @@ const handleDashboard = () => {
 const userInitials = computed(() => {
   if (!user.value?.name) return "U"
   return user.value.name.split(" ").join("").toUpperCase().slice(0, 2)
+})
+
+defineOptions({
+  name: "UserMenu",
 })
 </script>
 
@@ -79,11 +85,14 @@ const userInitials = computed(() => {
         <DropdownMenuItem v-show="isStaff" @click="handleDashboard">
           Panel de Administración <Shield class="ml-2 h-4 w-4" />
         </DropdownMenuItem>
-        <DropdownMenuItem @click="handleProfile"> Perfil </DropdownMenuItem>
-        <DropdownMenuItem @click="handleSettings"> Ajustes de Usuario </DropdownMenuItem>
+        <DropdownMenuItem @click="handleProfile">Perfil</DropdownMenuItem>
+        <DropdownMenuItem @click="handleSettings">Ajustes de Usuario</DropdownMenuItem>
+        <DropdownMenuItem @click="showRechargeDialog = true">Recargar Saldo</DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
-      <DropdownMenuItem @click="handleLogout"> Cerrar Sesión </DropdownMenuItem>
+      <DropdownMenuItem @click="handleLogout">Cerrar Sesión</DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
+
+  <RechargeDialog v-model:open="showRechargeDialog" @recharge-complete="authStore.refreshUser()" />
 </template>

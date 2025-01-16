@@ -2,6 +2,7 @@ import { authService } from "@/services/auth"
 import { usersService } from "@/services/user"
 import type {
   LoginCredentials,
+  NoPasswordUserData,
   RegisterUserData,
   UpdatePasswordData,
   UpdateProfileData,
@@ -45,6 +46,31 @@ export const useAuthStore = defineStore("auth", () => {
     try {
       delete userData["confirmPassword"]
       return await authService.register(userData)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function createUserNoPassword(userData: NoPasswordUserData) {
+    loading.value = true
+    error.value = null
+    try {
+      return await authService.createUserNoPassword(userData)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function rechargeBalance(amount: number) {
+    if (!user.value?.id) throw new Error("User not authenticated")
+    loading.value = true
+    error.value = null
+    try {
+      const updatedUser = await authService.rechargeBalance(amount)
+      user.value = updatedUser
+    } catch (err) {
+      error.value = "No se pudo recargar el saldo"
+      throw err
     } finally {
       loading.value = false
     }
@@ -120,9 +146,6 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = userData
     } catch (err) {
       const error = err as AxiosError
-      if (error.response?.status === 401) {
-        logout()
-      }
       throw error
     }
   }
@@ -141,5 +164,7 @@ export const useAuthStore = defineStore("auth", () => {
     updateProfile,
     updatePassword,
     refreshUser,
+    createUserNoPassword,
+    rechargeBalance,
   }
 })

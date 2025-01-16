@@ -15,6 +15,23 @@ import {
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import {
   Stepper,
@@ -25,27 +42,35 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { usePermissions } from "@/lib/permissions"
+import { createUserSchema } from "@/schemas/auth"
 import { activitiesService } from "@/services/activity"
 import { bookingsService } from "@/services/booking"
+import { usersService } from "@/services/user"
 import { venuesService } from "@/services/venue"
 import { useAuthStore } from "@/stores/auth"
 import type { Activity } from "@/types/activity"
 import type { Booking } from "@/types/booking"
 import { BookingTurn } from "@/types/booking"
+import type { User as UserType } from "@/types/user"
 import type { Venue } from "@/types/venue"
 import type { DateValue } from "@internationalized/date"
 import { getLocalTimeZone, today } from "@internationalized/date"
 import {
+  Ban,
   CalendarDays,
   CalendarIcon,
+  Check,
   ChevronRight,
+  ChevronsUpDown,
   Clock,
   DollarSign,
   Loader2,
   MapPin,
   Plus,
-  Trash2,
+  User,
 } from "lucide-vue-next"
+import { useForm } from "vee-validate"
 import { computed, onMounted, ref, watch } from "vue"
 import { toast } from "vue-sonner"
 
@@ -56,8 +81,104 @@ const activities = ref<Activity[]>([])
 const activeTab = ref("list")
 const step = ref(1)
 const deleteLoading = ref(false)
+const { isStaff } = usePermissions()
+const users = ref<UserType[]>([])
+const selectedUser = ref<UserType | null>(null)
+const showCreateUserDialog = ref(false)
+const userSearch = ref("")
+const createUserLoading = ref(false)
+const showUserSelect = ref(false)
+
+const createUserForm = useForm({
+  validationSchema: createUserSchema,
+})
+
+const baseSteps = [
+  {
+    title: "Actividad",
+    description: "Elige la actividad",
+    icon: MapPin,
+  },
+  {
+    title: "Fecha y Hora",
+    description: "Escoge día y hora",
+    icon: Clock,
+  },
+  {
+    title: "Pista",
+    description: "Selecciona pista",
+    icon: MapPin,
+  },
+]
+
+const steps = computed(() => {
+  const finalSteps = []
+
+  if (isStaff.value) {
+    finalSteps.push({
+      step: 1,
+      title: "Cliente",
+      description: "Seleccionar cliente",
+      icon: User,
+    })
+  }
+
+  baseSteps.forEach((step, index) => {
+    finalSteps.push({
+      ...step,
+      step: isStaff.value ? index + 2 : index + 1,
+    })
+  })
+
+  return finalSteps
+})
+
+const selectedActivity = ref<string | null>(null)
+const selectedDate = ref<DateValue | undefined>(undefined)
+const selectedTime = ref<BookingTurn | null>(null)
+const selectedVenue = ref<Venue | null>(null)
+const loading = ref(false)
+
+const timeSlots = Object.values(BookingTurn)
+
+const tomorrow = today(getLocalTimeZone()).add({ days: 1 })
+const maxDate = tomorrow.add({ days: 14 })
+
+const filteredUsers = computed(() => {
+  const search = userSearch.value?.toLowerCase().trim() || ""
+  if (!search) return users.value
+
+  return users.value.filter((user) => {
+    const searchableFields = [
+      user.name?.toLowerCase() || "",
+      user.surname?.toLowerCase() || "",
+      user.email?.toLowerCase() || "",
+      user.phone?.toLowerCase() || "",
+    ]
+    return searchableFields.some((field) => field.includes(search))
+  })
+})
+
+const handleCreateUser = createUserForm.handleSubmit(async (values) => {
+  try {
+    createUserLoading.value = true
+    const response = await auth.createUserNoPassword(values)
+    const createdUser = response
+    selectedUser.value = createdUser
+    users.value = [...users.value, createdUser]
+    showCreateUserDialog.value = false
+    showUserSelect.value = false
+    createUserForm.resetForm()
+    toast.success("Usuario creado exitosamente")
+  } catch (error) {
+    toast.error("Error al crear el usuario")
+  } finally {
+    createUserLoading.value = false
+  }
+})
 
 const resetForm = () => {
+  selectedUser.value = null
   selectedActivity.value = null
   selectedDate.value = undefined
   selectedTime.value = null
@@ -97,46 +218,14 @@ const formatTime = (date: string) => {
   }).format(new Date(date))
 }
 
-const selectedActivity = ref<string | null>(null)
-const selectedDate = ref<DateValue | undefined>(undefined)
-const selectedTime = ref<BookingTurn | null>(null)
-const selectedVenue = ref<Venue | null>(null)
-const loading = ref(false)
-
-const timeSlots = Object.values(BookingTurn)
-
-const tomorrow = today(getLocalTimeZone()).add({ days: 1 })
-const maxDate = tomorrow.add({ days: 14 })
-
-const steps = [
-  {
-    step: 1,
-    title: "Actividad",
-    description: "Elige la actividad",
-    icon: MapPin,
-  },
-  {
-    step: 2,
-    title: "Fecha y Hora",
-    description: "Escoge día y hora",
-    icon: Clock,
-  },
-  {
-    step: 3,
-    title: "Pista",
-    description: "Selecciona pista",
-    icon: MapPin,
-  },
-]
-
 watch(step, (newStep, oldStep) => {
   if (newStep < oldStep) {
-    if (newStep === 1) {
+    if ((!isStaff.value && newStep === 1) || (isStaff.value && newStep === 2)) {
       selectedActivity.value = null
       selectedDate.value = undefined
       selectedTime.value = null
       selectedVenue.value = null
-    } else if (newStep === 2) {
+    } else if ((!isStaff.value && newStep === 2) || (isStaff.value && newStep === 3)) {
       selectedDate.value = undefined
       selectedTime.value = null
       selectedVenue.value = null
@@ -207,6 +296,14 @@ const isTimeSlotDisabled = (time: BookingTurn) => {
 
 const handleSubmit = async () => {
   if (!canProceed.value || !selectedTime.value || !auth.user) return
+  if (selectedVenue.value.fee > auth.user?.balance) {
+    toast.error("Saldo insuficiente")
+
+    return
+  }
+  const appointeeId = isStaff.value ? selectedUser.value?.id : auth.user.id
+
+  if (!appointeeId) return
 
   try {
     loading.value = true
@@ -214,8 +311,8 @@ const handleSubmit = async () => {
       venueId: selectedVenue.value!.id,
       date: new Date(selectedDate.value!.toString()).toISOString(),
       turn: selectedTime.value,
-      appointerId: auth.user?.id,
-      appointeeId: auth.user?.id,
+      appointerId: auth.user.id,
+      appointeeId: appointeeId,
       fee: selectedVenue.value!.fee,
     }
 
@@ -232,20 +329,30 @@ const handleSubmit = async () => {
 }
 
 const canProceed = computed(() => {
-  switch (step.value) {
-    case 1:
-      return !!selectedActivity.value
-    case 2:
-      return !!selectedDate.value && !!selectedTime.value
-    case 3:
-      return !!selectedVenue.value && !loading.value
-    default:
-      return false
-  }
+  const currentStepIndex = step.value - 1
+  const currentStep = steps.value[currentStepIndex]
+
+  if (!currentStep) return false
+
+  const conditions = isStaff.value
+    ? [
+        !!selectedUser.value,
+        !!selectedActivity.value,
+        !!selectedDate.value && !!selectedTime.value,
+        !!selectedVenue.value && !loading.value,
+      ]
+    : [
+        !!selectedActivity.value,
+        !!selectedDate.value && !!selectedTime.value,
+        !!selectedVenue.value && !loading.value,
+      ]
+
+  return conditions[currentStepIndex] || false
 })
 
 const getStepState = computed(() => (stepNumber: number) => {
   const currentStep = step.value
+  const maxSteps = steps.value.length
 
   if (stepNumber === currentStep) return "active"
   if (stepNumber < currentStep) return "completed"
@@ -273,17 +380,21 @@ const getActivityIcon = () => {
 
 onMounted(async () => {
   try {
-    const [venuesResponse, bookingsResponse, activitiesResponse] = await Promise.all([
-      venuesService.getAll(),
-      bookingsService.getAll({
-        appointeeId: auth.user?.id,
-        sort: "DESC",
-      }),
-      activitiesService.getAll(),
-    ])
+    const [venuesResponse, bookingsResponse, activitiesResponse, usersResponse] = await Promise.all(
+      [
+        venuesService.getAll(),
+        bookingsService.getAll({
+          appointeeId: auth.user?.id,
+          sort: "DESC",
+        }),
+        activitiesService.getAll(),
+        isStaff.value ? usersService.getAll() : Promise.resolve({ data: [] }),
+      ],
+    )
     venues.value = venuesResponse.data
     bookings.value = bookingsResponse.data
     activities.value = activitiesResponse
+    users.value = usersResponse.data
   } catch (error) {
     toast.error("Error al cargar los datos")
   }
@@ -344,8 +455,9 @@ onMounted(async () => {
                           variant="ghost"
                           size="icon"
                           class="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                          :disabled="!canCancelBooking(booking.date)"
                         >
-                          <Trash2 class="w-4 w-4" />
+                          <Ban class="w-4 h-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -430,7 +542,7 @@ onMounted(async () => {
                           <DollarSign class="w-4 h-4 text-primary" />
                         </div>
                         <div class="min-w-0">
-                          <p class="text-sm font-medium truncate">${{ booking.fee }}</p>
+                          <p class="text-sm font-medium truncate">{{ booking.fee }}€</p>
                           <p class="text-xs text-muted-foreground">Precio</p>
                         </div>
                       </div>
@@ -520,7 +632,95 @@ onMounted(async () => {
               </div>
 
               <div class="space-y-8">
-                <div v-show="step === 1">
+                <div v-show="step === 1 && isStaff">
+                  <Card class="p-6">
+                    <CardHeader class="px-0 pt-0">
+                      <CardTitle class="text-lg font-semibold flex items-center gap-2">
+                        <User class="w-5 h-5" />
+                        Seleccionar Cliente
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent class="px-0 pb-0">
+                      <div class="space-y-4">
+                        <Popover v-model:open="showUserSelect">
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              :aria-expanded="showUserSelect"
+                              class="w-full justify-between"
+                            >
+                              {{ selectedUser?.name || "Seleccionar cliente..." }}
+                              <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent class="w-[300px] p-0">
+                            <Command>
+                              <Input
+                                placeholder="Buscar cliente..."
+                                class="h-9"
+                                :model-value="userSearch"
+                                @input="
+                                  (e: Event) => (userSearch = (e.target as HTMLInputElement).value)
+                                "
+                              />
+                              <CommandList class="max-h-[200px] overflow-y-auto">
+                                <CommandEmpty> No se encontraron resultados. </CommandEmpty>
+                                <CommandGroup>
+                                  <CommandItem
+                                    v-for="user in filteredUsers"
+                                    :key="user.id"
+                                    :value="user.id"
+                                    @click="
+                                      () => {
+                                        selectedUser = user
+                                        showUserSelect = false
+                                        userSearch = ''
+                                      }
+                                    "
+                                    class="flex items-center justify-between cursor-pointer"
+                                  >
+                                    <div class="flex items-center gap-2">
+                                      <User class="h-4 w-4" />
+                                      <div class="flex flex-col">
+                                        <span class="font-medium">{{ user.name }}</span>
+                                        <span class="text-xs text-muted-foreground">
+                                          {{ user.email }}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <Check
+                                      v-if="selectedUser?.id === user.id"
+                                      class="h-4 w-4 shrink-0"
+                                    />
+                                  </CommandItem>
+                                </CommandGroup>
+                              </CommandList>
+                              <Button
+                                variant="ghost"
+                                class="w-full flex items-center justify-center py-2 border-t"
+                                @click="showCreateUserDialog = true"
+                              >
+                                <Plus class="mr-2 h-4 w-4" />
+                                Crear Nuevo Cliente
+                              </Button>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </CardContent>
+                    <CardFooter class="px-0 pt-6">
+                      <div class="flex justify-end w-full">
+                        <Button :disabled="!selectedUser" @click="step = 2">
+                          Siguiente
+                          <ChevronRight class="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                </div>
+
+                <div v-show="(step === 2 && isStaff) || (step === 1 && !isStaff)">
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
                       <CardTitle class="text-lg font-semibold flex items-center gap-2">
@@ -542,8 +742,9 @@ onMounted(async () => {
                       </div>
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
-                      <div class="flex justify-end w-full">
-                        <Button :disabled="!selectedActivity" @click="step = 2">
+                      <div class="flex justify-between w-full">
+                        <Button v-if="isStaff" variant="outline" @click="step--"> Atrás </Button>
+                        <Button :disabled="!selectedActivity" @click="step++" class="ml-auto">
                           Siguiente
                           <ChevronRight class="w-4 h-4 ml-2" />
                         </Button>
@@ -552,7 +753,7 @@ onMounted(async () => {
                   </Card>
                 </div>
 
-                <div v-show="step === 2">
+                <div v-show="(step === 3 && isStaff) || (step === 2 && !isStaff)">
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
                       <CardTitle class="text-lg font-semibold flex items-center gap-2">
@@ -611,8 +812,8 @@ onMounted(async () => {
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
                       <div class="flex justify-between w-full">
-                        <Button variant="outline" @click="step--"> Atrás </Button>
-                        <Button :disabled="!selectedDate || !selectedTime" @click="step = 3">
+                        <Button variant="outline" @click="step--">Atrás</Button>
+                        <Button :disabled="!selectedDate || !selectedTime" @click="step++">
                           Siguiente
                           <ChevronRight class="w-4 h-4 ml-2" />
                         </Button>
@@ -621,10 +822,10 @@ onMounted(async () => {
                   </Card>
                 </div>
 
-                <div v-show="step === 3">
+                <div v-show="(step === 4 && isStaff) || (step === 3 && !isStaff)">
                   <Card class="p-6">
                     <CardHeader class="px-0 pt-0">
-                      <CardTitle class="text-lg font-semibold"> Pistas Disponibles </CardTitle>
+                      <CardTitle class="text-lg font-semibold">Pistas Disponibles</CardTitle>
                     </CardHeader>
                     <CardContent class="px-0 pb-0">
                       <div class="grid gap-4">
@@ -636,7 +837,7 @@ onMounted(async () => {
                           @click="selectedVenue = venue"
                         >
                           <span>{{ venue.name }}</span>
-                          <span class="text-sm">${{ venue.fee }}</span>
+                          <span class="text-sm">{{ venue.fee }}€</span>
                         </Button>
                         <div
                           v-if="availableVenues.length === 0"
@@ -648,7 +849,7 @@ onMounted(async () => {
                     </CardContent>
                     <CardFooter class="px-0 pt-6">
                       <div class="flex justify-between w-full">
-                        <Button variant="outline" @click="step--"> Atrás </Button>
+                        <Button variant="outline" @click="step--">Atrás</Button>
                         <Button
                           :disabled="!selectedVenue"
                           @click="handleSubmit"
@@ -672,6 +873,13 @@ onMounted(async () => {
                 </CardHeader>
                 <CardContent>
                   <div class="space-y-3">
+                    <div v-if="isStaff" class="flex justify-between items-center">
+                      <span class="text-muted-foreground">Cliente</span>
+                      <span class="font-medium">
+                        {{ selectedUser?.name || "No seleccionado" }}
+                      </span>
+                    </div>
+                    <Separator v-if="isStaff" />
                     <div class="flex justify-between items-center">
                       <span class="text-muted-foreground">Actividad</span>
                       <span class="font-medium">
@@ -703,7 +911,7 @@ onMounted(async () => {
                     <div class="flex justify-between items-center">
                       <span class="font-medium">Total</span>
                       <span class="font-medium">
-                        {{ selectedVenue ? `${selectedVenue.fee}` : "—" }}
+                        {{ selectedVenue ? `${selectedVenue.fee}€` : "—" }}
                       </span>
                     </div>
                   </div>
@@ -713,6 +921,65 @@ onMounted(async () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog v-model:open="showCreateUserDialog">
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Crear Nuevo Cliente</DialogTitle>
+          </DialogHeader>
+          <form @submit="handleCreateUser" class="space-y-4">
+            <FormField v-slot="{ field }" name="name">
+              <FormItem>
+                <FormLabel>Nombre</FormLabel>
+                <FormControl>
+                  <Input v-bind="field" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ field }" name="surname">
+              <FormItem>
+                <FormLabel>Apellidos</FormLabel>
+                <FormControl>
+                  <Input v-bind="field" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ field }" name="email">
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input v-bind="field" type="email" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <FormField v-slot="{ field }" name="phone">
+              <FormItem>
+                <FormLabel>Teléfono</FormLabel>
+                <FormControl>
+                  <Input type="tel" v-bind="field" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </FormField>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" @click="showCreateUserDialog = false">
+                Cancelar
+              </Button>
+              <Button type="submit" :disabled="createUserLoading">
+                <Loader2 v-if="createUserLoading" class="mr-2 h-4 w-4 animate-spin" />
+                {{ createUserLoading ? "Creando..." : "Crear Cliente" }}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   </div>
 </template>

@@ -1,16 +1,24 @@
 <script setup lang="ts">
+import RechargeDialog from "@/components/RechargeDialog.vue"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { getStatusConfig } from "@/lib/utils"
 import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
-import { Calendar, Mail, Phone, RefreshCcw, Wallet } from "lucide-vue-next"
+import { Calendar, Mail, Phone, PlusCircle, RefreshCcw, Wallet } from "lucide-vue-next"
 import { computed, onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
+
+defineOptions({
+  name: "ProfileView",
+})
 
 const route = useRoute()
 const authStore = useAuthStore()
 const loadedUser = ref<User | null>(null)
+const showRechargeDialog = ref(false)
 
 const user = computed<User | null>(() => {
   const id = route.params.id as string
@@ -23,6 +31,11 @@ const userInitials = computed(() => {
   const [firstName, lastName] = [user.value.name, user.value.surname]
   if (!lastName) return firstName.charAt(0).toUpperCase()
   return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase()
+})
+
+const statusConfig = computed(() => {
+  if (!user.value?.status) return null
+  return getStatusConfig(user.value.status)
 })
 
 onMounted(async () => {
@@ -56,11 +69,20 @@ const formatDate = (date: Date) => {
               <AvatarFallback class="text-lg">{{ userInitials }}</AvatarFallback>
             </Avatar>
             <div>
-              <Badge variant="secondary" class="mb-2">
-                {{ user?.role?.toUpperCase() }}
-              </Badge>
+              <div class="flex flex-row items-start gap-2">
+                <Badge variant="secondary" class="mb-2">
+                  {{ user?.role }}
+                </Badge>
+                <div v-if="statusConfig" class="flex items-center gap-2">
+                  <component :is="statusConfig.icon" :class="`h-4 w-4 ${statusConfig.color}`" />
+                  <span
+                    :class="`inline-flex rounded-md px-2 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.color}`"
+                  >
+                    {{ statusConfig.label }}
+                  </span>
+                </div>
+              </div>
               <h1 class="text-2xl sm:text-3xl font-bold">{{ user?.name }} {{ user?.surname }}</h1>
-              <p class="text-muted-foreground">ID: {{ user?.id }}</p>
             </div>
           </div>
         </div>
@@ -89,7 +111,21 @@ const formatDate = (date: Date) => {
             <Wallet class="w-5 h-5 text-muted-foreground" />
             <div>
               <p class="text-sm text-muted-foreground">Saldo Actual</p>
-              <p class="font-medium">{{ user?.balance ? `€${user.balance.toFixed(2)}` : "-" }}</p>
+              <div class="flex items-center gap-2">
+                <p class="font-medium">
+                  {{ user?.balance !== undefined ? `€${user.balance.toFixed(2)}` : "-" }}
+                </p>
+                <Button
+                  v-if="user?.id === authStore.user?.id"
+                  variant="ghost"
+                  size="icon"
+                  class="h-8 w-8"
+                  @click="showRechargeDialog = true"
+                >
+                  <PlusCircle class="h-4 w-4" />
+                  <span class="sr-only">Recargar saldo</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -117,5 +153,7 @@ const formatDate = (date: Date) => {
         </div>
       </section>
     </div>
+
+    <RechargeDialog v-model:open="showRechargeDialog" />
   </div>
 </template>

@@ -43,7 +43,7 @@ export class BookingsController {
   @ApiOperation({ summary: 'Crear una reserva' })
   @ApiResponse({ status: HttpStatus.CREATED, type: Booking })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
-  create(
+  async create(
     @Session() session: UserSession,
     @Body() createBookingDto: CreateBookingDto
   ): Promise<Booking> {
@@ -53,6 +53,12 @@ export class BookingsController {
         createBookingDto.appointerId != session.id
       )
         throw new UnauthorizedException('insufficient permissions');
+
+      const venue = await this.venuesService.findOne(createBookingDto.venueId);
+
+      if (!venue) throw new NotFoundException('venue not found');
+
+      this.usersService.modifyBalance(session.id, -venue.fee);
     }
 
     return this.bookingsService.create(createBookingDto);
@@ -108,7 +114,7 @@ export class BookingsController {
   @ApiOperation({ summary: 'Eliminar una reserva' })
   @ApiResponse({ status: HttpStatus.OK, type: DeleteResult })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
-  remove(
+  async remove(
     @Session() session: UserSession,
     @Param('id') id: string
   ): Promise<DeleteResult> {

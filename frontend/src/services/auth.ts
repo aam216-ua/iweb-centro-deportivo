@@ -1,6 +1,7 @@
 import type {
   LoginAuthResponse,
   LoginCredentials,
+  NoPasswordUserData,
   RegisterUserData,
   UpdatePasswordData,
   UpdateProfileData,
@@ -19,8 +20,18 @@ export const authService = {
     return data
   },
 
+  async createUserNoPassword(userData: NoPasswordUserData) {
+    const { data } = await api.post<User>("/users", userData)
+    return data
+  },
+
   async updateProfile(id: string, userData: UpdateProfileData) {
     const { data } = await api.patch<User>(`/users/${id}`, userData)
+    return data
+  },
+
+  async rechargeBalance(amount: number) {
+    const { data } = await api.post<User>(`/users/balance`, { amount })
     return data
   },
 

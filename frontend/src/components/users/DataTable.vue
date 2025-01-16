@@ -98,11 +98,27 @@ const roleOptions = Object.entries(roleLabels).map(([value, label]) => ({
     <div class="flex items-center gap-2">
       <div class="flex items-center gap-2">
         <Input
+          placeholder="Filtrar por email..."
+          :model-value="(table.getColumn('email')?.getFilterValue() as string) ?? ''"
+          class="max-w-sm"
+          @input="
+            table.getColumn('email')?.setFilterValue(($event.target as HTMLInputElement).value)
+          "
+        />
+        <Input
           placeholder="Filtrar por nombre..."
           :model-value="(table.getColumn('name')?.getFilterValue() as string) ?? ''"
           class="max-w-sm"
           @input="
             table.getColumn('name')?.setFilterValue(($event.target as HTMLInputElement).value)
+          "
+        />
+        <Input
+          placeholder="Filtrar por apellidos..."
+          :model-value="(table.getColumn('surname')?.getFilterValue() as string) ?? ''"
+          class="max-w-sm"
+          @input="
+            table.getColumn('surname')?.setFilterValue(($event.target as HTMLInputElement).value)
           "
         />
         <DataTableFacetedFilter
