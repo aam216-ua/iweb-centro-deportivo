@@ -21,7 +21,7 @@ const PRESET_AMOUNTS = [5, 10, 20, 50, 100, 200]
 
 const rechargeSchema = toTypedSchema(
   z.object({
-    amount: z.number().positive().min(0.01).max(999.99),
+    amount: z.number().positive().min(1).max(999.99),
   }),
 )
 
@@ -114,8 +114,8 @@ defineOptions({
                 <Input
                   v-bind="componentField"
                   type="number"
-                  step="0.01"
-                  min="0.01"
+                  step="1"
+                  min="1"
                   max="999.99"
                   placeholder="0.00"
                   class="pl-7"
