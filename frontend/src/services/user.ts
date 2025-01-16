@@ -1,5 +1,6 @@
 import type { GetAllParams, PaginatedResponse } from "@/types/api"
 import type { User } from "@/types/user"
+import { Role, Status } from "@/types/user"
 import { api } from "./api"
 
 export const usersService = {
@@ -20,5 +21,13 @@ export const usersService = {
 
   async delete(id: string) {
     return api.delete(`/users/${id}`)
+  },
+
+  async updateRole(id: string, role: Role) {
+    return api.post(`/auth/grant/${id}/role`, { role })
+  },
+
+  async updateStatus(id: string, status: Status) {
+    return api.post(`/auth/grant/${id}/status`, { status })
   },
 }

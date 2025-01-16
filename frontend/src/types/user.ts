@@ -6,10 +6,9 @@ export enum Role {
 }
 
 export enum Status {
-  pendiente,
-  activo,
-  bloqueado,
-  de_baja,
+  pending = "pending",
+  created = "created",
+  blocked = "blocked",
 }
 
 export interface User {
