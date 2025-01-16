@@ -17,14 +17,11 @@ import { useForm } from "vee-validate"
 import { ref } from "vue"
 import { toast } from "vue-sonner"
 
-const PRESET_AMOUNTS = [5, 10, 20, 50, 100]
+const PRESET_AMOUNTS = [5, 10, 20, 50, 100, 200]
 
 const rechargeSchema = toTypedSchema(
   z.object({
-    amount: z
-      .number()
-      .min(0.01, "El monto debe ser mayor a €0.01")
-      .max(999.99, "El monto máximo es €999.99"),
+    amount: z.number().positive().min(0.01).max(999.99),
   }),
 )
 
@@ -76,7 +73,7 @@ defineOptions({
       <DialogHeader>
         <DialogTitle class="text-2xl">Recargar Saldo</DialogTitle>
         <DialogDescription>
-          Selecciona una cantidad predefinida o introduce un monto personalizado.
+          Selecciona una cantidad predefinida o introduce una cantidad personalizada.
         </DialogDescription>
       </DialogHeader>
 
@@ -100,7 +97,7 @@ defineOptions({
           </div>
           <div class="relative flex justify-center text-xs uppercase">
             <span class="bg-background px-2 text-muted-foreground"
-              >O introduce un monto personalizado</span
+              >O introduce una cantidad personalizada</span
             >
           </div>
         </div>
