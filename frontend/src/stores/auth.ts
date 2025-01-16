@@ -131,9 +131,6 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = userData
     } catch (err) {
       const error = err as AxiosError
-      if (error.response?.status === 401) {
-        logout()
-      }
       throw error
     }
   }
