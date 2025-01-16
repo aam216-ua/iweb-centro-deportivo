@@ -12,7 +12,7 @@ export class PaginatedQueryDto {
   @IsOptional()
   @Transform(({ value }) => parseInt(value))
   @IsInt()
-  @Max(25)
+  @Max(100)
   @Min(1)
   size: number;
 }

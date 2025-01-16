@@ -21,7 +21,7 @@ export const bookingsService = {
     const { data } = await api.get<PaginatedResponse<Booking>>("/bookings", {
       params: {
         page: params?.page ?? 0,
-        size: params?.size ?? 10,
+        size: params?.size ?? 100,
         appointeeId: params?.appointeeId,
         appointerId: params?.appointerId,
         venueId: params?.venueId,

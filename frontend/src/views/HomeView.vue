@@ -184,7 +184,7 @@ onMounted(() => {
                       <h3 class="text-base font-semibold text-white">
                         {{ venue.name }}
                       </h3>
-                      <p class="text-xs text-gray-300 line-clamp-2">
+                      <p class="text-xs text-gray-300 line-clamp-2 truncate">
                         {{ venue.description || "Sin descripción disponible" }}
                       </p>
                       <div class="flex items-center justify-between pt-1">

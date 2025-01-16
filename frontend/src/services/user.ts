@@ -13,7 +13,7 @@ export const usersService = {
     const { data } = await api.get<PaginatedResponse<User>>("/users", {
       params: {
         page: params?.page ?? 0,
-        size: params?.size ?? 10,
+        size: params?.size ?? 100,
       },
     })
     return data
