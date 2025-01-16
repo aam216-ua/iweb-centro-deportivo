@@ -341,4 +341,3 @@ ALTER TABLE ONLY public.password
 --
 -- PostgreSQL database dump complete
 --
-
