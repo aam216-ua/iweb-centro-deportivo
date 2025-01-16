@@ -30,6 +30,11 @@ export const authService = {
     return data
   },
 
+async rechargeBalance(amount: number) {
+  const { data } = await api.post<User>(`/users/balance`, { amount })
+  return data
+},
+
   async updatePassword(id: string, credentials: UpdatePasswordData) {
     await api.post<void>(`/auth/reset/${id}`, credentials)
   },

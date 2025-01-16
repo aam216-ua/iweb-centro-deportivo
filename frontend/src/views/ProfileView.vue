@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
-import { Calendar, Mail, Phone, RefreshCcw, Wallet } from "lucide-vue-next"
+import { Calendar, Mail, Phone, PlusCircle, RefreshCcw, Wallet } from "lucide-vue-next"
 import { getStatusConfig } from "@/lib/utils"
 import { computed, onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
+import RechargeDialog from "@/components/RechargeDialog.vue"
+
+defineOptions({
+  name: "ProfileView"
+})
 
 const route = useRoute()
 const authStore = useAuthStore()
 const loadedUser = ref<User | null>(null)
+const showRechargeDialog = ref(false)
 
 const user = computed<User | null>(() => {
   const id = route.params.id as string
@@ -107,7 +114,19 @@ const formatDate = (date: Date) => {
             <Wallet class="w-5 h-5 text-muted-foreground" />
             <div>
               <p class="text-sm text-muted-foreground">Saldo Actual</p>
-              <p class="font-medium">{{ user?.balance ? `€${user.balance.toFixed(2)}` : "-" }}</p>
+              <div class="flex items-center gap-2">
+                <p class="font-medium">{{ user?.balance !== undefined ? `€${user.balance.toFixed(2)}` : "-" }}</p>
+                <Button
+                  v-if="user?.id === authStore.user?.id"
+                  variant="ghost"
+                  size="icon"
+                  class="h-8 w-8"
+                  @click="showRechargeDialog = true"
+                >
+                  <PlusCircle class="h-4 w-4" />
+                  <span class="sr-only">Recargar saldo</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -135,5 +154,9 @@ const formatDate = (date: Date) => {
         </div>
       </section>
     </div>
+
+    <RechargeDialog
+      v-model:open="showRechargeDialog"
+    />
   </div>
 </template>

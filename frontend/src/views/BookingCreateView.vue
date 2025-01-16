@@ -296,7 +296,12 @@ const isTimeSlotDisabled = (time: BookingTurn) => {
 
 const handleSubmit = async () => {
   if (!canProceed.value || !selectedTime.value || !auth.user) return
+if(      selectedVenue.value.fee > auth.user?.balance
+  ){
+      toast.error("Saldo insuficiente")
 
+  return
+  }
   const appointeeId = isStaff.value ? selectedUser.value?.id : auth.user.id
 
   if (!appointeeId) return
