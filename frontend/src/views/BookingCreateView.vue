@@ -43,9 +43,8 @@ import {
 } from "@/components/ui/stepper"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePermissions } from "@/lib/permissions"
-import { createUserSchema } from "@/schemas/booking"
+import { createUserSchema } from "@/schemas/auth"
 import { activitiesService } from "@/services/activity"
-import { authService } from "@/services/auth"
 import { bookingsService } from "@/services/booking"
 import { usersService } from "@/services/user"
 import { venuesService } from "@/services/venue"
@@ -150,7 +149,7 @@ const filteredUsers = computed(() => {
 const handleCreateUser = createUserForm.handleSubmit(async (values) => {
   try {
     createUserLoading.value = true
-    const response = await authService.createNoPassword(values)
+    const response = await auth.createUserNoPassword(values)
     const createdUser = response
     selectedUser.value = createdUser
     users.value = [...users.value, createdUser]
@@ -159,7 +158,6 @@ const handleCreateUser = createUserForm.handleSubmit(async (values) => {
     createUserForm.resetForm()
     toast.success("Usuario creado exitosamente")
   } catch (error) {
-    console.error(error)
     toast.error("Error al crear el usuario")
   } finally {
     createUserLoading.value = false
@@ -942,6 +940,9 @@ onMounted(async () => {
             </FormField>
 
             <DialogFooter>
+          <Button type="button" variant="outline" @click="showCreateUserDialog = false">
+            Cancelar
+          </Button>
               <Button type="submit" :disabled="createUserLoading">
                 <Loader2 v-if="createUserLoading" class="mr-2 h-4 w-4 animate-spin" />
                 {{ createUserLoading ? "Creando..." : "Crear Cliente" }}

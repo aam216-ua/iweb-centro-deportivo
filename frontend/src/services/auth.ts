@@ -20,8 +20,8 @@ export const authService = {
     return data
   },
 
-  async createNoPassword(userData: NoPasswordUserData) {
-    const { data } = await api.post<User>("/auth/idk", userData)
+  async createUserNoPassword(userData: NoPasswordUserData) {
+    const { data } = await api.post<User>("/users", userData)
     return data
   },
 

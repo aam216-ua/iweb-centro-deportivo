@@ -47,48 +47,6 @@
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField, errorMessage }" name="password">
-          <FormItem>
-            <FormLabel>Contraseña</FormLabel>
-            <div class="relative">
-              <FormControl>
-                <Input
-                  class="pr-10"
-                  :type="showPassword ? 'text' : 'password'"
-                  v-bind="componentField"
-                />
-              </FormControl>
-              <PasswordToggleButton v-model="showPassword" />
-            </div>
-            <FormMessage>{{ errorMessage }}</FormMessage>
-          </FormItem>
-        </FormField>
-
-        <ul class="list-inside list-disc text-xs text-muted-foreground">
-          <li>Debe contener entre 8 y 64 caracteres</li>
-          <li>Debe contener alguna mayúscula [A-Z]</li>
-          <li>Debe contener alguna minúscula [a-z]</li>
-          <li>Debe contener algún dígito [0-9]</li>
-          <li>Debe contener algún símbolo [!@#$%^&*]</li>
-        </ul>
-
-        <FormField v-slot="{ componentField, errorMessage }" name="confirmPassword">
-          <FormItem>
-            <FormLabel>Confirmar Contraseña</FormLabel>
-            <div class="relative">
-              <FormControl>
-                <Input
-                  class="pr-10"
-                  :type="showConfirmPassword ? 'text' : 'password'"
-                  v-bind="componentField"
-                />
-              </FormControl>
-              <PasswordToggleButton v-model="showConfirmPassword" />
-            </div>
-            <FormMessage>{{ errorMessage }}</FormMessage>
-          </FormItem>
-        </FormField>
-
         <div class="flex justify-end gap-4 mt-4">
           <Button type="button" variant="outline" @click="$emit('update:open', false)">
             Cancelar
@@ -109,7 +67,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { registerSchema } from "@/schemas/auth"
+import { createUserSchema } from "@/schemas/auth"
 import { useAuthStore } from "@/stores/auth"
 import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
@@ -131,18 +89,19 @@ const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const form = useForm({
-  validationSchema: registerSchema,
+  validationSchema: createUserSchema,
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
   try {
     loading.value = true
-    await authStore.register(values)
+    await authStore.createUserNoPassword(values)
     form.resetForm()
     emit("update:open", false)
     emit("userCreated")
     toast.success("Usuario creado exitosamente")
   } catch (error) {
+    console.error(error)
     toast.error("No se pudo crear el usuario")
   } finally {
     loading.value = false

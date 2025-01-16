@@ -19,6 +19,7 @@ export interface User {
   surname: string
   phone: string
   role: Role
+  status: Status
   balance: number
   createdAt: Date
   updatedAt: Date

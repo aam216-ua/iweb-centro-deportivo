@@ -50,6 +50,16 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+ async function createUserNoPassword(userData: NoPasswordUserData) {
+    loading.value = true
+    error.value = null
+    try {
+      return await authService.createUserNoPassword(userData)
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function updateProfile(userData: UpdateProfileData, id: string) {
     if (!user.value?.id) throw new Error("User not authenticated")
     loading.value = true
@@ -141,5 +151,6 @@ export const useAuthStore = defineStore("auth", () => {
     updateProfile,
     updatePassword,
     refreshUser,
+    createUserNoPassword,
   }
 })

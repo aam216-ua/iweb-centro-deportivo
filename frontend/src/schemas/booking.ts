@@ -11,15 +11,3 @@ export const bookingSchema = toTypedSchema(
     appointeeId: z.string().uuid(),
   }),
 )
-
-export const createUserSchema = toTypedSchema(
-  z.object({
-    name: z.string().trim().min(2).max(50),
-    surname: z.string().trim().min(2).max(50),
-    email: z.string().email(),
-    phone: z
-      .string()
-      .trim()
-      .transform((phone) => "+34 " + phone),
-  }),
-)
