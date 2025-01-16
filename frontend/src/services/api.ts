@@ -51,7 +51,9 @@ api.interceptors.response.use(
         },
       )
     }
-
+    if (error.response?.status === 401 && !error.config.url?.includes("/auth/signin")) {
+      window.location.href = "/"
+    }
     return Promise.reject(error)
   },
 )

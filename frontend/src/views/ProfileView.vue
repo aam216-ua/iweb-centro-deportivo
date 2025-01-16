@@ -3,6 +3,7 @@ import RechargeDialog from "@/components/RechargeDialog.vue"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { usePermissions } from "@/lib/permissions"
 import { getStatusConfig } from "@/lib/utils"
 import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
@@ -17,6 +18,7 @@ defineOptions({
 
 const route = useRoute()
 const authStore = useAuthStore()
+const { isStaff } = usePermissions()
 const loadedUser = ref<User | null>(null)
 const showRechargeDialog = ref(false)
 
@@ -107,7 +109,7 @@ const formatDate = (date: Date) => {
               <p class="font-medium">{{ user?.phone || "-" }}</p>
             </div>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3" v-if="isStaff || user?.id === authStore.user?.id">
             <Wallet class="w-5 h-5 text-muted-foreground" />
             <div>
               <p class="text-sm text-muted-foreground">Saldo Actual</p>
