@@ -139,6 +139,7 @@ const filteredUsers = computed(() => {
   return users.value.filter((user) => {
     const searchableFields = [
       user.name?.toLowerCase() || "",
+      user.surname?.toLowerCase() || "",
       user.email?.toLowerCase() || "",
       user.phone?.toLowerCase() || "",
     ]
