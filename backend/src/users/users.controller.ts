@@ -11,6 +11,10 @@ import {
   UseGuards,
   UnauthorizedException,
   HttpStatus,
+  BadRequestException,
+  InternalServerErrorException,
+  Logger,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,10 +26,20 @@ import { UserSession } from 'src/auth/types/user-session.type';
 import { Session } from 'src/auth/decorators/session.decorator';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { PurchaseBalanceDto } from './dto/purchase-balance.dto';
+import { lastValueFrom } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  private readonly logger = new Logger(UsersController.name);
+  private readonly tpvApiUrl = process.env.TPV_API_URL;
+  private readonly tpvApiKey = process.env.TPV_API_KEY;
+
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly httpService: HttpService
+  ) {}
 
   @UseGuards(AuthGuard)
   @Post()
@@ -101,5 +115,56 @@ export class UsersController {
       throw new UnauthorizedException('insufficient permissions');
 
     return this.usersService.remove(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('balance')
+  @ApiOperation({ summary: 'Recargar saldo' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  async purchaseBalance(
+    @Session() session: UserSession,
+    @Body() purchaseBalanceDto: PurchaseBalanceDto
+  ) {
+    if (session.role != UserRole.CUSTOMER)
+      throw new BadRequestException('only customers can purchase balance');
+
+    let response: any;
+
+    try {
+      this.logger.debug(`Calling ${this.tpvApiUrl} with key ${this.tpvApiKey}`);
+
+      response = await lastValueFrom(
+        this.httpService.post(
+          `${this.tpvApiUrl}/sales`,
+          {
+            amount: purchaseBalanceDto.amount,
+            currency: 'EUR',
+            description: 'Club Mediterráneo balance purchase',
+            reference: `${session.id} (${Date.now()})`,
+            url_callback: '',
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': this.tpvApiKey,
+            },
+          }
+        )
+      );
+    } catch (err) {
+      this.logger.error((err as Error).message);
+
+      throw new ServiceUnavailableException('failed to reach the TPV API');
+    }
+
+    this.logger.log(
+      `Received status code ${response.status} and body ${response.data}`
+    );
+
+    if (response.status != 201)
+      throw new InternalServerErrorException('purchase failed');
+
+    this.usersService.modifyBalance(session.id, purchaseBalanceDto.amount);
   }
 }

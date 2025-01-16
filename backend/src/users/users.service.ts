@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -22,9 +23,9 @@ export class UsersService {
 
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Password)
-    private passwordRepository: Repository<Password>
+    private readonly passwordRepository: Repository<Password>
   ) {}
 
   public async create(createUserDto: CreateUserDto): Promise<User> {
@@ -106,5 +107,20 @@ export class UsersService {
       throw new UnauthorizedException('insufficient permissions');
 
     await this.userRepository.softDelete({ id });
+  }
+
+  public async modifyBalance(
+    id: string,
+    amount: number
+  ): Promise<UpdateResult> {
+    const user = await this.findOne(id);
+
+    if (!user) throw new NotFoundException('user not found');
+
+    const result = user.balance + amount;
+
+    if (result < 0) throw new BadRequestException('not enough balance');
+
+    return await this.userRepository.update({ id }, { balance: result });
   }
 }
