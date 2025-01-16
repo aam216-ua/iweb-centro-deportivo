@@ -62,19 +62,19 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function rechargeBalance(amount: number) {
-  if (!user.value?.id) throw new Error("User not authenticated")
-  loading.value = true
-  error.value = null
-  try {
-    const updatedUser = await authService.rechargeBalance(amount)
-    user.value = updatedUser
-  } catch (err) {
-    error.value = "No se pudo recargar el saldo"
-    throw err
-  } finally {
-    loading.value = false
+    if (!user.value?.id) throw new Error("User not authenticated")
+    loading.value = true
+    error.value = null
+    try {
+      const updatedUser = await authService.rechargeBalance(amount)
+      user.value = updatedUser
+    } catch (err) {
+      error.value = "No se pudo recargar el saldo"
+      throw err
+    } finally {
+      loading.value = false
+    }
   }
-}
 
   async function updateProfile(userData: UpdateProfileData, id: string) {
     if (!user.value?.id) throw new Error("User not authenticated")

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import RechargeDialog from "@/components/RechargeDialog.vue"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,7 +18,6 @@ import { useAuthStore } from "@/stores/auth"
 import { Shield } from "lucide-vue-next"
 import { computed, ref } from "vue"
 import { useRouter } from "vue-router"
-import RechargeDialog from "@/components/RechargeDialog.vue"
 
 const props = defineProps<{
   buttonClass?: string
@@ -52,7 +52,7 @@ const userInitials = computed(() => {
 })
 
 defineOptions({
-  name: "UserMenu"
+  name: "UserMenu",
 })
 </script>
 
@@ -94,8 +94,5 @@ defineOptions({
     </DropdownMenuContent>
   </DropdownMenu>
 
-  <RechargeDialog
-    v-model:open="showRechargeDialog"
-    @recharge-complete="authStore.refreshUser()"
-  />
+  <RechargeDialog v-model:open="showRechargeDialog" @recharge-complete="authStore.refreshUser()" />
 </template>

@@ -121,7 +121,6 @@ onMounted(() => {
             </div>
           </CardContent>
         </Card>
-
       </section>
 
       <section v-else class="space-y-8 py-6">
@@ -143,86 +142,86 @@ onMounted(() => {
           </CardContent>
         </Card>
       </section>
-        <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">Instalaciones Destacadas</h2>
-          </div>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">Instalaciones Destacadas</h2>
+        </div>
 
-          <Carousel
-            class="w-full"
-            :opts="{
-              align: 'start',
-              loop: true,
-            }"
-            :plugins="[autoplayPlugin]"
-          >
-            <CarouselContent class="-ml-3">
-              <CarouselItem
-                v-for="venue in venues"
-                :key="venue.id"
-                class="pl-3 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 select-none"
-              >
-                <div class="group relative aspect-[16/9] overflow-hidden rounded-lg bg-muted">
-                  <img
-                    :src="getImagePath(venue.activity.name)"
-                    :alt="venue.activity.name"
-                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div
-                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
-                  >
-                    <div class="absolute inset-x-0 bottom-0 p-4">
-                      <div class="space-y-2">
-                        <div class="flex items-center gap-1.5">
-                          <Badge class="bg-primary/90 text-xs">
-                            {{ venue.activity.name }}
-                          </Badge>
-                        </div>
-                        <h3 class="text-base font-semibold text-white">{{ venue.name }}</h3>
-                        <p class="text-xs text-gray-300 line-clamp-2">
-                          {{ venue.description || "Sin descripción disponible" }}
-                        </p>
-                        <div class="flex items-center justify-between pt-1">
-                          <span class="text-sm font-medium text-white">
-                            {{ formatPrice(venue.fee) }}/h
-                          </span>
-                          <div class="flex items-center gap-1 text-gray-300">
-                            <Users class="h-3 w-3" />
-                            <span class="text-xs">{{ venue.capacity }}</span>
-                          </div>
+        <Carousel
+          class="w-full"
+          :opts="{
+            align: 'start',
+            loop: true,
+          }"
+          :plugins="[autoplayPlugin]"
+        >
+          <CarouselContent class="-ml-3">
+            <CarouselItem
+              v-for="venue in venues"
+              :key="venue.id"
+              class="pl-3 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 select-none"
+            >
+              <div class="group relative aspect-[16/9] overflow-hidden rounded-lg bg-muted">
+                <img
+                  :src="getImagePath(venue.activity.name)"
+                  :alt="venue.activity.name"
+                  class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
+                >
+                  <div class="absolute inset-x-0 bottom-0 p-4">
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-1.5">
+                        <Badge class="bg-primary/90 text-xs">
+                          {{ venue.activity.name }}
+                        </Badge>
+                      </div>
+                      <h3 class="text-base font-semibold text-white">{{ venue.name }}</h3>
+                      <p class="text-xs text-gray-300 line-clamp-2">
+                        {{ venue.description || "Sin descripción disponible" }}
+                      </p>
+                      <div class="flex items-center justify-between pt-1">
+                        <span class="text-sm font-medium text-white">
+                          {{ formatPrice(venue.fee) }}/h
+                        </span>
+                        <div class="flex items-center gap-1 text-gray-300">
+                          <Users class="h-3 w-3" />
+                          <span class="text-xs">{{ venue.capacity }}</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </CarouselItem>
-            </CarouselContent>
-            <CarouselPrevious class="hidden md:flex -left-3 h-8 w-8" />
-            <CarouselNext class="hidden md:flex -right-3 h-8 w-8" />
-          </Carousel>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-          <Card
-            v-for="(feature, index) in caracteristicas"
-            :key="index"
-            class="group border-0 bg-secondary/5 hover:bg-secondary/10 transition-colors"
-          >
-            <CardContent class="p-4">
-              <div class="flex gap-3 items-start">
-                <div
-                  class="rounded-full bg-secondary/10 p-2 group-hover:bg-secondary/20 transition-colors"
-                >
-                  <component :is="feature.icon" class="h-4 w-4" />
-                </div>
-                <div>
-                  <h3 class="font-medium text-sm mb-1">{{ feature.title }}</h3>
-                  <p class="text-xs text-muted-foreground">{{ feature.description }}</p>
-                </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious class="hidden md:flex -left-3 h-8 w-8" />
+          <CarouselNext class="hidden md:flex -right-3 h-8 w-8" />
+        </Carousel>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+        <Card
+          v-for="(feature, index) in caracteristicas"
+          :key="index"
+          class="group border-0 bg-secondary/5 hover:bg-secondary/10 transition-colors"
+        >
+          <CardContent class="p-4">
+            <div class="flex gap-3 items-start">
+              <div
+                class="rounded-full bg-secondary/10 p-2 group-hover:bg-secondary/20 transition-colors"
+              >
+                <component :is="feature.icon" class="h-4 w-4" />
+              </div>
+              <div>
+                <h3 class="font-medium text-sm mb-1">{{ feature.title }}</h3>
+                <p class="text-xs text-muted-foreground">{{ feature.description }}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   </div>
 </template>

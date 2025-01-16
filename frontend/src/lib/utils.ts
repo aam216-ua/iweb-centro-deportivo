@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from "clsx"
 import { Status } from "@/types/user"
+import { type ClassValue, clsx } from "clsx"
 import { ShieldAlert, UserCheck, UserCog } from "lucide-vue-next"
 import { twMerge } from "tailwind-merge"
 

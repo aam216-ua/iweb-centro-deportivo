@@ -57,6 +57,7 @@ import type { Venue } from "@/types/venue"
 import type { DateValue } from "@internationalized/date"
 import { getLocalTimeZone, today } from "@internationalized/date"
 import {
+  Ban,
   CalendarDays,
   CalendarIcon,
   Check,
@@ -67,7 +68,6 @@ import {
   Loader2,
   MapPin,
   Plus,
-  Trash2,
   User,
 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
@@ -108,7 +108,7 @@ const baseSteps = [
     title: "Pista",
     description: "Selecciona pista",
     icon: MapPin,
-  }
+  },
 ]
 
 const steps = computed(() => {
@@ -296,11 +296,10 @@ const isTimeSlotDisabled = (time: BookingTurn) => {
 
 const handleSubmit = async () => {
   if (!canProceed.value || !selectedTime.value || !auth.user) return
-if(      selectedVenue.value.fee > auth.user?.balance
-  ){
-      toast.error("Saldo insuficiente")
+  if (selectedVenue.value.fee > auth.user?.balance) {
+    toast.error("Saldo insuficiente")
 
-  return
+    return
   }
   const appointeeId = isStaff.value ? selectedUser.value?.id : auth.user.id
 
@@ -458,7 +457,7 @@ onMounted(async () => {
                           class="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
                           :disabled="!canCancelBooking(booking.date)"
                         >
-                          <Trash2 class="w-4 h-4" />
+                          <Ban class="w-4 h-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>

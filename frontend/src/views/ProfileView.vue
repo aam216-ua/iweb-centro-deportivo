@@ -1,18 +1,18 @@
 <script setup lang="ts">
+import RechargeDialog from "@/components/RechargeDialog.vue"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { getStatusConfig } from "@/lib/utils"
 import { usersService } from "@/services/user"
 import { useAuthStore } from "@/stores/auth"
 import type { User } from "@/types/user"
 import { Calendar, Mail, Phone, PlusCircle, RefreshCcw, Wallet } from "lucide-vue-next"
-import { getStatusConfig } from "@/lib/utils"
 import { computed, onMounted, ref } from "vue"
 import { useRoute } from "vue-router"
-import RechargeDialog from "@/components/RechargeDialog.vue"
 
 defineOptions({
-  name: "ProfileView"
+  name: "ProfileView",
 })
 
 const route = useRoute()
@@ -74,10 +74,7 @@ const formatDate = (date: Date) => {
                   {{ user?.role }}
                 </Badge>
                 <div v-if="statusConfig" class="flex items-center gap-2">
-                  <component
-                    :is="statusConfig.icon"
-                    :class="`h-4 w-4 ${statusConfig.color}`"
-                  />
+                  <component :is="statusConfig.icon" :class="`h-4 w-4 ${statusConfig.color}`" />
                   <span
                     :class="`inline-flex rounded-md px-2 py-1 text-xs font-medium ${statusConfig.bg} ${statusConfig.color}`"
                   >
@@ -115,7 +112,9 @@ const formatDate = (date: Date) => {
             <div>
               <p class="text-sm text-muted-foreground">Saldo Actual</p>
               <div class="flex items-center gap-2">
-                <p class="font-medium">{{ user?.balance !== undefined ? `€${user.balance.toFixed(2)}` : "-" }}</p>
+                <p class="font-medium">
+                  {{ user?.balance !== undefined ? `€${user.balance.toFixed(2)}` : "-" }}
+                </p>
                 <Button
                   v-if="user?.id === authStore.user?.id"
                   variant="ghost"
@@ -155,8 +154,6 @@ const formatDate = (date: Date) => {
       </section>
     </div>
 
-    <RechargeDialog
-      v-model:open="showRechargeDialog"
-    />
+    <RechargeDialog v-model:open="showRechargeDialog" />
   </div>
 </template>

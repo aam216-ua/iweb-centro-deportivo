@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useAuthStore } from "@/stores/auth"
-import { Loader2 } from "lucide-vue-next"
 import { z } from "@/lib/zod"
+import { useAuthStore } from "@/stores/auth"
 import { toTypedSchema } from "@vee-validate/zod"
+import { Loader2 } from "lucide-vue-next"
 import { useForm } from "vee-validate"
 import { ref } from "vue"
 import { toast } from "vue-sonner"
@@ -15,8 +21,11 @@ const PRESET_AMOUNTS = [5, 10, 20, 50, 100]
 
 const rechargeSchema = toTypedSchema(
   z.object({
-    amount: z.number().min(0.01, "El monto debe ser mayor a €0.01").max(999.99, "El monto máximo es €999.99")
-  })
+    amount: z
+      .number()
+      .min(0.01, "El monto debe ser mayor a €0.01")
+      .max(999.99, "El monto máximo es €999.99"),
+  }),
 )
 
 defineProps<{
@@ -34,12 +43,12 @@ const authStore = useAuthStore()
 const form = useForm({
   validationSchema: rechargeSchema,
   initialValues: {
-    amount: undefined
-  }
+    amount: undefined,
+  },
 })
 
 const handlePresetAmount = (amount: number) => {
-  form.setFieldValue('amount', amount)
+  form.setFieldValue("amount", amount)
 }
 
 const onSubmit = form.handleSubmit(async (values) => {
@@ -57,7 +66,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 })
 
 defineOptions({
-  name: "RechargeDialog"
+  name: "RechargeDialog",
 })
 </script>
 
@@ -78,10 +87,7 @@ defineOptions({
             :key="amount"
             type="button"
             variant="outline"
-            :class="[
-              'h-12',
-              form.values.amount === amount && 'border-primary bg-primary/10'
-            ]"
+            :class="['h-12', form.values.amount === amount && 'border-primary bg-primary/10']"
             @click="handlePresetAmount(amount)"
           >
             €{{ amount }}
@@ -93,7 +99,9 @@ defineOptions({
             <span class="w-full border-t" />
           </div>
           <div class="relative flex justify-center text-xs uppercase">
-            <span class="bg-background px-2 text-muted-foreground">O introduce un monto personalizado</span>
+            <span class="bg-background px-2 text-muted-foreground"
+              >O introduce un monto personalizado</span
+            >
           </div>
         </div>
 
@@ -103,7 +111,9 @@ defineOptions({
             <FormLabel>Cantidad (€)</FormLabel>
             <FormControl>
               <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">€</span>
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >€</span
+                >
                 <Input
                   v-bind="componentField"
                   type="number"
