@@ -126,8 +126,10 @@ export class BookingsController {
       throw new UnauthorizedException('insufficient permissions');
 
     // devolver el dinero para reservas futuras
-    if (booking.date > new Date())
+    if (new Date(booking.date) > new Date()) {
+      this.logger.debug(`Refunding $${booking.fee}`);
       await this.usersService.modifyBalance(booking.appointee.id, booking.fee);
+    }
 
     return await this.bookingsService.remove(id);
   }
